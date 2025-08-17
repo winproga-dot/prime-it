@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2, Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive, Fan, Layers3, MousePointerClick } from "lucide-react";
 import { KeyRound } from "lucide-react";
-const LOGO = "";
+const LOGO = "/logo.jpg";
 const ADMIN_PIN = "primeit"; // используйте ?admin=primeit для входа в режим администратора
 
 const BRAND = {
