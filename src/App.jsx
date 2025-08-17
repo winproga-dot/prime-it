@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2, Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive, Fan, Layers3, MousePointerClick } from "lucide-react";
 import { KeyRound } from "lucide-react";
 
-// ЛОГО: лежит в public/logo.jpg (или поменяйте на .png)
+// ЛОГО: лежит в public/logo.jpg (можно сменить на .png)
 const LOGO = "/logo.jpg";
 
 const BRAND = {
@@ -60,13 +59,12 @@ const FAQ = [
 
 function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; }
 
-// Резервная картинка, если всё сломалось
+// Резервная картинка
 function placeholder(text){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0ea5e9' offset='0'/><stop stop-color='#10b981' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' font-family='Inter,Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'>${text}</text></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
-
-// Тематический запасной источник
+// Тематический запасной источник (если файлов нет)
 function imgForService(id){
   const m = {
     winms:"windows,computer,setup", clean:"laptop,cleaning,fan", gpu_service:"graphics-card,gpu,pc",
@@ -77,7 +75,6 @@ function imgForService(id){
   const q = m[id] || "computer,repair";
   return `https://source.unsplash.com/640x420/?${q}`;
 }
-
 // === Картинки услуг из public/services с авто-поиском расширений ===
 const SERVICE_EXTS = ["png", "webp", "jpg", "jpeg"];
 const serviceSrcStart = (id) => `/services/${id}.${SERVICE_EXTS[0]}`;
@@ -146,22 +143,9 @@ export default function Landing(){
         </div>
       </header>
 
-      {showPromo && (
-        <div className="bg-emerald-500/15 border-y border-emerald-400/20">
-          <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col md:flex-row items-center gap-3 md:gap-4 justify-between">
-            <div className="flex items-center gap-2 text-sm md:text-base"><Star className="h-4 w-4"/><b>−10% за отзыв в 2GIS</b></div>
-            <div className="flex items-center gap-2">
-              <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="rounded-xl border border-white/15 px-3 py-1.5 text-sm hover:bg-white/10">Оставить отзыв</a>
-              <a href={whatsappLink} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-1.5 text-sm font-semibold hover:bg-emerald-400">Записаться</a>
-              <button onClick={()=>setShowPromo(false)} className="text-white/60 text-sm underline decoration-dotted">Скрыть</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <section className="mx-auto max-w-7xl px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
         <div>
-          <motion.h1 initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:.5}} className="text-3xl md:text-5xl font-extrabold leading-tight">Ремонт ПК и ноутбуков в {BRAND.city}</motion.h1>
+          <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">Ремонт ПК и ноутбуков в {BRAND.city}</h1>
           <p className="mt-4 text-white/70 text-base md:text-lg">Установим Windows, почистим от пыли, ускорим ноутбук SSD и решим любые проблемы с техникой. Честные цены и гарантия.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 px-5 py-3 font-semibold">Посмотреть цены <ChevronRight className="h-4 w-4"/></a>
@@ -191,7 +175,7 @@ export default function Landing(){
             <div key={s.id} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col">
               <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
                 <img
-                  src={serviceSrcStart(s.id)}
+                  src={`/services/${s.id}.png`}
                   data-ext-idx="0"
                   alt={s.title}
                   loading="lazy"
@@ -236,7 +220,7 @@ export default function Landing(){
               <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={rush} onChange={()=>setRush(!rush)} /><div><div className="font-medium">Срочно сегодня</div><div className="text-xs text-white/60">+20% к стоимости</div></div></label>
               <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium">Выезд мастера</div><div className="text-xs text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
             </div>
-            <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+            <div className="mt-6 flex items中心 justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
               <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
               <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Оформить заявку в WhatsApp <ChevronRight className="h-4 w-4"/></a>
             </div>
@@ -247,7 +231,7 @@ export default function Landing(){
               <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Оплата после результата.</li>
               <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Делаем до конца — не уходим, пока всё не работает.</li>
               <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Прозрачные цены — без скрытых платежей.</li>
-              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Опыт в сборке и апгрейде игровых ПК.</li>
+              <li className="flex gap-2"><CheckCircle2 className="h-4 в-4 mt-0.5 text-emerald-400"/> Опыт в сборке и апгрейде игровых ПК.</li>
               <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Бережная разборка, фотоотчёт по желанию.</li>
             </ul>
           </div>
@@ -279,7 +263,7 @@ export default function Landing(){
         </ul>
       </section>
 
-      {/* ОТЗЫВЫ — горизонтальная прокрутка, видно ~3 */}
+      {/* ОТЗЫВЫ — горизонтальная прокрутка */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <h2 className="text-2xl md:text-3xl font-bold">Отзывы клиентов</h2>
         <div className="mt-6 overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] no-scrollbar">
