@@ -95,6 +95,19 @@ const handleServiceError = (id) => (e) => {
   el.onerror = null;
   el.src = placeholder(id);
 };
+// Иконка программы/лицензии (Windows/Office/Autodesk/Adobe и т.д.)
+function ProgramIcon({ type }) {
+  let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
+  let label = "•";
+  if (type === "windows") { classes += "bg-sky-500/30 ring-sky-400/40"; label = "W"; }
+  else if (type === "office") { classes += "bg-orange-500/30 ring-orange-400/40"; label = "O"; }
+  else if (type === "autodesk") { classes += "bg-teal-500/30 ring-teal-400/40"; label = "A"; }
+  else if (type === "adobe") { classes += "bg-red-500/30 ring-red-400/40"; label = "A"; }
+  else if (type === "kaspersky") { classes += "bg-green-500/30 ring-green-400/40"; label = "K"; }
+  else if (type === "eset") { classes += "bg-cyan-500/30 ring-cyan-400/40"; label = "E"; }
+  else { classes += "bg-white/10 ring-white/20"; label = "•"; }
+  return <div className={classes} aria-label={type}>{label}</div>;
+}
 
 export default function Landing(){
   const [selected, setSelected] = useState(()=>new Set(["winms","clean"]));
