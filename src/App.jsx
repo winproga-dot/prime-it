@@ -1,9 +1,10 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2, Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive, Fan, Layers3, MousePointerClick } from "lucide-react";
 import { KeyRound } from "lucide-react";
+
+// ЛОГО: лежит в public/logo.jpg (или поменяйте на .png)
 const LOGO = "/logo.jpg";
-const ADMIN_PIN = "primeit"; // используйте ?admin=primeit для входа в режим администратора
 
 const BRAND = {
   name: "PRIME IT",
@@ -59,6 +60,13 @@ const FAQ = [
 
 function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; }
 
+// Резервная картинка, если всё сломалось
+function placeholder(text){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0ea5e9' offset='0'/><stop stop-color='#10b981' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' font-family='Inter,Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'>${text}</text></svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+// Тематический запасной источник
 function imgForService(id){
   const m = {
     winms:"windows,computer,setup", clean:"laptop,cleaning,fan", gpu_service:"graphics-card,gpu,pc",
@@ -70,23 +78,26 @@ function imgForService(id){
   return `https://source.unsplash.com/640x420/?${q}`;
 }
 
-function placeholder(text){
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0ea5e9' offset='0'/><stop stop-color='#10b981' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' font-family='Inter,Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'>${text}</text></svg>`;
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
-}
-
-function ProgramIcon({ type }) {
-  let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
-  let label = "•";
-  if (type==='windows'){classes+="bg-sky-500/30 ring-sky-400/40"; label='W';}
-  else if (type==='office'){classes+="bg-orange-500/30 ring-orange-400/40"; label='O';}
-  else if (type==='autodesk'){classes+="bg-teal-500/30 ring-teal-400/40"; label='A';}
-  else if (type==='adobe'){classes+="bg-red-500/30 ring-red-400/40"; label='A';}
-  else if (type==='kaspersky'){classes+="bg-green-500/30 ring-green-400/40"; label='K';}
-  else if (type==='eset'){classes+="bg-cyan-500/30 ring-cyan-400/40"; label='E';}
-  else {classes+="bg-white/10 ring-white/20"; label='•';}
-  return <div className={classes}>{label}</div>;
-}
+// === Картинки услуг из public/services с авто-поиском расширений ===
+const SERVICE_EXTS = ["png", "webp", "jpg", "jpeg"];
+const serviceSrcStart = (id) => `/services/${id}.${SERVICE_EXTS[0]}`;
+const handleServiceError = (id) => (e) => {
+  const el = e.currentTarget;
+  const idx = Number(el.dataset.extIdx || 0);
+  if (idx < SERVICE_EXTS.length - 1) {
+    const nextIdx = idx + 1;
+    el.dataset.extIdx = String(nextIdx);
+    el.src = `/services/${id}.${SERVICE_EXTS[nextIdx]}`;
+    return;
+  }
+  if (!el.dataset.triedUnsplash) {
+    el.dataset.triedUnsplash = "1";
+    el.src = imgForService(id);
+    return;
+  }
+  el.onerror = null;
+  el.src = placeholder(id);
+};
 
 export default function Landing(){
   const [selected, setSelected] = useState(()=>new Set(["winms","clean"]));
@@ -113,8 +124,13 @@ export default function Landing(){
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10"><Wrench className="h-5 w-5"/></span>
-            <div><div className="text-lg font-semibold">{BRAND.name}</div><div className="text-xs text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div></div>
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+              <img src={LOGO} alt={BRAND.name} className="h-10 w-10 object-contain" />
+            </span>
+            <div>
+              <div className="text-lg font-semibold">{BRAND.name}</div>
+              <div className="text-xs text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div>
+            </div>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm">
             <a href="#services" className="hover:text-white/90 text-white/70">Услуги</a>
@@ -174,12 +190,30 @@ export default function Landing(){
           {SERVICES.map(s=>(
             <div key={s.id} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col">
               <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
-                <img src={imgForService(s.id)} alt={s.title} loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder(s.title); e.currentTarget.onerror=null;}} className="w-full h-full object-cover"/>
+                <img
+                  src={serviceSrcStart(s.id)}
+                  data-ext-idx="0"
+                  alt={s.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={handleServiceError(s.id)}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="flex items-center gap-3"><s.icon className="h-6 w-6"/><div className="font-semibold leading-tight">{s.title}</div>{s.badge && <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">{s.badge}</span>}</div>
+              <div className="flex items-center gap-3">
+                <s.icon className="h-6 w-6"/>
+                <div className="font-semibold leading-tight">{s.title}</div>
+                {s.badge && <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">{s.badge}</span>}
+              </div>
               <p className="mt-3 text-sm text-white/70">{s.desc}</p>
-              <div className="mt-4 flex items-center gap-2 text-base font-semibold">{s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}<span>{currency(s.price)}</span>{s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}</div>
-              <button onClick={()=>toggle(s.id)} className={`mt-4 inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"}`}>{selected.has(s.id)?<CheckCircle2 className="h-4 w-4 mr-2"/>:<Sparkles className="h-4 w-4 mr-2"/>} Добавить в заказ</button>
+              <div className="mt-4 flex items-center gap-2 text-base font-semibold">
+                {s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}
+                <span>{currency(s.price)}</span>
+                {s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}
+              </div>
+              <button onClick={()=>toggle(s.id)} className={`mt-4 inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"}`}>
+                {selected.has(s.id)?<CheckCircle2 className="h-4 w-4 mr-2"/>:<Sparkles className="h-4 w-4 mr-2"/>} Добавить в заказ
+              </button>
             </div>
           ))}
         </div>
@@ -245,22 +279,44 @@ export default function Landing(){
         </ul>
       </section>
 
+      {/* ОТЗЫВЫ — горизонтальная прокрутка, видно ~3 */}
       <section className="mx-auto max-w-7xl px-4 py-12">
         <h2 className="text-2xl md:text-3xl font-bold">Отзывы клиентов</h2>
-        <div className="mt-6 max-h-[380px] overflow-y-auto pr-2">
-          <div className="grid md:grid-cols-3 gap-4">
+        <div className="mt-6 overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] no-scrollbar">
+          <div className="flex gap-4">
             {[
               { name: "Акулина Романовна", text: "Муса — отличный специалист. Проблему выявил сразу, компьютер заработал. Рекомендую!", rating: 5 },
               { name: "Ринами́", text: "Качественно сделал работу и быстро ответил. За час диагностика и решение — 5 звёзд.", rating: 5 },
               { name: "Kudret Sultan", text: "Писал в 23:30 — ответили чётко по делу. Лучший!", rating: 5 },
+              { name: "Куралай Байгожанова", text: "Быстро помогли с проблемой. Сервис и мастера своего дела!", rating: 5 },
+              { name: "Aisana Azamat", text: "Устанавливала Office, Revit, AutoCAD удалённо — всё за считанные минуты.", rating: 5 },
+              { name: "Sergey Batalov", text: "Чистка и замена термопасты — быстро и профессионально. Рекомендую.", rating: 5 },
+              { name: "Нина Петрищева", text: "Срочно ночью исправили систему, все файлы сохранили. Однозначно рекомендую.", rating: 5 },
+              { name: "Parizat Turganova", text: "Вечером установили Windows и программы, проблему со звуком решили быстро.", rating: 5 },
+              { name: "John Tim", text: "Needed quick laptop service during my trip — very professional, highly recommend.", rating: 5 },
             ].map((r,i)=>(
-              <div key={i} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
-                <div className="flex items-center gap-2">{Array.from({length:r.rating}).map((_,j)=>(<Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400"/>))}</div>
+              <div key={i} className="snap-start min-w-[280px] md:min-w-[32%] rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+                <div className="flex items-center gap-2">
+                  {Array.from({length:r.rating}).map((_,j)=>(<Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400"/>))}
+                </div>
                 <p className="mt-3 text-sm text-white/80">{r.text}</p>
                 <div className="mt-4 text-sm text-white/60">— {r.name}</div>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="mx-auto max-w-7xl px-4 py-12">
+        <h2 className="text-2xl md:text-3xl font-bold">Вопросы и ответы</h2>
+        <div className="mt-6 grid md:grid-cols-2 gap-4">
+          {FAQ.map((f, i) => (
+            <div key={i} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+              <div className="font-semibold">{f.q}</div>
+              <div className="mt-2 text-sm text-white/70">{f.a}</div>
+            </div>
+          ))}
         </div>
       </section>
 
