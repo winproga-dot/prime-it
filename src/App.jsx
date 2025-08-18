@@ -2,7 +2,7 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2,
   Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive,
-  Fan, Layers3, MousePointerClick, KeyRound
+  Fan, Layers3, MousePointerClick, KeyRound, ChevronUp
 } from "lucide-react";
 
 // логотип (положи в public/logo.jpg или замени путь)
@@ -20,7 +20,7 @@ const BRAND = {
   email: "prime.it.08@gmail.com",
 };
 
-// Порядок: подняли 'soft' выше, 'speedup' ниже
+// Порядок: 'soft' выше, 'speedup' ниже
 const SERVICES = [
   { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"от", badge:"Популярно" },
   { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от" },
@@ -55,6 +55,11 @@ const BENEFITS = [
 const FAQ = [
   { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
   { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
+  { q:"Можно ли сохранить данные при переустановке Windows?", a:"Да, делаем резервную копию и переносим важные файлы, если носитель в порядке." },
+  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные ключи и программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
+  { q:"Как оплачивать?", a:"Наличные, Kaspi QR, Kaspi перевод, банковские карты (POS), безнал — счёт на компанию." },
+  { q:"Гарантия на работы?", a:"До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика." },
+  { q:"График работы?", a:"Без выходных, с 10:00 до 20:00." },
 ];
 
 function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; }
@@ -83,20 +88,33 @@ const handleServiceError = (id) => (e) => {
   el.src = placeholder(id);
 };
 
-// Иконки для блока лицензий
-function ProgramIcon({ type }) {
-  let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
-  let label = "•";
-  if (type==='windows'){classes+="bg-sky-500/30 ring-sky-400/40"; label='W';}
-  else if (type==='office'){classes+="bg-orange-500/30 ring-orange-400/40"; label='O';}
-  else if (type==='autodesk'){classes+="bg-teal-500/30 ring-teal-400/40"; label='A';}
-  else if (type==='adobe'){classes+="bg-red-500/30 ring-red-400/40"; label='A';}
-  else if (type==='kaspersky'){classes+="bg-green-500/30 ring-green-400/40"; label='K';}
-  else {classes+="bg-white/10 ring-white/20"; label='•';}
-  return <div className={classes} aria-label={type}>{label}</div>;
+// Небольшой компонент для появлений при прокрутке (без сторонних библиотек)
+function Reveal({ children, className = "", delay = 0, variant = "up" }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { el.classList.add("reveal-in"); io.unobserve(el); }
+      }),
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className={`reveal-base reveal-${variant} ${className}`}
+      style={{ transitionDelay: `${delay}s` }}
+    >
+      {children}
+    </div>
+  );
 }
 
-// Универсальная карточка услуги (используется в сетке и в ленте)
+// Универсальная карточка услуги
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
     <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
@@ -141,10 +159,10 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
 }
 
 export default function Landing(){
-  const [selected, setSelected] = useState(()=>new Set(["winms","clean"]));
+  // по умолчанию отмечена только Windows
+  const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
-  const [photoReport, setPhotoReport] = useState(false); // уникальность: фотоотчёт бесплатно
   const [showLicenses, setShowLicenses] = useState(false);
 
   const moreRef = useRef(null);
@@ -164,6 +182,16 @@ export default function Landing(){
     return () => clearInterval(id);
   }, [isHoverMore]);
 
+  // кнопка "вверх"
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 500);
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
@@ -174,11 +202,21 @@ export default function Landing(){
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
   const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
-    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${[...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nФотоотчёт: ${photoReport?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
+    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${[...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
   )}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* ВСТРАИВАЕМ CSS АНИМАЦИЙ */}
+      <style>{`
+        .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
+        .reveal-right{transform:translateX(16px)}
+        .reveal-scale{transform:scale(.98)}
+        .reveal-in{opacity:1; transform:none}
+        @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
+      `}</style>
+
       {/*HEADER*/}
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
@@ -207,27 +245,31 @@ export default function Landing(){
 
       {/*HERO*/}
       <section className="mx-auto max-w-7xl px-4 py-16 md:py-20 grid md:grid-cols-2 gap-10 items-center">
-        <div>
+        <Reveal>
           <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">Ремонт ПК и ноутбуков в {BRAND.city}</h1>
           <p className="mt-4 text-white/70 text-base md:text-lg">Windows, чистка от пыли, ускорение SSD/ОЗУ, видеокарты, сборка и лицензии. Честные цены и гарантия.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 px-5 py-3 font-semibold">Посмотреть цены <ChevronRight className="h-4 w-4"/></a>
             <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-5 py-3 font-semibold hover:bg-white/10">Записаться <MousePointerClick className="h-4 w-4"/></a>
           </div>
-        </div>
-        <div className="aspect-video rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-          <img src="https://source.unsplash.com/960x600/?computer,repair,workshop" alt="Ремонт компьютеров" loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder('PRIME IT'); e.currentTarget.onerror=null;}} className="w-full h-full object-cover" fetchpriority="high"/>
-        </div>
+        </Reveal>
+        <Reveal variant="scale">
+          <div className="aspect-video rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+            <img src="https://source.unsplash.com/960x600/?computer,repair,workshop" alt="Ремонт компьютеров" loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder('PRIME IT'); e.currentTarget.onerror=null;}} className="w-full h-full object-cover" fetchpriority="high"/>
+          </div>
+        </Reveal>
       </section>
 
       {/*BENEFITS*/}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid md:grid-cols-4 gap-4">
           {BENEFITS.map((b,i)=>(
-            <div key={i} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
-              <div className="flex items-center gap-3"><b.icon className="h-5 w-5"/><div className="font-semibold">{b.title}</div></div>
-              <div className="mt-2 text-white/70 text-sm">{b.text}</div>
-            </div>
+            <Reveal key={i} delay={i*0.05}>
+              <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+                <div className="flex items-center gap-3"><b.icon className="h-5 w-5"/><div className="font-semibold">{b.title}</div></div>
+                <div className="mt-2 text-white/70 text-sm">{b.text}</div>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -240,8 +282,10 @@ export default function Landing(){
         </div>
 
         <div className="mt-6 grid md:grid-cols-3 gap-4">
-          {SERVICES.slice(0, 6).map((s) => (
-            <ServiceCard key={s.id} s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+          {SERVICES.slice(0, 6).map((s, i) => (
+            <Reveal key={s.id} delay={i*0.05}>
+              <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+            </Reveal>
           ))}
         </div>
 
@@ -260,9 +304,11 @@ export default function Landing(){
               onMouseLeave={() => setIsHoverMore(false)}
               className="overflow-x-auto flex gap-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing"
             >
-              {SERVICES.slice(6).map((s) => (
+              {SERVICES.slice(6).map((s, i) => (
                 <div key={s.id} className="snap-start">
-                  <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+                  <Reveal delay={i*0.03}>
+                    <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+                  </Reveal>
                 </div>
               ))}
             </div>
@@ -273,99 +319,112 @@ export default function Landing(){
       {/*PRICING CALC*/}
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-            <h3 className="text-xl md:text-2xl font-bold">Калькулятор стоимости</h3>
-            <p className="mt-1 text-white/70 text-sm">Ориентировочно. Точную цену подтверждаем после диагностики.</p>
+          <Reveal className="lg:col-span-2">
+            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+              <h3 className="text-xl md:text-2xl font-bold">Калькулятор стоимости</h3>
+              <p className="mt-1 text-white/70 text-sm">Ориентировочно. Точную цену подтверждаем после диагностики.</p>
 
-            <div className="mt-4 grid md:grid-cols-2 gap-3">
-              {SERVICES.map(s=>(
-                <label key={s.id} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
-                  <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
-                  <div className="flex-1">
-                    <div className="font-medium leading-tight">{s.title}</div>
-                    <div className="text-xs text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
-                  </div>
-                </label>
-              ))}
+              <div className="mt-4 grid md:grid-cols-2 gap-3">
+                {SERVICES.map(s=>(
+                  <label key={s.id} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
+                    <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
+                    <div className="flex-1">
+                      <div className="font-medium leading-tight">{s.title}</div>
+                      <div className="text-xs text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              <div className="mt-4 grid md:grid-cols-2 gap-3">
+                <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={rush} onChange={()=>setRush(!rush)} /><div><div className="font-medium">Срочно сегодня</div><div className="text-xs text-white/60">+20% к стоимости</div></div></label>
+                <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium">Выезд мастера</div><div className="text-xs text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
+              </div>
+
+              <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+                <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
+                <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/></a>
+              </div>
             </div>
+          </Reveal>
 
-            <div className="mt-4 grid md:grid-cols-3 gap-3">
-              <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={rush} onChange={()=>setRush(!rush)} /><div><div className="font-medium">Срочно сегодня</div><div className="text-xs text-white/60">+20% к стоимости</div></div></label>
-              <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium">Выезд мастера</div><div className="text-xs text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
-              <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={photoReport} onChange={()=>setPhotoReport(!photoReport)} /><div><div className="font-medium">Фотоотчёт (до/после)</div><div className="text-xs text-white/60">Бесплатно, по желанию</div></div></label>
+          <Reveal>
+            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+              <h3 className="text-xl font-bold">Почему {BRAND.name}</h3>
+              <ul className="mt-3 space-y-3 text-sm">
+                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Оплата после результата.</li>
+                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Делаем до конца — не уходим, пока всё не работает.</li>
+                <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Прозрачные цены, без навязывания.</li>
+              </ul>
             </div>
-
-            <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
-              <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
-              <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/></a>
-            </div>
-          </div>
-
-          <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-            <h3 className="text-xl font-bold">Почему {BRAND.name}</h3>
-            <ul className="mt-3 space-y-3 text-sm">
-              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Оплата после результата.</li>
-              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Делаем до конца — не уходим, пока всё не работает.</li>
-              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 mt-0.5 text-emerald-400"/> Прозрачные цены, без навязывания.</li>
-            </ul>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/*LICENSES*/}
       <section id="licenses" className="mx-auto max-w-7xl px-4 py-12">
-        <h2 className="text-2xl md:text-3xl font-bold">Лицензионные ключи</h2>
-        <p className="mt-1 text-white/70 text-sm">Windows, Office, Autodesk, Adobe, антивирусы — можем установить удалённо через AnyDesk.</p>
-        <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {LICENSES.map((l,i)=>(
-            <div key={i} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex items-center gap-4">
-              <ProgramIcon type={l.key}/>
-              <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
-              <div className="text-sm text-white/80 w-28">{l.price}</div>
-              <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
-            </div>
-          ))}
-        </div>
+        <Reveal>
+          <h2 className="text-2xl md:text-3xl font-bold">Лицензионные ключи</h2>
+          <p className="mt-1 text-white/70 text-sm">Windows, Office, Autodesk, Adobe, антивирусы — можем установить удалённо через AnyDesk.</p>
+          <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {LICENSES.map((l,i)=>(
+              <Reveal key={i} delay={i*0.05}>
+                <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex items-center gap-4">
+                  <ProgramIcon type={l.key}/>
+                  <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
+                  <div className="text-sm text-white/80 w-28">{l.price}</div>
+                  <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/*FAQ*/}
       <section id="faq" className="mx-auto max-w-7xl px-4 py-10">
-        <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
-        <div className="mt-4 divide-y divide-white/10 rounded-3xl bg-white/5 ring-1 ring-white/10">
-          {FAQ.map((f,i)=>(
-            <div key={i} className="p-5">
-              <div className="font-semibold">{f.q}</div>
-              <div className="text-sm text-white/70 mt-1">{f.a}</div>
-            </div>
-          ))}
-        </div>
+        <Reveal>
+          <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
+          <div className="mt-4 divide-y divide-white/10 rounded-3xl bg-white/5 ring-1 ring-white/10">
+            {FAQ.map((f,i)=>(
+              <div key={i} className="p-5">
+                <div className="font-semibold">{f.q}</div>
+                <div className="text-sm text-white/70 mt-1">{f.a}</div>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/*CONTACT*/}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-            <h2 className="text-2xl font-bold">Связаться</h2>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
-              <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
-              <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
-              <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
+          <Reveal className="md:col-span-2">
+            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+              <h2 className="text-2xl font-bold">Связаться</h2>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+                <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
+                <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
+                <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
+              </div>
+              <div className="mt-5 text-sm text-white/70 space-y-1">
+                <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
+                <div>Тел.: {BRAND.phoneDisplay}</div>
+                <div>Email: {BRAND.email}</div>
+              </div>
             </div>
-            <div className="mt-5 text-sm text-white/70 space-y-1">
-              <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
-              <div>Тел.: {BRAND.phoneDisplay}</div>
-              <div>Email: {BRAND.email}</div>
+          </Reveal>
+          <Reveal>
+            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+              <h3 className="text-lg font-bold">График</h3>
+              <ul className="mt-3 text-sm text-white/80 space-y-1"><li>Без выходных: 10:00–20:00</li></ul>
+              <h3 className="mt-6 text-lg font-bold">Оплата</h3>
+              <ul className="mt-3 text-sm text-white/80 space-y-1">
+                <li>Наличные</li><li>Kaspi QR</li><li>Kaspi перевод</li><li>Банковские карты (POS)</li><li>Безнал: счёт на компанию</li>
+              </ul>
             </div>
-          </div>
-          <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-            <h3 className="text-lg font-bold">График</h3>
-            <ul className="mt-3 text-sm text-white/80 space-y-1"><li>Без выходных: 10:00–20:00</li></ul>
-            <h3 className="mt-6 text-lg font-bold">Оплата</h3>
-            <ul className="mt-3 text-sm text-white/80 space-y-1">
-              <li>Наличные</li><li>Kaspi QR</li><li>Kaspi перевод</li><li>Банковские карты (POS)</li><li>Безнал: счёт на компанию</li>
-            </ul>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -401,6 +460,17 @@ export default function Landing(){
       )}
 
       {/*Плавающие кнопки*/}
+      {/* Кнопка вверх — появляется после прокрутки, чуть "дышит" */}
+      {showTop && (
+        <button
+          onClick={scrollTop}
+          className="fixed bottom-24 right-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20 btn-floaty"
+          aria-label="Наверх"
+          title="Наверх"
+        >
+          <ChevronUp className="h-5 w-5"/> Наверх
+        </button>
+      )}
       <a href={whatsappLink} target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-lg hover:bg-emerald-400"><MessageSquare className="h-5 w-5"/> WhatsApp</a>
       <button onClick={()=>setShowLicenses(true)} className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"><KeyRound className="h-5 w-5"/> Ключи</button>
     </div>
