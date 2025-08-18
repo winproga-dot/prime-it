@@ -259,24 +259,70 @@ export default function Landing(){
         </div>
       </header>
 
-      {/*HERO*/}
-      <section className="mx-auto max-w-7xl px-4 py-16 md:py-20 grid md:grid-cols-2 gap-10 items-center">
-        <Reveal>
-          <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">Ремонт ПК и ноутбуков в {BRAND.city}</h1>
-          <p className="mt-4 text-white/70 text-base md:text-lg">Windows, чистка от пыли, ускорение SSD/ОЗУ, видеокарты, сборка и лицензии. Честные цены и гарантия.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 px-5 py-3 font-semibold">Посмотреть цены <ChevronRight className="h-4 w-4"/></a>
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-5 py-3 font-semibold hover:bg-white/10">Записаться <MousePointerClick className="h-4 w-4"/></a>
-          </div>
-        </Reveal>
-        <Reveal variant="scale">
-          <div className="relative aspect-video rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-            {/* мягкая «неоновая» пульсация под фото */}
-            <div className="absolute -inset-12 bg-gradient-to-tr from-emerald-500/15 via-sky-500/10 to-fuchsia-500/10 blur-3xl blob-anim pointer-events-none" />
-            <img src="https://source.unsplash.com/960x600/?computer,repair,workshop" alt="Ремонт компьютеров" loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder('PRIME IT'); e.currentTarget.onerror=null;}} className="relative w-full h-full object-cover"/>
-          </div>
-        </Reveal>
-      </section>
+      {/* HERO — полноэкранный видеобаннер */}
+<section id="hero" className="relative">
+  {/* ВИДЕО-ФОН */}
+  <div className="absolute inset-0 overflow-hidden">
+    <video
+      className="w-full h-full object-cover"
+      autoPlay
+      muted
+      playsInline
+      preload="metadata"
+      poster="/hero.webp"  // можно удалить, если постера нет
+      onEnded={(e) => {
+        // не зацикливаем — фиксируемся на финальном кадре
+        const v = e.currentTarget;
+        v.currentTime = Math.max(0, v.duration - 0.02);
+        v.pause();
+      }}
+    >
+      <source src="/hero.mp4" type="video/mp4" />
+    </video>
+
+    {/* затемняющий градиент для читабельности текста */}
+    <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80" />
+    {/* мягкая «неоновая» подложка в фирменных цветах */}
+    <div className="absolute -inset-16 bg-gradient-to-tr from-emerald-500/25 via-sky-500/15 to-fuchsia-500/15 blur-3xl opacity-60 pointer-events-none blob-anim" />
+  </div>
+
+  {/* КОНТЕНТ */}
+  <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
+    <div className="max-w-2xl">
+      <Reveal>
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+          Ремонт ПК и ноутбуков в {BRAND.city}
+        </h1>
+      </Reveal>
+
+      <Reveal delay={0.08}>
+        <p className="mt-4 text-white/80 text-lg md:text-xl">
+          Установим Windows, почистим от пыли, ускорим SSD/ОЗУ, обслужим видеокарту.
+          Честные цены и гарантия.
+        </p>
+      </Reveal>
+
+      <Reveal delay={0.16}>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a
+            href="#pricing"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 px-5 py-3 font-semibold shadow-lg transition hover:-translate-y-0.5"
+          >
+            Посмотреть цены <ChevronRight className="h-4 w-4"/>
+          </a>
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-5 py-3 font-semibold hover:bg-white/10 btn-floaty"
+          >
+            Записаться <MousePointerClick className="h-4 w-4"/>
+          </a>
+        </div>
+      </Reveal>
+    </div>
+  </div>
+</section>
 
       {/*BENEFITS*/}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
