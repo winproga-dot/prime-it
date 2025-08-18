@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2,
   Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive,
@@ -99,7 +99,7 @@ function ProgramIcon({ type }) {
 // Универсальная карточка услуги (используется в сетке и в ленте)
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
-    <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col">
+    <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
       <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
         <img
           src={`/services/${s.id}.png`}
@@ -149,6 +149,20 @@ export default function Landing(){
 
   const moreRef = useRef(null);
   const scrollMore = (dx) => moreRef.current?.scrollBy({ left: dx, behavior: "smooth" });
+
+  // авто-прокрутка ленты «Ещё услуги» с паузой при наведении
+  const [isHoverMore, setIsHoverMore] = useState(false);
+  useEffect(() => {
+    const el = moreRef.current;
+    if (!el) return;
+    const id = setInterval(() => {
+      if (isHoverMore) return;
+      const nearEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 12;
+      if (nearEnd) el.scrollTo({ left: 0, behavior: "smooth" });
+      else el.scrollBy({ left: 320, behavior: "smooth" });
+    }, 2800);
+    return () => clearInterval(id);
+  }, [isHoverMore]);
 
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
@@ -240,7 +254,12 @@ export default function Landing(){
                 <button onClick={() => scrollMore(400)} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
               </div>
             </div>
-            <div ref={moreRef} className="overflow-x-auto flex gap-4 snap-x snap-mandatory">
+            <div
+              ref={moreRef}
+              onMouseEnter={() => setIsHoverMore(true)}
+              onMouseLeave={() => setIsHoverMore(false)}
+              className="overflow-x-auto flex gap-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing"
+            >
               {SERVICES.slice(6).map((s) => (
                 <div key={s.id} className="snap-start">
                   <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
