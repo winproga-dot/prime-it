@@ -463,55 +463,53 @@ export default function Landing(){
       </section>
 
       {/*CONTACT*/}
-      <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid md:grid-cols-3 gap-6">
-          <Reveal className="md:col-span-2">
-            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-              <h2 className="text-2xl font-bold">Связаться</h2>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
-                <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
-                <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
-                <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
-              </div>
-              <div className="mt-5 text-sm text-white/70 space-y-1">
-                <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
-                <div>Тел.: {BRAND.phoneDisplay}</div>
-                <div>Email: {BRAND.email}</div>
-              </div>
-            </div>
-          </Reveal>
+<section id="contact" className="mx-auto max-w-7xl px-4 py-12">
+  <div className="grid md:grid-cols-1 gap-6">{/* было md:grid-cols-3 */}
+    <Reveal>
+      <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+        <h2 className="text-2xl font-bold">Связаться</h2>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <a
+            href={whatsappLink}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"
+          >
+            <MessageSquare className="h-4 w-4"/> WhatsApp
+          </a>
+          <a
+            href={`tel:${BRAND.phoneTel}`}
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"
+          >
+            <Phone className="h-4 w-4"/> {BRAND.phoneDisplay}
+          </a>
+          <a
+            href={`mailto:${BRAND.email}`}
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"
+          >
+            Email: {BRAND.email}
+          </a>
+          <a
+            href={BRAND.map2gis}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"
+          >
+            <MapPin className="h-4 w-4"/> 2GIS (Маршрут)
+          </a>
+        </div>
 
-          <Reveal>
-  <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-    <h3 className="text-lg font-bold">Как нас найти</h3>
-    <div className="mt-3 text-sm text-white/80 flex items-start gap-2">
-      <MapPin className="h-4 w-4 mt-0.5"/>{BRAND.address}
-    </div>
-    <div className="mt-4 flex flex-wrap gap-2">
-      <a
-        href={BRAND.map2gis}
-        target="_blank"
-        rel="noreferrer"
-        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
-      >
-        Открыть в 2ГИС
-      </a>
-      <a
-        href={`tel:${BRAND.phoneTel}`}
-        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
-      >
-        Позвонить: {BRAND.phoneDisplay}
-      </a>
-      <a
-        href={`mailto:${BRAND.email}`}
-        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
-      >
-        Email: {BRAND.email}
-      </a>
-    </div>
+        <div className="mt-5 text-sm text-white/70 space-y-1">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4"/> {BRAND.address}
+          </div>
+          <div>Тел.: {BRAND.phoneDisplay}</div>
+          <div>Email: {BRAND.email}</div>
+        </div>
+      </div>
+    </Reveal>
   </div>
-</Reveal>
+</section>
 
 
       {/*FOOTER*/}
