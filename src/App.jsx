@@ -88,9 +88,7 @@ const handleServiceError = (id) => (e) => {
   el.src = placeholder(id);
 };
 
-/* >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-   ДОБАВЛЕНО: компонент ProgramIcon для блока «Лицензии»
-   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< */
+// Иконки программ (для блока «Лицензии»)
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -103,7 +101,7 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
-// Небольшой компонент для появлений при прокрутке (без сторонних библиотек)
+// Reveal-анимации (без сторонних библиотек)
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -129,7 +127,7 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   );
 }
 
-// Универсальная карточка услуги
+// Карточка услуги
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
     <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
@@ -197,7 +195,7 @@ export default function Landing(){
     return () => clearInterval(id);
   }, [isHoverMore]);
 
-  // кнопка "вверх"
+  // кнопка «вверх»
   const [showTop, setShowTop] = useState(false);
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
@@ -222,14 +220,17 @@ export default function Landing(){
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* ВСТРАИВАЕМ CSS АНИМАЦИЙ */}
+      {/* CSS для анимаций и плавного скролла */}
       <style>{`
+        html{scroll-behavior:smooth}
         .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
         .reveal-right{transform:translateX(16px)}
         .reveal-scale{transform:scale(.98)}
         .reveal-in{opacity:1; transform:none}
         @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
         .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
+        @keyframes blobPulse{0%,100%{opacity:.35; transform:scale(1)}50%{opacity:.6; transform:scale(1.06)}}
+        .blob-anim{animation:blobPulse 7s ease-in-out infinite}
       `}</style>
 
       {/*HEADER*/}
@@ -269,8 +270,10 @@ export default function Landing(){
           </div>
         </Reveal>
         <Reveal variant="scale">
-          <div className="aspect-video rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-            <img src="https://source.unsplash.com/960x600/?computer,repair,workshop" alt="Ремонт компьютеров" loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder('PRIME IT'); e.currentTarget.onerror=null;}} className="w-full h-full object-cover" fetchpriority="high"/>
+          <div className="relative aspect-video rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+            {/* мягкая «неоновая» пульсация под фото */}
+            <div className="absolute -inset-12 bg-gradient-to-tr from-emerald-500/15 via-sky-500/10 to-fuchsia-500/10 blur-3xl blob-anim pointer-events-none" />
+            <img src="https://source.unsplash.com/960x600/?computer,repair,workshop" alt="Ремонт компьютеров" loading="lazy" onError={(e)=>{e.currentTarget.src=placeholder('PRIME IT'); e.currentTarget.onerror=null;}} className="relative w-full h-full object-cover"/>
           </div>
         </Reveal>
       </section>
@@ -289,7 +292,7 @@ export default function Landing(){
         </div>
       </section>
 
-      {/*SERVICES: 6 + горизонтальная лента остальных*/}
+      {/*SERVICES*/}
       <section id="services" className="mx-auto max-w-7xl px-4 py-4 md:py-12">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl md:text-3xl font-bold">Услуги</h2>
@@ -430,14 +433,25 @@ export default function Landing(){
               </div>
             </div>
           </Reveal>
+
+          {/* МИНИ-КАРТА 2ГИС */}
           <Reveal>
-            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-              <h3 className="text-lg font-bold">График</h3>
-              <ul className="mt-3 text-sm text-white/80 space-y-1"><li>Без выходных: 10:00–20:00</li></ul>
-              <h3 className="mt-6 text-lg font-bold">Оплата</h3>
-              <ul className="mt-3 text-sm text-white/80 space-y-1">
-                <li>Наличные</li><li>Kaspi QR</li><li>Kaspi перевод</li><li>Банковские карты (POS)</li><li>Безнал: счёт на компанию</li>
-              </ul>
+            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+              <div className="h-[260px]">
+                {/* Пробуем открыть 2ГИС внутри iframe. Если провайдер блокирует встраивание,
+                   пользователь всё равно увидит кнопку ниже и откроет карту в новой вкладке. */}
+                <iframe
+                  title="Карта 2ГИС"
+                  src={BRAND.map2gis}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <div className="p-4 flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/>{BRAND.address}</div>
+                <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">Открыть в 2ГИС</a>
+              </div>
             </div>
           </Reveal>
         </div>
@@ -490,3 +504,4 @@ export default function Landing(){
     </div>
   );
 }
+
