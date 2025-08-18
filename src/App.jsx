@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { Wrench, Cpu, ShieldCheck, Clock, Star, MessageSquare, CheckCircle2, Phone, MapPin, ChevronRight, Sparkles, Monitor, Laptop, HardDrive, Fan, Layers3, MousePointerClick } from "lucide-react";
 import { KeyRound } from "lucide-react";
 
@@ -21,9 +21,12 @@ const SERVICES = [
   { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от" },
   { id:"gpu_service", icon:Cpu, title:"Обслуживание видеокарт (GPU)", desc:"Чистка, замена термопасты и термопрокладок. GTX 10 / RTX 20–50 серия. Снижает температуры, повышает FPS. Рекомендуем 1 раз в год.", price:12000, pricePrefix:"от", priceNote:"до 22 000 — по модели" },
   { id:"data", icon:HardDrive, title:"Восстановление данных", desc:"Восстановлю удалённые или потерянные фото, документы и видео с флешек, HDD, карт памяти. Срок: 2–3 часа.", price:12000, pricePrefix:"от" },
-  { id:"speedup", icon:Layers3, title:"Ускорение ПК/ноутбука (SSD + ОЗУ)", desc:"Подбор и установка SSD и оперативной памяти. Перенос системы, настройка, оптимизация.", price:7000, pricePrefix:"от" },
-  { id:"build", icon:Cpu, title:"Сборка компьютера", desc:"Соберу игровой, офисный или дизайнерский ПК под ваши задачи и бюджет. Установка и настройка всех программ. Срок: 1 день.", price:16000, pricePrefix:"от" },
+
+  /* — поменяли местами: сначала ГРАФ. ПРОГРАММЫ, потом УСКОРЕНИЕ — */
   { id:"soft", icon:Layers3, title:"Установка графических программ (Autodesk, Adobe)", desc:"Установка и настройка AutoCAD, Revit, Photoshop, Illustrator, Premiere Pro и других. Срок: от 40 минут. Возможна удалённая установка через AnyDesk.", price:5000, pricePrefix:"от" },
+  { id:"build", icon:Cpu, title:"Сборка компьютера", desc:"Соберу игровой, офисный или дизайнерский ПК под ваши задачи и бюджет. Установка и настройка всех программ. Срок: 1 день.", price:16000, pricePrefix:"от" },
+  { id:"speedup", icon:Layers3, title:"Ускорение ПК/ноутбука (SSD + ОЗУ)", desc:"Подбор и установка SSD и оперативной памяти. Перенос системы, настройка, оптимизация.", price:7000, pricePrefix:"от" },
+
   { id:"parts", icon:Laptop, title:"Замена матрицы, клавиатуры, кулера", desc:"Профессиональная замена экрана, клавиатуры, вентилятора охлаждения на ноутбуках всех моделей.", price:10000, pricePrefix:"от", priceNote:"+ деталь" },
   { id:"hinge", icon:Laptop, title:"Ремонт петель ноутбука, замена корпуса", desc:"Ремонт или замена петель крышки, восстановление корпуса ноутбука после поломок. Срок: 1–2 дня.", price:8000, pricePrefix:"от" },
   { id:"battery", icon:HardDrive, title:"Замена батареи и зарядки", desc:"Замена аккумуляторов ноутбука и блоков питания. Срок: ~1 час при наличии детали.", price:5000, pricePrefix:"от", priceNote:"+ деталь" },
@@ -109,6 +112,48 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
+function ServiceCard({ s, selected, toggle, onImgError }) {
+  return (
+    <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col">
+      <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
+        <img
+          src={`/services/${s.id}.png`}
+          data-ext-idx="0"
+          alt={s.title}
+          loading="lazy"
+          decoding="async"
+          width="640" height="360"
+          onError={onImgError(s.id)}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="flex items-center gap-3">
+        <s.icon className="h-6 w-6"/>
+        <div className="font-semibold leading-tight">{s.title}</div>
+        {s.badge && (
+          <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">
+            {s.badge}
+          </span>
+        )}
+      </div>
+      <p className="mt-3 text-sm text-white/70">{s.desc}</p>
+      <div className="mt-4 flex items-center gap-2 text-base font-semibold">
+        {s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}
+        <span>{new Intl.NumberFormat("ru-RU").format(s.price)} ₸</span>
+        {s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}
+      </div>
+      <button
+        onClick={() => toggle(s.id)}
+        className={`mt-4 inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${
+          selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"
+        }`}
+      >
+        {selected.has(s.id) ? "В заказе" : "Добавить в заказ"}
+      </button>
+    </div>
+  );
+}
+
 export default function Landing(){
   const [selected, setSelected] = useState(()=>new Set(["winms","clean"]));
   const [rush, setRush] = useState(false);
@@ -120,6 +165,40 @@ export default function Landing(){
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
     if (onsite) sum += 2000;
+    function SliderMore({ list, selected, toggle, onImgError }) {
+  const ref = useRef(null);
+  const scroll = (dx) => {
+    if (!ref.current) return;
+    ref.current.scrollBy({ left: dx, behavior: "smooth" });
+  };
+  return (
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-lg font-semibold text-white/90">Ещё услуги</div>
+        <div className="hidden md:flex gap-2">
+          <button onClick={() => scroll(-400)} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">←</button>
+          <button onClick={() => scroll(400)} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
+        </div>
+      </div>
+      <div
+        ref={ref}
+        className="overflow-x-auto no-scrollbar flex gap-4 snap-x snap-mandatory"
+      >
+        {list.map((s) => (
+          <div key={s.id} className="snap-start">
+            <ServiceCard
+              s={s}
+              selected={selected}
+              toggle={toggle}
+              onImgError={onImgError}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
     return Math.max(sum,0);
   }, [selected,rush,onsite]);
 
@@ -182,39 +261,35 @@ export default function Landing(){
       </section>
 
       <section id="services" className="mx-auto max-w-7xl px-4 py-4 md:py-12">
-        <div className="flex items-end justify-between gap-4"><h2 className="text-2xl md:text-3xl font-bold">Услуги</h2><a href="#pricing" className="text-sm text-white/70 hover:text-white">Смотреть цены</a></div>
-        <div className="mt-6 grid md:grid-cols-3 gap-4">
-          {SERVICES.map(s=>(
-            <div key={s.id} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col">
-              <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
-                <img
-                  src={`/services/${s.id}.png`}
-                  data-ext-idx="0"
-                  alt={s.title}
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                  onError={handleServiceError(s.id)}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <s.icon className="h-6 w-6"/>
-                <div className="font-semibold leading-tight">{s.title}</div>
-                {s.badge && <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">{s.badge}</span>}
-              </div>
-              <p className="mt-3 text-sm text-white/70">{s.desc}</p>
-              <div className="mt-4 flex items-center gap-2 text-base font-semibold">
-                {s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}
-                <span>{currency(s.price)}</span>
-                {s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}
-              </div>
-              <button onClick={()=>toggle(s.id)} className={`mt-4 inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"}`}>
-                {selected.has(s.id)?<CheckCircle2 className="h-4 w-4 mr-2"/>:<Sparkles className="h-4 w-4 mr-2"/>} Добавить в заказ
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
+  <div className="flex items-end justify-between gap-4">
+    <h2 className="text-2xl md:text-3xl font-bold">Услуги</h2>
+    <a href="#pricing" className="text-sm text-white/70 hover:text-white">Смотреть цены</a>
+  </div>
+
+  {/* ТОП-6 в сетке */}
+  <div className="mt-6 grid md:grid-cols-3 gap-4">
+    {SERVICES.slice(0, 6).map((s) => (
+      <ServiceCard
+        key={s.id}
+        s={s}
+        selected={selected}
+        toggle={toggle}
+        onImgError={handleServiceError}
+      />
+    ))}
+  </div>
+
+  {/* Остальные — горизонтальный слайдер */}
+  {SERVICES.length > 6 && (
+    <SliderMore
+      list={SERVICES.slice(6)}
+      selected={selected}
+      toggle={toggle}
+      onImgError={handleServiceError}
+    />
+  )}
+</section>
+
 
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid lg:grid-cols-3 gap-6">
