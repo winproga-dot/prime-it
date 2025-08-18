@@ -259,7 +259,7 @@ export default function Landing(){
         </div>
       </header>
 
-      {/* HERO — полноэкранный видеобаннер */}
+      {/* HERO — полноэкранный видеобаннер с усиленной читаемостью */}
 <section id="hero" className="relative">
   {/* ВИДЕО-ФОН */}
   <div className="absolute inset-0 overflow-hidden">
@@ -269,9 +269,9 @@ export default function Landing(){
       muted
       playsInline
       preload="metadata"
-      poster="/hero.webp"  // можно удалить, если постера нет
+      poster="/hero.webp"
       onEnded={(e) => {
-        // не зацикливаем — фиксируемся на финальном кадре
+        // фиксируемся на финальном кадре, без лупа
         const v = e.currentTarget;
         v.currentTime = Math.max(0, v.duration - 0.02);
         v.pause();
@@ -280,25 +280,26 @@ export default function Landing(){
       <source src="/hero.mp4" type="video/mp4" />
     </video>
 
-    {/* затемняющий градиент для читабельности текста */}
-    <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/40 to-slate-950/80" />
-    {/* мягкая «неоновая» подложка в фирменных цветах */}
+    {/* сильное затемнение для текста */}
+    <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-950/60 to-slate-950/92 backdrop-blur-[2px]" />
+
+    {/* мягкая «неоновая» подсветка в фирменных цветах */}
     <div className="absolute -inset-16 bg-gradient-to-tr from-emerald-500/25 via-sky-500/15 to-fuchsia-500/15 blur-3xl opacity-60 pointer-events-none blob-anim" />
   </div>
 
   {/* КОНТЕНТ */}
   <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
-    <div className="max-w-2xl">
+    {/* Стеклянная плашка для контраста */}
+    <div className="max-w-2xl rounded-3xl bg-slate-950/45 backdrop-blur-md ring-1 ring-white/10 p-5 md:p-7">
       <Reveal>
-        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white drop-shadow-lg tracking-tight">
           Ремонт ПК и ноутбуков в {BRAND.city}
         </h1>
       </Reveal>
 
       <Reveal delay={0.08}>
-        <p className="mt-4 text-white/80 text-lg md:text-xl">
-          Установим Windows, почистим от пыли, ускорим SSD/ОЗУ, обслужим видеокарту.
-          Честные цены и гарантия.
+        <p className="mt-4 text-white/90 text-lg md:text-xl drop-shadow-md">
+          Установим Windows, почистим от пыли, ускорим SSD/ОЗУ, обслужим видеокарту. Честные цены и гарантия.
         </p>
       </Reveal>
 
@@ -323,6 +324,7 @@ export default function Landing(){
     </div>
   </div>
 </section>
+
 
       {/*BENEFITS*/}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
@@ -480,28 +482,37 @@ export default function Landing(){
             </div>
           </Reveal>
 
-          {/* МИНИ-КАРТА 2ГИС */}
           <Reveal>
-            <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-              <div className="h-[260px]">
-                {/* Пробуем открыть 2ГИС внутри iframe. Если провайдер блокирует встраивание,
-                   пользователь всё равно увидит кнопку ниже и откроет карту в новой вкладке. */}
-                <iframe
-                  title="Карта 2ГИС"
-                  src={BRAND.map2gis}
-                  className="w-full h-full border-0"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-              <div className="p-4 flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/>{BRAND.address}</div>
-                <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">Открыть в 2ГИС</a>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+  <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
+    <h3 className="text-lg font-bold">Как нас найти</h3>
+    <div className="mt-3 text-sm text-white/80 flex items-start gap-2">
+      <MapPin className="h-4 w-4 mt-0.5"/>{BRAND.address}
+    </div>
+    <div className="mt-4 flex flex-wrap gap-2">
+      <a
+        href={BRAND.map2gis}
+        target="_blank"
+        rel="noreferrer"
+        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
+      >
+        Открыть в 2ГИС
+      </a>
+      <a
+        href={`tel:${BRAND.phoneTel}`}
+        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
+      >
+        Позвонить: {BRAND.phoneDisplay}
+      </a>
+      <a
+        href={`mailto:${BRAND.email}`}
+        className="rounded-xl border border-white/15 px-3 py-2 text-sm hover:bg-white/10"
+      >
+        Email: {BRAND.email}
+      </a>
+    </div>
+  </div>
+</Reveal>
+
 
       {/*FOOTER*/}
       <footer className="mx-auto max-w-7xl px-4 py-10 border-t border-white/10 text-sm text-white/60">
