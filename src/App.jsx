@@ -5,11 +5,8 @@ import {
   Fan, Layers3, MousePointerClick, KeyRound, ChevronUp
 } from "lucide-react";
 
-// =================== БАЗОВЫЕ ДАННЫЕ ===================
-
-// логотип (положи в public/logo.jpg или замени путь)
+/* ====== БРЕНД ====== */
 const LOGO = "/logo.jpg";
-
 const BRAND = {
   name: "PRIME IT",
   city: "Алматы",
@@ -22,7 +19,8 @@ const BRAND = {
   email: "prime.it.08@gmail.com",
 };
 
-// Порядок: быстрые форматы сначала (avif/webp), потом jpg/jpeg/png
+/* ====== ДАННЫЕ ====== */
+// порядок расширений: от современных к классическим
 const SERVICE_EXTS = ["avif", "webp", "jpg", "jpeg", "png"];
 const handleServiceError = (id) => (e) => {
   const el = e.currentTarget;
@@ -42,7 +40,6 @@ const handleServiceError = (id) => (e) => {
   el.src = placeholder(id);
 };
 
-// услуги
 const SERVICES = [
   { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"от", badge:"Популярно" },
   { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от" },
@@ -74,23 +71,14 @@ const BENEFITS = [
   { icon: Wrench, title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
 ];
 
-const FAQ = [
-  { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
-  { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
-  { q:"Можно ли сохранить данные при переустановке Windows?", a:"Да, делаем резервную копию и переносим важные файлы, если носитель в порядке." },
-  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные ключи и программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
-  { q:"Как оплачивать?", a:"Наличные, Kaspi QR, Kaspi перевод, банковские карты (POS), безнал — счёт на компанию." },
-  { q:"Гарантия на работы?", a:"До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика." },
-  { q:"График работы?", a:"Без выходных, с 10:00 до 20:00." },
-];
-
+/* ====== УТИЛЫ ====== */
 function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; }
 function placeholder(text){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0ea5e9' offset='0'/><stop stop-color='#10b981' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' font-family='Inter,Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'>${text}</text></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-// Иконки программ (для блока «Лицензии»)
+/* ====== UI КОМПОНЕНТЫ ====== */
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -129,10 +117,10 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   );
 }
 
-// Карточка услуги
+// Карточка услуги — ОДИНАКОВАЯ ВЫСОТА
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
-    <div className="cv-card min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
+    <div className="cv-card h-full min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
       <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
         <img
           src={`/services/${s.id}.${SERVICE_EXTS[0]}`}
@@ -146,41 +134,54 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
           className="cv-img w-full h-full object-cover"
         />
       </div>
-      <div className="flex items-center gap-3">
-        <s.icon className="h-6 w-6"/>
-        <div className="font-semibold leading-tight">{s.title}</div>
-        {s.badge && (
-          <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">
-            {s.badge}
-          </span>
-        )}
+
+      <div className="flex flex-col flex-1">
+        <div className="flex items-center gap-3">
+          <s.icon className="h-6 w-6"/>
+          <div className="font-semibold leading-tight">{s.title}</div>
+          {s.badge && (
+            <span className="text-xs rounded-full bg-emerald-500/20 text-emerald-300 px-2 py-0.5 ring-1 ring-emerald-400/30">
+              {s.badge}
+            </span>
+          )}
+        </div>
+
+        {/* описание ограничиваем до 3 строк, фиксируем минимальную высоту */}
+        <p
+          className="mt-3 text-sm text-white/70 min-h-[66px]"
+          style={{display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden"}}
+        >
+          {s.desc}
+        </p>
+
+        <div className="mt-auto pt-2">
+          <div className="flex items-center gap-2 text-base font-semibold">
+            {s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}
+            <span>{currency(s.price)}</span>
+            {s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}
+          </div>
+
+          <button
+            onClick={() => toggle(s.id)}
+            className={`mt-3 inline-flex w-full items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${
+              selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"
+            }`}
+          >
+            {selected.has(s.id) ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+            {selected.has(s.id) ? "В заказе" : "Добавить в заказ"}
+          </button>
+        </div>
       </div>
-      <p className="mt-3 text-sm text-white/70">{s.desc}</p>
-      <div className="mt-4 flex items-center gap-2 text-base font-semibold">
-        {s.pricePrefix && <span className="text-white/60">{s.pricePrefix}</span>}
-        <span>{currency(s.price)}</span>
-        {s.priceNote && <span className="text-xs text-white/60 ml-2">{s.priceNote}</span>}
-      </div>
-      <button
-        onClick={() => toggle(s.id)}
-        className={`mt-4 inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/15 ${
-          selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"
-        }`}
-      >
-        {selected.has(s.id) ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-        {selected.has(s.id) ? "В заказе" : "Добавить в заказ"}
-      </button>
     </div>
   );
 }
 
-// =================== МОБИЛЬНЫЕ ХУК/КОМПОНЕНТ ===================
-
+/* ====== МОБАЙЛ ХУК + УПРОЩЁННАЯ ВЕРСИЯ ====== */
 function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = React.useState(() =>
+  const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < breakpoint : false
   );
-  React.useEffect(() => {
+  useEffect(() => {
     const mq = window.matchMedia(`(max-width:${breakpoint - 1}px)`);
     const handler = (e) => setIsMobile(e.matches);
     handler(mq);
@@ -195,11 +196,11 @@ function useIsMobile(breakpoint = 768) {
 }
 
 function MobileLite(){
-  const [selected, setSelected] = React.useState(()=>new Set(["winms"]));
-  const [rush, setRush] = React.useState(false);
-  const [onsite, setOnsite] = React.useState(false);
+  const [selected, setSelected] = useState(()=>new Set(["winms"]));
+  const [rush, setRush] = useState(false);
+  const [onsite, setOnsite] = useState(false);
 
-  const total = React.useMemo(()=> {
+  const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
     if (onsite) sum += 2000;
@@ -290,34 +291,8 @@ function MobileLite(){
         </div>
         <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory">
           {SERVICES.slice(0, 6).map((s) => (
-            <div key={s.id} className="snap-start w-[85%] shrink-0">
-              <div className="min-w-[260px] rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
-                <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
-                  <img
-                    src={`/services/${s.id}.${SERVICE_EXTS[0]}`}
-                    data-ext-idx="0"
-                    alt={s.title}
-                    loading="lazy"
-                    width="640" height="360"
-                    onError={handleServiceError(s.id)}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="font-semibold">{s.title}</div>
-                <div className="mt-1 text-xs text-white/70 line-clamp-2">{s.desc}</div>
-                <div className="mt-2 text-base font-semibold">
-                  {s.pricePrefix && <span className="text-white/60">{s.pricePrefix} </span>}
-                  {currency(s.price)} {s.priceNote && <span className="text-xs text-white/60">• {s.priceNote}</span>}
-                </div>
-                <button
-                  onClick={()=>toggle(s.id)}
-                  className={`mt-3 w-full inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-white/15 ${
-                    selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"
-                  }`}
-                >
-                  {selected.has(s.id) ? "В заказе" : "Добавить"}
-                </button>
-              </div>
+            <div key={s.id} className="snap-start w-[320px] shrink-0">
+              <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
             </div>
           ))}
         </div>
@@ -329,7 +304,9 @@ function MobileLite(){
           <div className="mt-3 grid grid-cols-1 gap-2">
             {SERVICES.slice(0,8).map(s=>(
               <label key={s.id} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
-                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
+                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{
+                  const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next);
+                }} />
                 <div className="flex-1">
                   <div className="font-medium leading-tight text-sm">{s.title}</div>
                   <div className="text-[11px] text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -341,15 +318,10 @@ function MobileLite(){
             <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={rush} onChange={()=>setRush(!rush)} /><div><div className="font-medium text-sm">Срочно сегодня</div><div className="text-[11px] text-white/60">+20% к стоимости</div></div></label>
             <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium text-sm">Выезд мастера</div><div className="text-[11px] text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
           </div>
-          <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-            <div>
-              <div className="text-xs text-white/60">Ориентировочная стоимость</div>
-              <div className="text-xl font-extrabold">{currency(total)}</div>
-            </div>
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
-              Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
-            </a>
-          </div>
+          <MobileTotal selected={selected} rush={rush} onsite={onsite} />
+          <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent("Здравствуйте! Хочу записаться на ремонт.")}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+            Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
+          </a>
         </div>
       </section>
 
@@ -357,7 +329,7 @@ function MobileLite(){
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
           </div>
@@ -374,33 +346,44 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+      <a href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
     </div>
   );
 }
+function MobileTotal({selected,rush,onsite}){
+  const total = useMemo(()=> {
+    let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
+    if (rush) sum = Math.round(sum*1.2);
+    if (onsite) sum += 2000;
+    return Math.max(sum,0);
+  }, [selected,rush,onsite]);
+  return (
+    <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
+      <div>
+        <div className="text-xs text-white/60">Ориентировочная стоимость</div>
+        <div className="text-xl font-extrabold">{currency(total)}</div>
+      </div>
+    </div>
+  );
+}
 
-// =================== ДЕСКТОП-ВЕРСИЯ ===================
-
+/* ====== ДЕСКТОП ВЕРСИЯ ====== */
 function DesktopLanding(){
-  // стейт
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
   const [showTop, setShowTop] = useState(false);
 
-  // refs
   const moreRef = useRef(null);
   const heroRef = useRef(null);
   const videoRef = useRef(null);
-
-  // повторы видео
   const replayCountRef = useRef(0);
   const heroEndedRef = useRef(false);
 
-  // авто-прокрутка «Ещё услуги»
+  // авто-скролл ленты
   const [isHoverMore, setIsHoverMore] = useState(false);
   useEffect(() => {
     const el = moreRef.current;
@@ -421,19 +404,12 @@ function DesktopLanding(){
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // перезапуск видео при возврате
+  // перезапуск видео при возврате (макс. 2 раза)
   useEffect(() => {
     const heroEl = heroRef.current;
     const vid = videoRef.current;
     if (!heroEl || !vid) return;
-
-    const link1 = document.createElement('link');
-    link1.rel = 'preconnect'; link1.href = 'https://source.unsplash.com';
-    const link2 = document.createElement('link');
-    link2.rel = 'preconnect'; link2.href = 'https://images.unsplash.com'; link2.crossOrigin = 'anonymous';
-    document.head.appendChild(link1); document.head.appendChild(link2);
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -452,17 +428,16 @@ function DesktopLanding(){
       { threshold: 0.55 }
     );
     io.observe(heroEl);
-
-    return () => { io.disconnect(); document.head.removeChild(link1); document.head.removeChild(link2); };
+    return () => io.disconnect();
   }, []);
 
-  // калькулятор
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
     if (onsite) sum += 2000;
     return Math.max(sum,0);
   }, [selected,rush,onsite]);
+
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
   const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
@@ -473,13 +448,8 @@ function DesktopLanding(){
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* CSS */}
       <style>{`
-  html{
-    scroll-behavior:smooth;
-    scroll-padding-top: 96px;
-  }
-  @media (max-width: 767px){
-    html{ scroll-padding-top: 80px; }
-  }
+  html{ scroll-behavior:smooth; scroll-padding-top: 96px; }
+  @media (max-width: 767px){ html{ scroll-padding-top: 80px; } }
 
   .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
   .reveal-right{transform:translateX(16px)}
@@ -488,12 +458,9 @@ function DesktopLanding(){
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
   .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
-
-  /* ускоряем рендер карточек/изображений за пределами экрана */
   .cv-card{ content-visibility:auto; contain-intrinsic-size: 560px; }
   .cv-img{ content-visibility:auto; contain-intrinsic-size: 360px 640px; }
 
-  /* NAV "кнопки" */
   .nav-link{
     display:inline-flex; align-items:center; gap:.4rem;
     font-weight:600; font-size:.98rem;
@@ -514,56 +481,25 @@ function DesktopLanding(){
   }
   .nav-cta:hover{ background:rgba(16,185,129,.42); border-color:rgba(16,185,129,.6); }
 
-  /* WhatsApp CTA: мягкий пульс + рипплы */
-  .whats-cta{ 
-    position: fixed;
-    animation: whatsGlow 3.8s ease-in-out infinite;
-    will-change: box-shadow;
-    isolation: isolate;
-  }
-  .whats-cta::after,
-  .whats-cta::before{
-    content:"";
-    position:absolute;
-    inset:-6px;
-    border-radius:9999px;
-    border:2px solid rgba(16,185,129,.45);
-    transform:scale(1);
-    opacity:0;
-    pointer-events:none;
+  .whats-cta{ position: fixed; animation: whatsGlow 3.8s ease-in-out infinite; isolation:isolate; }
+  .whats-cta::after, .whats-cta::before{
+    content:""; position:absolute; inset:-6px; border-radius:9999px; border:2px solid rgba(16,185,129,.45);
+    transform:scale(1); opacity:0; pointer-events:none;
   }
   .whats-cta::after{ animation: whatsRipple 2.9s ease-out infinite; }
   .whats-cta::before{ animation: whatsRipple 2.9s ease-out 1.45s infinite; }
-
-  @keyframes whatsGlow{
-    0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28); }
-    60%   { box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28); }
-  }
-  @keyframes whatsRipple{
-    from { transform:scale(1);    opacity:.35; }
-    to   { transform:scale(1.35); opacity:0;   }
-  }
-
-  @media (max-width: 767px){
-    .whats-cta::after, .whats-cta::before{ inset:-4px; }
-    .whats-cta{ animation-duration: 4.4s; }
-  }
-  @media (prefers-reduced-motion: reduce){
-    .whats-cta, .whats-cta::before, .whats-cta::after{ animation:none !important; }
-  }
-  .whats-cta:hover{ animation-play-state: paused; }
-  .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
+  @keyframes whatsGlow{ 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28);} 60%{ box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28);} }
+  @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
+  .whats-cta:hover, .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
 `}</style>
 
       {/* PROMO BAR */}
       <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
         −10% на следующий заказ, если оставите отзыв в 2GIS.{" "}
-        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">
-          Открыть 2GIS
-        </a>
+        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
       </div>
 
-      {/*HEADER*/}
+      {/* HEADER */}
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -593,23 +529,14 @@ function DesktopLanding(){
         </div>
       </header>
 
-      {/* HERO — твоё видео + повтор при возврате */}
+      {/* HERO */}
       <section id="hero" ref={heroRef} className="relative h-[72vh] md:h-[86vh]">
         <div className="absolute inset-0 overflow-hidden">
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
-            autoPlay
-            muted
-            playsInline
-            preload="metadata"
-            poster="/hero.webp"
-            onEnded={(e) => {
-              const v = e.currentTarget;
-              v.currentTime = Math.max(0, v.duration - 0.02); // фиксируемся на финальном кадре
-              v.pause();
-              heroEndedRef.current = true;
-            }}
+            autoPlay muted playsInline preload="metadata" poster="/hero.webp"
+            onEnded={(e)=>{ const v=e.currentTarget; v.currentTime=Math.max(0, v.duration-0.02); v.pause(); heroEndedRef.current=true; }}
           >
             <source src="/hero.mp4" type="video/mp4" />
           </video>
@@ -625,18 +552,10 @@ function DesktopLanding(){
               Windows, чистка, ускорение SSD/ОЗУ, видеокарты. Честные цены и гарантия.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <a
-                href="#pricing"
-                className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white"
-              >
+              <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
                 Посмотреть цены <ChevronRight className="h-4 w-4"/>
               </a>
-              <a
-                href={whatsappLink}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45"
-              >
+              <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
                 Записаться <MousePointerClick className="h-4 w-4"/>
               </a>
             </div>
@@ -644,7 +563,7 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/*BENEFITS*/}
+      {/* BENEFITS */}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid md:grid-cols-4 gap-4">
           {BENEFITS.map((b,i)=>(
@@ -658,21 +577,22 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/*SERVICES*/}
+      {/* SERVICES — первые 6 (ровная сетка) */}
       <section id="services" className="mx-auto max-w-7xl px-4 py-4 md:py-12">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl md:text-3xl font-bold">Услуги</h2>
           <a href="#pricing" className="text-sm text-white/70 hover:text-white">Смотреть цены</a>
         </div>
 
-        <div className="mt-6 grid md:grid-cols-3 gap-4">
+        <div className="mt-6 grid md:grid-cols-3 items-stretch gap-4">
           {SERVICES.slice(0, 6).map((s, i) => (
             <Reveal key={s.id} delay={i*0.05}>
-              <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
+              <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
             </Reveal>
           ))}
         </div>
 
+        {/* Ещё услуги — одинаковая ширина и высота карточек */}
         {SERVICES.length > 6 && (
           <div className="mt-8">
             <div className="flex items-center justify-between mb-3">
@@ -689,9 +609,9 @@ function DesktopLanding(){
               className="overflow-x-auto flex gap-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing"
             >
               {SERVICES.slice(6).map((s, i) => (
-                <div key={s.id} className="snap-start">
+                <div key={s.id} className="snap-start w-[320px] shrink-0">
                   <Reveal delay={i*0.03}>
-                    <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
+                    <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
                   </Reveal>
                 </div>
               ))}
@@ -700,7 +620,7 @@ function DesktopLanding(){
         )}
       </section>
 
-      {/*PRICING CALC*/}
+      {/* PRICING CALC */}
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid lg:grid-cols-3 gap-6">
           <Reveal className="lg:col-span-2">
@@ -711,7 +631,7 @@ function DesktopLanding(){
               <div className="mt-4 grid md:grid-cols-2 gap-3">
                 {SERVICES.map(s=>(
                   <label key={s.id} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
-                    <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{ const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next); }} />
+                    <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
                     <div className="flex-1">
                       <div className="font-medium leading-tight">{s.title}</div>
                       <div className="text-xs text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -745,7 +665,7 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/*LICENSES*/}
+      {/* LICENSES */}
       <section id="licenses" className="mx-auto max-w-7xl px-4 py-12">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">Лицензионные ключи</h2>
@@ -765,7 +685,7 @@ function DesktopLanding(){
         </Reveal>
       </section>
 
-      {/*FAQ*/}
+      {/* FAQ */}
       <section id="faq" className="mx-auto max-w-7xl px-4 py-10">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
@@ -780,7 +700,7 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/*CONTACT*/}
+      {/* CONTACT */}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid md:grid-cols-1 gap-6">
           <Reveal>
@@ -802,7 +722,7 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/*FOOTER*/}
+      {/* FOOTER */}
       <footer className="mx-auto max-w-7xl px-4 py-10 border-t border-white/10 text-sm text-white/60">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div><div className="font-semibold text-white">{BRAND.name}</div><div className="mt-1">Сервисный центр • {BRAND.city}</div></div>
@@ -811,7 +731,7 @@ function DesktopLanding(){
         <div className="mt-6 text-xs">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Модал с лицензиями */}
+      {/* Модал Лицензии */}
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
@@ -833,10 +753,10 @@ function DesktopLanding(){
         </div>
       )}
 
-      {/* Плавающие кнопки */}
+      {/* Кнопка вверх */}
       {showTop && (
         <button
-          onClick={scrollTop}
+          onClick={()=>window.scrollTo({ top: 0, behavior: "smooth" })}
           className="fixed bottom-24 right-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20 btn-floaty"
           aria-label="Наверх"
           title="Наверх"
@@ -852,19 +772,15 @@ function DesktopLanding(){
         rel="noreferrer"
         className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
         aria-label="Написать в WhatsApp"
-        style={{ position: "fixed" }}
       >
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
-
-      <button onClick={()=>setShowLicenses(true)} className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"><KeyRound className="h-5 w-5"/> Ключи</button>
     </div>
   );
 }
 
-// =================== РЕНДЕР ПОД УСТРОЙСТВО ===================
-
+/* ====== РУТ-КОМПОНЕНТ ====== */
 export default function Landing(){
-  const isMobile = useIsMobile(768); // < 768px — мобильная упрощёнка
+  const isMobile = useIsMobile(768);
   return isMobile ? <MobileLite/> : <DesktopLanding/>;
 }
