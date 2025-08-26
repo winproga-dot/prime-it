@@ -40,15 +40,15 @@ const handleServiceError = (id) => (e) => {
 };
 
 const SERVICES = [
-  { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"от", badge:"Популярно" },
+  { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"", badge:"Популярно" },
   { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от" },
   { id:"gpu_service", icon:Cpu, title:"Обслуживание видеокарт (GPU)", desc:"Чистка, замена термопасты и термопрокладок. GTX 10 / RTX 20–50 серии. Снижает температуры, повышает FPS. Рекомендуем раз в год.", price:12000, pricePrefix:"от", priceNote:"до 22 000 — по модели" },
-  { id:"data", icon:HardDrive, title:"Восстановление данных", desc:"Фото, документы и видео с флешек, HDD, карт памяти. Срок: 2–3 часа.", price:12000, pricePrefix:"от" },
-  { id:"soft", icon:Layers3, title:"Установка графических программ (Autodesk, Adobe)", desc:"AutoCAD, Revit, Photoshop, Illustrator, Premiere Pro и др. Возможна удалённая установка через AnyDesk.", price:5000, pricePrefix:"от" },
+  { id:"data", icon:HardDrive, title:"Восстановление данных", desc:"Фото, документы и видео с флешек, HDD, карт памяти. Срок: 2–3 часа.", price:12000, pricePrefix:"" },
+  { id:"soft", icon:Layers3, title:"Установка графических программ (Autodesk, Adobe)", desc:"AutoCAD, Revit, Photoshop, Illustrator, Premiere Pro и др. Возможна удалённая установка через AnyDesk.", price:5000, pricePrefix:"" },
   { id:"build", icon:Cpu, title:"Сборка компьютера", desc:"Игровой, офисный или дизайнерский ПК под задачи и бюджет. Установка и настройка ПО. Срок: 1 день.", price:16000, pricePrefix:"от" },
 
   { id:"speedup", icon:Layers3, title:"Ускорение ПК/ноутбука (SSD + ОЗУ)", desc:"Подбор и установка SSD и оперативной памяти. Перенос системы, настройка, оптимизация.", price:7000, pricePrefix:"от" },
-  { id:"parts", icon:Laptop, title:"Замена матрицы, клавиатуры, кулера", desc:"Профессиональная замена экрана, клавиатуры, вентилятора охлаждения на ноутбуках всех моделей.", price:10000, pricePrefix:"от", priceNote:"+ деталь" },
+  { id:"parts", icon:Laptop, title:"Замена матрицы, клавиатуры, кулера", desc:"Профессиональная замена экрана, клавиатуры, вентилятора охлаждения на ноутбуках всех моделей.", price:10000, pricePrefix:"", priceNote:"+ деталь" },
   { id:"hinge", icon:Laptop, title:"Ремонт петель ноутбука, замена корпуса", desc:"Ремонт или замена петель крышки, восстановление корпуса. Срок: 1–2 дня.", price:8000, pricePrefix:"от" },
   { id:"battery", icon:HardDrive, title:"Замена батареи и зарядки", desc:"Замена аккумуляторов ноутбука и блоков питания. Срок: ~1 час при наличии детали.", price:5000, pricePrefix:"от", priceNote:"+ деталь" },
   { id:"misc", icon:Wrench, title:"Другие услуги", desc:"Настройка Wi-Fi, драйверов, печати, BIOS/UEFI, мелкий ремонт и пр.", price:5000, pricePrefix:"от" },
@@ -57,14 +57,14 @@ const SERVICES = [
 
 const LICENSES = [
   { key:'windows', name:"Windows 10/11 (Home/Pro)", term:"Бессрочно", price:"16 000–19 000 ₸" },
-  { key:'office', name:"Microsoft Office 2021/2024", term:"Бессрочно", price:"18 000–25 000 ₸" },
+  { key:'office', name:"Microsoft Office 2021/2024", term:"Бессрочно", price:"18 000–39 000 ₸" },
   { key:'autodesk', name:"Autodesk (AutoCAD, 3ds Max, Revit, Maya и др.)", term:"1 год", price:"40 000 ₸" },
   { key:'adobe', name:"Adobe Creative Cloud", term:"4 месяца", price:"40 000 ₸" },
   { key:'kaspersky', name:"Kaspersky (1–3 устройства)", term:"1–3 года", price:"6 500–20 000 ₸" },
 ];
 
 const BENEFITS = [
-  { icon: ShieldCheck, title: "Гарантия до 2 лет (на отдельные товары)", text: "Официальные чек и гарантийный талон." },
+  { icon: ShieldCheck, title: "Гарантия до 2 лет (на некоторые запчасти)", text: "Фискальный чек и гарантия." },
   { icon: Clock, title: "Сроки от 1 часа", text: "Большинство работ в день обращения." },
   { icon: MapPin, title: `Выезд по ${BRAND.city}`, text: "Домой или в офис — по согласованию." },
   { icon: Wrench, title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
