@@ -172,7 +172,224 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
   );
 }
 
-export default function Landing(){
+function DesktopLanding(){
+  // Хук: определяем, что это телефон (до 768px)
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = React.useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia(`(max-width:${breakpoint - 1}px)`);
+    const handler = (e) => setIsMobile(e.matches);
+    // инициализация + подписка
+    handler(mq);
+    if (mq.addEventListener) mq.addEventListener("change", handler);
+    else mq.addListener(handler);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", handler);
+      else mq.removeListener(handler);
+    };
+  }, [breakpoint]);
+  return isMobile;
+}
+
+// Облегчённая мобильная версия (ничего тяжёлого, без видео, минимум анимаций)
+function MobileLite(){
+  const [selected, setSelected] = React.useState(()=>new Set(["winms"]));
+  const [rush, setRush] = React.useState(false);
+  const [onsite, setOnsite] = React.useState(false);
+
+  const total = React.useMemo(()=> {
+    let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
+    if (rush) sum = Math.round(sum*1.2);
+    if (onsite) sum += 2000;
+    return Math.max(sum,0);
+  }, [selected,rush,onsite]);
+
+  const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
+
+  const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
+    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${[...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
+  )}`;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      {/* немного мобильного CSS */}
+      <style>{`
+        html{scroll-behavior:smooth; scroll-padding-top: 76px;}
+        .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
+        @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
+        .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
+        .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
+      `}</style>
+
+      {/* PROMO BAR */}
+      <div className="bg-emerald-600 text-white text-xs py-2 text-center">
+        −10% на следующий заказ за отзыв в 2GIS.{" "}
+        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
+      </div>
+
+      {/* Лёгкий HEADER */}
+      <header className="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
+              <img src={LOGO} alt={BRAND.name} className="h-10 w-10 object-contain" />
+            </span>
+            <div>
+              <div className="text-base font-semibold">{BRAND.name}</div>
+              <div className="text-[11px] text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div>
+            </div>
+          </div>
+          <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
+            <Phone className="h-4 w-4"/> Позвонить
+          </a>
+        </div>
+      </header>
+
+      {/* HERO — только постер (без видео) для скорости */}
+      <section id="hero" className="relative">
+        <div className="aspect-[16/10] w-full overflow-hidden">
+          <img
+            src="/hero.webp"
+            alt="PRIME IT"
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <h1 className="text-[22px] font-extrabold leading-tight text-white text-glow">
+            Ремонт ПК и ноутбуков в {BRAND.city}
+          </h1>
+          <p className="mt-2 text-white/90 text-sm text-glow">
+            Windows, чистка, ускорение SSD/ОЗУ, видеокарты. Честные цены и гарантия.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <a href="#pricing" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
+              Цены <ChevronRight className="h-4 w-4"/>
+            </a>
+            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
+              Записаться <MousePointerClick className="h-4 w-4"/>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Короткие Преимущества */}
+      <section id="benefits" className="mx-auto max-w-7xl px-4 py-6">
+        <div className="grid grid-cols-2 gap-3">
+          {BENEFITS.map((b,i)=>(
+            <div key={i} className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3">
+              <div className="flex items-center gap-2"><b.icon className="h-5 w-5"/><div className="font-semibold text-sm">{b.title}</div></div>
+              <div className="mt-1 text-white/70 text-xs">{b.text}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Услуги (топ-6), горизонтальная лента */}
+      <section id="services" className="mx-auto max-w-7xl px-4 py-4">
+        <div className="flex items-end justify-between">
+          <h2 className="text-xl font-bold">Услуги</h2>
+          <a href="#pricing" className="text-xs text-white/70 hover:text-white">Смотреть цены</a>
+        </div>
+        <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory">
+          {SERVICES.slice(0, 6).map((s) => (
+            <div key={s.id} className="snap-start w-[85%] shrink-0">
+              <div className="min-w-[260px] rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
+                <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
+                  <img
+                    src={`/services/${s.id}.webp`}
+                    alt={s.title}
+                    loading="lazy"
+                    width="640" height="360"
+                    onError={handleServiceError(s.id)}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="font-semibold">{s.title}</div>
+                <div className="mt-1 text-xs text-white/70 line-clamp-2">{s.desc}</div>
+                <div className="mt-2 text-base font-semibold">
+                  {s.pricePrefix && <span className="text-white/60">{s.pricePrefix} </span>}
+                  {currency(s.price)} {s.priceNote && <span className="text-xs text-white/60">• {s.priceNote}</span>}
+                </div>
+                <button
+                  onClick={()=>toggle(s.id)}
+                  className={`mt-3 w-full inline-flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium ring-1 ring-white/15 ${
+                    selected.has(s.id) ? "bg-white text-slate-900" : "hover:bg-white/10"
+                  }`}
+                >
+                  {selected.has(s.id) ? "В заказе" : "Добавить"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Калькулятор — компакт */}
+      <section id="pricing" className="mx-auto max-w-7xl px-4 py-6">
+        <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
+          <h3 className="text-lg font-bold">Калькулятор стоимости</h3>
+          <div className="mt-3 grid grid-cols-1 gap-2">
+            {SERVICES.slice(0,8).map(s=>(
+              <label key={s.id} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
+                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
+                <div className="flex-1">
+                  <div className="font-medium leading-tight text-sm">{s.title}</div>
+                  <div className="text-[11px] text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-2">
+            <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={rush} onChange={()=>setRush(!rush)} /><div><div className="font-medium text-sm">Срочно сегодня</div><div className="text-[11px] text-white/60">+20% к стоимости</div></div></label>
+            <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium text-sm">Выезд мастера</div><div className="text-[11px] text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
+          </div>
+          <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
+            <div>
+              <div className="text-xs text-white/60">Ориентировочная стоимость</div>
+              <div className="text-xl font-extrabold">{currency(total)}</div>
+            </div>
+            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+              Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Контакты — кратко */}
+      <section id="contact" className="mx-auto max-w-7xl px-4 py-8">
+        <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+          <h2 className="text-xl font-bold">Связаться</h2>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
+            <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
+          </div>
+          <div className="mt-4 text-sm text-white/70 space-y-1">
+            <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
+            <div>Тел.: {BRAND.phoneDisplay}</div>
+            <div>Email: {BRAND.email}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Футер короткий */}
+      <footer className="mx-auto max-w-7xl px-4 py-8 border-t border-white/10 text-xs text-white/60">
+        <div className="font-semibold text-white">{BRAND.name}</div>
+        <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
+      </footer>
+
+      {/* Плавающий WhatsApp */}
+      <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+        <MessageSquare className="h-5 w-5"/> WhatsApp
+      </a>
+    </div>
+  );
+}
+
   // стейт
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
@@ -653,3 +870,8 @@ export default function Landing(){
     </div>
   );
 }
+export default function Landing(){
+  const isMobile = useIsMobile(768); // < 768px рендерим упрощёнку
+  return isMobile ? <MobileLite/> : <DesktopLanding/>;
+}
+
