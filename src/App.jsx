@@ -5,6 +5,8 @@ import {
   Fan, Layers3, MousePointerClick, KeyRound, ChevronUp
 } from "lucide-react";
 
+// =================== БАЗОВЫЕ ДАННЫЕ ===================
+
 // логотип (положи в public/logo.jpg или замени путь)
 const LOGO = "/logo.jpg";
 
@@ -172,8 +174,8 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
   );
 }
 
-function DesktopLanding(){
-  // Хук: определяем, что это телефон (до 768px)
+// =================== МОБИЛЬНЫЕ ХУК/КОМПОНЕНТ ===================
+
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = React.useState(() =>
     typeof window !== "undefined" ? window.innerWidth < breakpoint : false
@@ -181,7 +183,6 @@ function useIsMobile(breakpoint = 768) {
   React.useEffect(() => {
     const mq = window.matchMedia(`(max-width:${breakpoint - 1}px)`);
     const handler = (e) => setIsMobile(e.matches);
-    // инициализация + подписка
     handler(mq);
     if (mq.addEventListener) mq.addEventListener("change", handler);
     else mq.addListener(handler);
@@ -193,7 +194,6 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
-// Облегчённая мобильная версия (ничего тяжёлого, без видео, минимум анимаций)
 function MobileLite(){
   const [selected, setSelected] = React.useState(()=>new Set(["winms"]));
   const [rush, setRush] = React.useState(false);
@@ -214,7 +214,6 @@ function MobileLite(){
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* немного мобильного CSS */}
       <style>{`
         html{scroll-behavior:smooth; scroll-padding-top: 76px;}
         .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
@@ -223,13 +222,11 @@ function MobileLite(){
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
       `}</style>
 
-      {/* PROMO BAR */}
       <div className="bg-emerald-600 text-white text-xs py-2 text-center">
         −10% на следующий заказ за отзыв в 2GIS.{" "}
         <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
       </div>
 
-      {/* Лёгкий HEADER */}
       <header className="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -247,7 +244,6 @@ function MobileLite(){
         </div>
       </header>
 
-      {/* HERO — только постер (без видео) для скорости */}
       <section id="hero" className="relative">
         <div className="aspect-[16/10] w-full overflow-hidden">
           <img
@@ -276,7 +272,6 @@ function MobileLite(){
         </div>
       </section>
 
-      {/* Короткие Преимущества */}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-6">
         <div className="grid grid-cols-2 gap-3">
           {BENEFITS.map((b,i)=>(
@@ -288,7 +283,6 @@ function MobileLite(){
         </div>
       </section>
 
-      {/* Услуги (топ-6), горизонтальная лента */}
       <section id="services" className="mx-auto max-w-7xl px-4 py-4">
         <div className="flex items-end justify-between">
           <h2 className="text-xl font-bold">Услуги</h2>
@@ -300,7 +294,8 @@ function MobileLite(){
               <div className="min-w-[260px] rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
                 <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
                   <img
-                    src={`/services/${s.id}.webp`}
+                    src={`/services/${s.id}.${SERVICE_EXTS[0]}`}
+                    data-ext-idx="0"
                     alt={s.title}
                     loading="lazy"
                     width="640" height="360"
@@ -328,7 +323,6 @@ function MobileLite(){
         </div>
       </section>
 
-      {/* Калькулятор — компакт */}
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-6">
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
           <h3 className="text-lg font-bold">Калькулятор стоимости</h3>
@@ -359,7 +353,6 @@ function MobileLite(){
         </div>
       </section>
 
-      {/* Контакты — кратко */}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-8">
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
@@ -376,13 +369,11 @@ function MobileLite(){
         </div>
       </section>
 
-      {/* Футер короткий */}
       <footer className="mx-auto max-w-7xl px-4 py-8 border-t border-white/10 text-xs text-white/60">
         <div className="font-semibold text-white">{BRAND.name}</div>
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Плавающий WhatsApp */}
       <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
@@ -390,6 +381,9 @@ function MobileLite(){
   );
 }
 
+// =================== ДЕСКТОП-ВЕРСИЯ ===================
+
+function DesktopLanding(){
   // стейт
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
@@ -402,9 +396,9 @@ function MobileLite(){
   const heroRef = useRef(null);
   const videoRef = useRef(null);
 
-  // повторный автозапуск видео при возврате (не более 2 раз)
-  const replayCountRef = useRef(0);     // сколько повторов уже сделали
-  const heroEndedRef = useRef(false);   // закончено ли видео (стоит на финальном кадре)
+  // повторы видео
+  const replayCountRef = useRef(0);
+  const heroEndedRef = useRef(false);
 
   // авто-прокрутка «Ещё услуги»
   const [isHoverMore, setIsHoverMore] = useState(false);
@@ -429,13 +423,12 @@ function MobileLite(){
   }, []);
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
-  // наблюдаем за секцией hero: если вернулись и видео на паузе в конце — перезапускаем (макс. 2 повторов)
+  // перезапуск видео при возврате
   useEffect(() => {
     const heroEl = heroRef.current;
     const vid = videoRef.current;
     if (!heroEl || !vid) return;
 
-    // предзагрузка/оптимизация внешних источников для фолбэка
     const link1 = document.createElement('link');
     link1.rel = 'preconnect'; link1.href = 'https://source.unsplash.com';
     const link2 = document.createElement('link');
@@ -446,18 +439,17 @@ function MobileLite(){
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && heroEndedRef.current && replayCountRef.current < 2) {
-            // запускаем повтор
             try {
               vid.currentTime = 0;
               const p = vid.play();
               if (p && typeof p.then === "function") p.catch(()=>{});
               replayCountRef.current += 1;
-              heroEndedRef.current = false; // сброс флага — теперь идёт воспроизведение
+              heroEndedRef.current = false;
             } catch {}
           }
         });
       },
-      { threshold: 0.55 } // считаем, что вернулись наверх, когда герой виден наполовину
+      { threshold: 0.55 }
     );
     io.observe(heroEl);
 
@@ -614,10 +606,9 @@ function MobileLite(){
             poster="/hero.webp"
             onEnded={(e) => {
               const v = e.currentTarget;
-              // фиксируемся на финальном кадре
-              v.currentTime = Math.max(0, v.duration - 0.02);
+              v.currentTime = Math.max(0, v.duration - 0.02); // фиксируемся на финальном кадре
               v.pause();
-              heroEndedRef.current = true; // помечаем, что видео закончилось
+              heroEndedRef.current = true;
             }}
           >
             <source src="/hero.mp4" type="video/mp4" />
@@ -677,7 +668,7 @@ function MobileLite(){
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           {SERVICES.slice(0, 6).map((s, i) => (
             <Reveal key={s.id} delay={i*0.05}>
-              <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+              <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
             </Reveal>
           ))}
         </div>
@@ -700,7 +691,7 @@ function MobileLite(){
               {SERVICES.slice(6).map((s, i) => (
                 <div key={s.id} className="snap-start">
                   <Reveal delay={i*0.03}>
-                    <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
+                    <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
                   </Reveal>
                 </div>
               ))}
@@ -870,8 +861,10 @@ function MobileLite(){
     </div>
   );
 }
+
+// =================== РЕНДЕР ПОД УСТРОЙСТВО ===================
+
 export default function Landing(){
-  const isMobile = useIsMobile(768); // < 768px рендерим упрощёнку
+  const isMobile = useIsMobile(768); // < 768px — мобильная упрощёнка
   return isMobile ? <MobileLite/> : <DesktopLanding/>;
 }
-
