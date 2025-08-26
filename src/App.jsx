@@ -20,7 +20,6 @@ const BRAND = {
 };
 
 /* ====== ДАННЫЕ ====== */
-// порядок расширений: от современных к классическим
 const SERVICE_EXTS = ["avif", "webp", "jpg", "jpeg", "png"];
 const handleServiceError = (id) => (e) => {
   const el = e.currentTarget;
@@ -71,6 +70,16 @@ const BENEFITS = [
   { icon: Wrench, title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
 ];
 
+const FAQ_ITEMS = [
+  { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
+  { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
+  { q:"Можно ли сохранить данные при переустановке Windows?", a:"Да, делаем резервную копию и переносим важные файлы, если носитель в порядке." },
+  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные ключи и программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
+  { q:"Как оплачивать?", a:"Наличные, Kaspi QR, Kaspi перевод, банковские карты (POS), безнал — счёт на компанию." },
+  { q:"Гарантия на работы?", a:"До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика." },
+  { q:"График работы?", a:"Без выходных, с 10:00 до 20:00." },
+];
+
 /* ====== УТИЛЫ ====== */
 function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; }
 function placeholder(text){
@@ -78,7 +87,8 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-/* ====== UI КОМПОНЕНТЫ ====== */
+/* ====== UI ====== */
+// Значок программы
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -117,7 +127,7 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   );
 }
 
-// Карточка услуги — ОДИНАКОВАЯ ВЫСОТА
+// Карточка услуги — одинаковая высота
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
     <div className="cv-card h-full min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
@@ -146,7 +156,6 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
           )}
         </div>
 
-        {/* описание ограничиваем до 3 строк, фиксируем минимальную высоту */}
         <p
           className="mt-3 text-sm text-white/70 min-h-[66px]"
           style={{display:"-webkit-box", WebkitLineClamp:3, WebkitBoxOrient:"vertical", overflow:"hidden"}}
@@ -176,7 +185,7 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
   );
 }
 
-/* ====== МОБАЙЛ ХУК + УПРОЩЁННАЯ ВЕРСИЯ ====== */
+/* ====== МОБАЙЛ ХУК ====== */
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth < breakpoint : false
@@ -193,6 +202,24 @@ function useIsMobile(breakpoint = 768) {
     };
   }, [breakpoint]);
   return isMobile;
+}
+
+/* ====== МОБИЛЬНАЯ УПРОЩЁННАЯ ====== */
+function MobileTotal({selected,rush,onsite}){
+  const total = useMemo(()=> {
+    let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
+    if (rush) sum = Math.round(sum*1.2);
+    if (onsite) sum += 2000;
+    return Math.max(sum,0);
+  }, [selected,rush,onsite]);
+  return (
+    <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
+      <div>
+        <div className="text-xs text-white/60">Ориентировочная стоимость</div>
+        <div className="text-xl font-extrabold">{currency(total)}</div>
+      </div>
+    </div>
+  );
 }
 
 function MobileLite(){
@@ -292,7 +319,7 @@ function MobileLite(){
         <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory">
           {SERVICES.slice(0, 6).map((s) => (
             <div key={s.id} className="snap-start w-[320px] shrink-0">
-              <ServiceCard s={s} selected={selected} toggle={(id)=>{const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n);}} onImgError={handleServiceError}/>
+              <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
             </div>
           ))}
         </div>
@@ -304,9 +331,7 @@ function MobileLite(){
           <div className="mt-3 grid grid-cols-1 gap-2">
             {SERVICES.slice(0,8).map(s=>(
               <label key={s.id} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
-                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{
-                  const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next);
-                }} />
+                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
                 <div className="flex-1">
                   <div className="font-medium leading-tight text-sm">{s.title}</div>
                   <div className="text-[11px] text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -319,7 +344,7 @@ function MobileLite(){
             <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium text-sm">Выезд мастера</div><div className="text-[11px] text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
           </div>
           <MobileTotal selected={selected} rush={rush} onsite={onsite} />
-          <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent("Здравствуйте! Хочу записаться на ремонт.")}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+          <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
             Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
           </a>
         </div>
@@ -329,7 +354,7 @@ function MobileLite(){
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
           </div>
@@ -346,30 +371,14 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      <a href={`https://wa.me/${BRAND.whatsapp}`} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+      <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
     </div>
   );
 }
-function MobileTotal({selected,rush,onsite}){
-  const total = useMemo(()=> {
-    let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
-    if (rush) sum = Math.round(sum*1.2);
-    if (onsite) sum += 2000;
-    return Math.max(sum,0);
-  }, [selected,rush,onsite]);
-  return (
-    <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
-      <div>
-        <div className="text-xs text-white/60">Ориентировочная стоимость</div>
-        <div className="text-xl font-extrabold">{currency(total)}</div>
-      </div>
-    </div>
-  );
-}
 
-/* ====== ДЕСКТОП ВЕРСИЯ ====== */
+/* ====== ДЕСКТОП ====== */
 function DesktopLanding(){
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
@@ -382,9 +391,8 @@ function DesktopLanding(){
   const videoRef = useRef(null);
   const replayCountRef = useRef(0);
   const heroEndedRef = useRef(false);
-
-  // авто-скролл ленты
   const [isHoverMore, setIsHoverMore] = useState(false);
+
   useEffect(() => {
     const el = moreRef.current;
     if (!el) return;
@@ -397,7 +405,6 @@ function DesktopLanding(){
     return () => clearInterval(id);
   }, [isHoverMore]);
 
-  // кнопка «вверх»
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     window.addEventListener("scroll", onScroll);
@@ -405,12 +412,10 @@ function DesktopLanding(){
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // перезапуск видео при возврате (макс. 2 раза)
   useEffect(() => {
     const heroEl = heroRef.current;
     const vid = videoRef.current;
     if (!heroEl || !vid) return;
-
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -446,7 +451,6 @@ function DesktopLanding(){
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* CSS */}
       <style>{`
   html{ scroll-behavior:smooth; scroll-padding-top: 96px; }
   @media (max-width: 767px){ html{ scroll-padding-top: 80px; } }
@@ -493,13 +497,11 @@ function DesktopLanding(){
   .whats-cta:hover, .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
 `}</style>
 
-      {/* PROMO BAR */}
       <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
         −10% на следующий заказ, если оставите отзыв в 2GIS.{" "}
         <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
       </div>
 
-      {/* HEADER */}
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -529,7 +531,6 @@ function DesktopLanding(){
         </div>
       </header>
 
-      {/* HERO */}
       <section id="hero" ref={heroRef} className="relative h-[72vh] md:h-[86vh]">
         <div className="absolute inset-0 overflow-hidden">
           <video
@@ -563,7 +564,6 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/* BENEFITS */}
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid md:grid-cols-4 gap-4">
           {BENEFITS.map((b,i)=>(
@@ -577,7 +577,6 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/* SERVICES — первые 6 (ровная сетка) */}
       <section id="services" className="mx-auto max-w-7xl px-4 py-4 md:py-12">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl md:text-3xl font-bold">Услуги</h2>
@@ -592,7 +591,6 @@ function DesktopLanding(){
           ))}
         </div>
 
-        {/* Ещё услуги — одинаковая ширина и высота карточек */}
         {SERVICES.length > 6 && (
           <div className="mt-8">
             <div className="flex items-center justify-between mb-3">
@@ -620,7 +618,6 @@ function DesktopLanding(){
         )}
       </section>
 
-      {/* PRICING CALC */}
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid lg:grid-cols-3 gap-6">
           <Reveal className="lg:col-span-2">
@@ -665,7 +662,6 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/* LICENSES */}
       <section id="licenses" className="mx-auto max-w-7xl px-4 py-12">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">Лицензионные ключи</h2>
@@ -685,13 +681,12 @@ function DesktopLanding(){
         </Reveal>
       </section>
 
-      {/* FAQ */}
       <section id="faq" className="mx-auto max-w-7xl px-4 py-10">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
         </Reveal>
         <div className="mt-4 divide-y divide-white/10 rounded-3xl bg-white/5 ring-1 ring-white/10">
-          {FAQ.map((f,i)=>(
+          {FAQ_ITEMS.map((f,i)=>(
             <div key={i} className="p-5">
               <div className="font-semibold">{f.q}</div>
               <div className="text-sm text-white/70 mt-1">{f.a}</div>
@@ -700,7 +695,6 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/* CONTACT */}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid md:grid-cols-1 gap-6">
           <Reveal>
@@ -722,7 +716,6 @@ function DesktopLanding(){
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="mx-auto max-w-7xl px-4 py-10 border-t border-white/10 text-sm text-white/60">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div><div className="font-semibold text-white">{BRAND.name}</div><div className="mt-1">Сервисный центр • {BRAND.city}</div></div>
@@ -731,7 +724,6 @@ function DesktopLanding(){
         <div className="mt-6 text-xs">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Модал Лицензии */}
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
@@ -753,7 +745,6 @@ function DesktopLanding(){
         </div>
       )}
 
-      {/* Кнопка вверх */}
       {showTop && (
         <button
           onClick={()=>window.scrollTo({ top: 0, behavior: "smooth" })}
@@ -765,7 +756,6 @@ function DesktopLanding(){
         </button>
       )}
 
-      {/* WhatsApp CTA */}
       <a
         href={whatsappLink}
         target="_blank"
@@ -779,7 +769,7 @@ function DesktopLanding(){
   );
 }
 
-/* ====== РУТ-КОМПОНЕНТ ====== */
+/* ====== ROOT ====== */
 export default function Landing(){
   const isMobile = useIsMobile(768);
   return isMobile ? <MobileLite/> : <DesktopLanding/>;
