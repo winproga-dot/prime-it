@@ -88,7 +88,6 @@ function placeholder(text){
 }
 
 /* ====== UI ====== */
-// Значок программы
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -101,7 +100,6 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
-// Reveal-анимации
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -227,6 +225,14 @@ function MobileLite(){
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
 
+  // НОВОЕ: модал лицензий (кнопка в шапке и плавающая)
+  const [showLicenses, setShowLicenses] = useState(false);
+  useEffect(() => {
+    const onKey = (e)=> e.key === "Escape" && setShowLicenses(false);
+    if (showLicenses) document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [showLicenses]);
+
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
@@ -246,8 +252,9 @@ function MobileLite(){
         html{scroll-behavior:smooth; scroll-padding-top: 76px;}
         .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
         @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
-        .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
+        .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); z-index:200; }
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
+        .keys-cta{ position:fixed; left:1rem; bottom:calc(4.5rem + env(safe-area-inset-bottom)); z-index:200; }
       `}</style>
 
       <div className="bg-emerald-600 text-white text-xs py-2 text-center">
@@ -266,9 +273,18 @@ function MobileLite(){
               <div className="text-[11px] text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div>
             </div>
           </div>
-          <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
-            <Phone className="h-4 w-4"/> Позвонить
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={()=>setShowLicenses(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10"
+            >
+              <KeyRound className="h-4 w-4" /> Ключи
+            </button>
+            <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
+              <Phone className="h-4 w-4"/> Позвонить
+            </a>
+          </div>
         </div>
       </header>
 
@@ -371,9 +387,66 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
+      {/* Плавающие CTA */}
       <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
+      <button
+        type="button"
+        onClick={()=>setShowLicenses(true)}
+        className="keys-cta inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-2 font-semibold shadow-lg hover:bg-white/20"
+      >
+        <KeyRound className="h-4 w-4" /> Ключи
+      </button>
+
+      {/* Модал «Лицензии» — мобильный bottom sheet */}
+      {showLicenses && (
+        <div
+          className="fixed inset-0 z-[220] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={()=>setShowLicenses(false)}
+        >
+          <div
+            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-slate-900 ring-1 ring-white/10 p-5 sm:p-6"
+            onClick={(e)=>e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-bold text-lg">
+                <KeyRound className="h-5 w-5"/> Лицензионные ключи
+              </div>
+              <button
+                onClick={()=>setShowLicenses(false)}
+                className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10"
+              >
+                Закрыть
+              </button>
+            </div>
+
+            <div className="mt-4 divide-y divide-white/10">
+              {LICENSES.map((l,i)=>(
+                <div key={i} className="py-3 flex items-center gap-3">
+                  <ProgramIcon type={l.key}/>
+                  <div className="flex-1">
+                    <div className="font-medium">{l.name}</div>
+                    <div className="text-xs text-white/60">Срок: {l.term}</div>
+                  </div>
+                  <div className="text-sm text-white/80 w-28">{l.price}</div>
+                  <a
+                    href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`}
+                    target="_blank" rel="noreferrer"
+                    className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400"
+                  >
+                    Заказать
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 text-[11px] text-white/60">
+              При необходимости установим удалённо через AnyDesk.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
