@@ -68,7 +68,6 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-// локальные картинки: /public/services/<id>.png -> webp -> jpg -> jpeg -> Unsplash -> placeholder
 const SERVICE_EXTS = ["png","webp","jpg","jpeg"];
 const handleServiceError = (id) => (e) => {
   const el = e.currentTarget;
@@ -88,7 +87,6 @@ const handleServiceError = (id) => (e) => {
   el.src = placeholder(id);
 };
 
-// Иконки программ (для блока «Лицензии»)
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -101,7 +99,6 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
-// Reveal-анимации (без сторонних библиотек)
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -127,7 +124,6 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   );
 }
 
-// Карточка услуги
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
     <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
@@ -172,7 +168,6 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
 }
 
 export default function Landing(){
-  // по умолчанию отмечена только Windows
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
@@ -181,7 +176,6 @@ export default function Landing(){
   const moreRef = useRef(null);
   const scrollMore = (dx) => moreRef.current?.scrollBy({ left: dx, behavior: "smooth" });
 
-  // авто-прокрутка ленты «Ещё услуги»
   const [isHoverMore, setIsHoverMore] = useState(false);
   useEffect(() => {
     const el = moreRef.current;
@@ -195,7 +189,6 @@ export default function Landing(){
     return () => clearInterval(id);
   }, [isHoverMore]);
 
-  // кнопка «вверх»
   const [showTop, setShowTop] = useState(false);
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
@@ -220,12 +213,11 @@ export default function Landing(){
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* CSS локально */}
+      {/* CSS */}
       <style>{`
-  /* Глобально: плавный скролл и отступ для якорей под фикс-хедер */
   html{
     scroll-behavior:smooth;
-    scroll-padding-top: 96px; /* подстройка под высоту шапки */
+    scroll-padding-top: 96px;
   }
   @media (max-width: 767px){
     html{ scroll-padding-top: 80px; }
@@ -239,9 +231,31 @@ export default function Landing(){
   .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
   .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
 
+  /* NAV: делаем ссылки более "кнопочными" и крупнее */
+  .nav-link{
+    display:inline-flex; align-items:center; gap:.4rem;
+    font-weight:600; font-size:.98rem;
+    padding:.5rem .75rem; border-radius:.8rem;
+    color:rgba(255,255,255,.82);
+    border:1px solid rgba(255,255,255,.15);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0));
+    transition:all .2s ease;
+  }
+  .nav-link:hover{
+    color:#fff; background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.25);
+    transform:translateY(-1px);
+  }
+  .nav-link:focus-visible{ outline:2px solid rgba(16,185,129,.5); outline-offset:2px; }
+  .nav-cta{
+    color:#fff;
+    background:linear-gradient(180deg, rgba(16,185,129,.30), rgba(16,185,129,.18));
+    border-color:rgba(16,185,129,.45);
+  }
+  .nav-cta:hover{ background:rgba(16,185,129,.42); border-color:rgba(16,185,129,.6); }
+
   /* WhatsApp CTA: мягкий пульс + рипплы */
   .whats-cta{ 
-    position: relative;
+    position: fixed;
     animation: whatsGlow 3.8s ease-in-out infinite;
     will-change: box-shadow;
     isolation: isolate;
@@ -261,8 +275,8 @@ export default function Landing(){
   .whats-cta::before{ animation: whatsRipple 2.9s ease-out 1.45s infinite; }
 
   @keyframes whatsGlow{
-    0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 12px 24px rgba(0,0,0,.25); }
-    60%   { box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 12px 24px rgba(0,0,0,.25); }
+    0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28); }
+    60%   { box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28); }
   }
   @keyframes whatsRipple{
     from { transform:scale(1);    opacity:.35; }
@@ -300,13 +314,18 @@ export default function Landing(){
               <div className="text-xs text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div>
             </div>
           </div>
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <a href="#services" className="hover:text-white/90 text-white/70">Услуги</a>
-            <a href="#pricing" className="hover:text-white/90 text-white/70">Цены</a>
-            <a href="#benefits" className="hover:text-white/90 text-white/70">Преимущества</a>
-            <a href="#faq" className="hover:text-white/90 text-white/70">FAQ</a>
-            <button onClick={()=>setShowLicenses(true)} className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-1 text-white/80 hover:text-white hover:bg-white/10"><KeyRound className="h-3 w-3"/> Лицензии</button>
+
+          {/* навигация — увеличенный размер и кнопочный вид */}
+          <nav className="hidden md:flex items-center gap-2">
+            <a href="#services" className="nav-link">Услуги</a>
+            <a href="#pricing" className="nav-link">Цены</a>
+            <a href="#benefits" className="nav-link">Преимущества</a>
+            <a href="#faq" className="nav-link">FAQ</a>
+            <button onClick={()=>setShowLicenses(true)} className="nav-link nav-cta" type="button">
+              <KeyRound className="h-3.5 w-3.5"/> Лицензии
+            </button>
           </nav>
+
           <div className="flex items-center gap-3">
             <a href={`tel:${BRAND.phoneTel}`} className="hidden sm:flex items-center gap-2 rounded-2xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
@@ -314,9 +333,8 @@ export default function Landing(){
         </div>
       </header>
 
-      {/* HERO — твоё видео, лёгкий градиент и компактный текст снизу слева */}
+      {/* HERO — твоё видео */}
       <section id="hero" className="relative h-[72vh] md:h-[86vh]">
-        {/* ВИДЕО ФОН */}
         <div className="absolute inset-0 overflow-hidden">
           <video
             className="w-full h-full object-cover"
@@ -333,12 +351,9 @@ export default function Landing(){
           >
             <source src="/hero.mp4" type="video/mp4" />
           </video>
-
-          {/* Лёгкий градиент: не убивает картинку */}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/55" />
         </div>
 
-        {/* КОНТЕНТ — компактный, у края, без «плашек» */}
         <div className="relative h-full">
           <div className="absolute bottom-8 left-4 md:bottom-12 md:left-8 max-w-xl">
             <h1 className="text-white text-glow text-3xl md:text-5xl font-extrabold leading-tight">
@@ -492,15 +507,15 @@ export default function Landing(){
       <section id="faq" className="mx-auto max-w-7xl px-4 py-10">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">FAQ</h2>
-          <div className="mt-4 divide-y divide-white/10 rounded-3xl bg-white/5 ring-1 ring-white/10">
-            {FAQ.map((f,i)=>(
-              <div key={i} className="p-5">
-                <div className="font-semibold">{f.q}</div>
-                <div className="text-sm text-white/70 mt-1">{f.a}</div>
-              </div>
-            ))}
-          </div>
         </Reveal>
+        <div className="mt-4 divide-y divide-white/10 rounded-3xl bg-white/5 ring-1 ring-white/10">
+          {FAQ.map((f,i)=>(
+            <div key={i} className="p-5">
+              <div className="font-semibold">{f.q}</div>
+              <div className="text-sm text-white/70 mt-1">{f.a}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/*CONTACT — без встроенной карты*/}
@@ -534,7 +549,7 @@ export default function Landing(){
         <div className="mt-6 text-xs">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/*Модал с лицензиями*/}
+      {/* Модал с лицензиями */}
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
@@ -556,7 +571,7 @@ export default function Landing(){
         </div>
       )}
 
-      {/*Плавающие кнопки*/}
+      {/* Плавающие кнопки */}
       {showTop && (
         <button
           onClick={scrollTop}
@@ -567,16 +582,21 @@ export default function Landing(){
           <ChevronUp className="h-5 w-5"/> Наверх
         </button>
       )}
+
+      {/* WhatsApp CTA — повышенный z-index, пульс, всегда наверху */}
       <a
         href={whatsappLink}
         target="_blank"
         rel="noreferrer"
-        className="whats-cta fixed bottom-6 right-6 z-50 relative inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-lg hover:bg-emerald-400"
+        className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
         aria-label="Написать в WhatsApp"
+        style={{ position: "fixed" }}
       >
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
+
       <button onClick={()=>setShowLicenses(true)} className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"><KeyRound className="h-5 w-5"/> Ключи</button>
     </div>
   );
 }
+
