@@ -46,11 +46,12 @@ const LICENSES = [
 ];
 
 const BENEFITS = [
-  { icon: ShieldCheck, title: "Гарантия до 3 мес.", text: "Официальные чек и гарантийный талон." },
+  { icon: ShieldCheck, title: "Гарантия до 2 лет (на отдельные товары)", text: "Официальные чек и гарантийный талон." },
   { icon: Clock, title: "Сроки от 1 часа", text: "Большинство работ в день обращения." },
   { icon: MapPin, title: `Выезд по ${BRAND.city}`, text: "Домой или в офис — по согласованию." },
   { icon: Wrench, title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
 ];
+
 
 const FAQ = [
   { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
@@ -222,15 +223,24 @@ export default function Landing(){
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       {/* CSS локально */}
       <style>{`
-        html{scroll-behavior:smooth}
-        .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
-        .reveal-right{transform:translateX(16px)}
-        .reveal-scale{transform:scale(.98)}
-        .reveal-in{opacity:1; transform:none}
-        @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
-        .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
-      `}</style>
+  /* Глобально: плавный скролл и отступ для якорей под фикс-хедер */
+  html{
+    scroll-behavior:smooth;
+    scroll-padding-top: 96px; /* подстройка под высоту шапки; можно 84–104px */
+  }
+  @media (max-width: 767px){
+    html{ scroll-padding-top: 80px; }
+  }
+
+  .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
+  .reveal-right{transform:translateX(16px)}
+  .reveal-scale{transform:scale(.98)}
+  .reveal-in{opacity:1; transform:none}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
+  .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
+`}</style>
+
 
       {/* PROMO BAR (вернул -10% за отзыв) */}
       <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
