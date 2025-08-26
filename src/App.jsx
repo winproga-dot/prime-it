@@ -20,7 +20,27 @@ const BRAND = {
   email: "prime.it.08@gmail.com",
 };
 
-// Порядок: 'soft' выше, 'speedup' ниже
+// Порядок: быстрые форматы сначала (avif/webp), потом jpg/jpeg/png
+const SERVICE_EXTS = ["avif", "webp", "jpg", "jpeg", "png"];
+const handleServiceError = (id) => (e) => {
+  const el = e.currentTarget;
+  const idx = Number(el.dataset.extIdx || 0);
+  if (idx < SERVICE_EXTS.length - 1) {
+    const next = idx + 1;
+    el.dataset.extIdx = String(next);
+    el.src = `/services/${id}.${SERVICE_EXTS[next]}`;
+    return;
+  }
+  if (!el.dataset.triedUnsplash) {
+    el.dataset.triedUnsplash = "1";
+    el.src = `https://source.unsplash.com/640x420/?computer,repair,${id}`;
+    return;
+  }
+  el.onerror = null;
+  el.src = placeholder(id);
+};
+
+// услуги
 const SERVICES = [
   { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"от", badge:"Популярно" },
   { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от" },
@@ -68,25 +88,7 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-const SERVICE_EXTS = ["png","webp","jpg","jpeg"];
-const handleServiceError = (id) => (e) => {
-  const el = e.currentTarget;
-  const idx = Number(el.dataset.extIdx || 0);
-  if (idx < SERVICE_EXTS.length - 1) {
-    const next = idx + 1;
-    el.dataset.extIdx = String(next);
-    el.src = `/services/${id}.${SERVICE_EXTS[next]}`;
-    return;
-  }
-  if (!el.dataset.triedUnsplash) {
-    el.dataset.triedUnsplash = "1";
-    el.src = `https://source.unsplash.com/640x420/?computer,repair,${id}`;
-    return;
-  }
-  el.onerror = null;
-  el.src = placeholder(id);
-};
-
+// Иконки программ (для блока «Лицензии»)
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -99,6 +101,7 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
+// Reveal-анимации
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -124,19 +127,21 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   );
 }
 
+// Карточка услуги
 function ServiceCard({ s, selected, toggle, onImgError }) {
   return (
-    <div className="min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
+    <div className="cv-card min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
       <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
         <img
-          src={`/services/${s.id}.png`}
+          src={`/services/${s.id}.${SERVICE_EXTS[0]}`}
           data-ext-idx="0"
           alt={s.title}
           loading="lazy"
           decoding="async"
+          fetchPriority="low"
           width="640" height="360"
           onError={onImgError(s.id)}
-          className="w-full h-full object-cover"
+          className="cv-img w-full h-full object-cover"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -168,14 +173,23 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
 }
 
 export default function Landing(){
+  // стейт
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
+  const [showTop, setShowTop] = useState(false);
 
+  // refs
   const moreRef = useRef(null);
-  const scrollMore = (dx) => moreRef.current?.scrollBy({ left: dx, behavior: "smooth" });
+  const heroRef = useRef(null);
+  const videoRef = useRef(null);
 
+  // повторный автозапуск видео при возврате (не более 2 раз)
+  const replayCountRef = useRef(0);     // сколько повторов уже сделали
+  const heroEndedRef = useRef(false);   // закончено ли видео (стоит на финальном кадре)
+
+  // авто-прокрутка «Ещё услуги»
   const [isHoverMore, setIsHoverMore] = useState(false);
   useEffect(() => {
     const el = moreRef.current;
@@ -189,7 +203,7 @@ export default function Landing(){
     return () => clearInterval(id);
   }, [isHoverMore]);
 
-  const [showTop, setShowTop] = useState(false);
+  // кнопка «вверх»
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500);
     window.addEventListener("scroll", onScroll);
@@ -198,13 +212,48 @@ export default function Landing(){
   }, []);
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
+  // наблюдаем за секцией hero: если вернулись и видео на паузе в конце — перезапускаем (макс. 2 повторов)
+  useEffect(() => {
+    const heroEl = heroRef.current;
+    const vid = videoRef.current;
+    if (!heroEl || !vid) return;
+
+    // предзагрузка/оптимизация внешних источников для фолбэка
+    const link1 = document.createElement('link');
+    link1.rel = 'preconnect'; link1.href = 'https://source.unsplash.com';
+    const link2 = document.createElement('link');
+    link2.rel = 'preconnect'; link2.href = 'https://images.unsplash.com'; link2.crossOrigin = 'anonymous';
+    document.head.appendChild(link1); document.head.appendChild(link2);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && heroEndedRef.current && replayCountRef.current < 2) {
+            // запускаем повтор
+            try {
+              vid.currentTime = 0;
+              const p = vid.play();
+              if (p && typeof p.then === "function") p.catch(()=>{});
+              replayCountRef.current += 1;
+              heroEndedRef.current = false; // сброс флага — теперь идёт воспроизведение
+            } catch {}
+          }
+        });
+      },
+      { threshold: 0.55 } // считаем, что вернулись наверх, когда герой виден наполовину
+    );
+    io.observe(heroEl);
+
+    return () => { io.disconnect(); document.head.removeChild(link1); document.head.removeChild(link2); };
+  }, []);
+
+  // калькулятор
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
     if (rush) sum = Math.round(sum*1.2);
     if (onsite) sum += 2000;
     return Math.max(sum,0);
   }, [selected,rush,onsite]);
-
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
   const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
@@ -231,7 +280,11 @@ export default function Landing(){
   .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
   .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
 
-  /* NAV: делаем ссылки более "кнопочными" и крупнее */
+  /* ускоряем рендер карточек/изображений за пределами экрана */
+  .cv-card{ content-visibility:auto; contain-intrinsic-size: 560px; }
+  .cv-img{ content-visibility:auto; contain-intrinsic-size: 360px 640px; }
+
+  /* NAV "кнопки" */
   .nav-link{
     display:inline-flex; align-items:center; gap:.4rem;
     font-weight:600; font-size:.98rem;
@@ -245,7 +298,6 @@ export default function Landing(){
     color:#fff; background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.25);
     transform:translateY(-1px);
   }
-  .nav-link:focus-visible{ outline:2px solid rgba(16,185,129,.5); outline-offset:2px; }
   .nav-cta{
     color:#fff;
     background:linear-gradient(180deg, rgba(16,185,129,.30), rgba(16,185,129,.18));
@@ -307,7 +359,7 @@ export default function Landing(){
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
-              <img src={LOGO} alt={BRAND.name} className="h-10 w-10 object-contain"/>
+              <img src={LOGO} alt={BRAND.name} className="h-10 w-10 object-contain" fetchPriority="high" />
             </span>
             <div>
               <div className="text-lg font-semibold">{BRAND.name}</div>
@@ -315,7 +367,6 @@ export default function Landing(){
             </div>
           </div>
 
-          {/* навигация — увеличенный размер и кнопочный вид */}
           <nav className="hidden md:flex items-center gap-2">
             <a href="#services" className="nav-link">Услуги</a>
             <a href="#pricing" className="nav-link">Цены</a>
@@ -333,10 +384,11 @@ export default function Landing(){
         </div>
       </header>
 
-      {/* HERO — твоё видео */}
-      <section id="hero" className="relative h-[72vh] md:h-[86vh]">
+      {/* HERO — твоё видео + повтор при возврате */}
+      <section id="hero" ref={heroRef} className="relative h-[72vh] md:h-[86vh]">
         <div className="absolute inset-0 overflow-hidden">
           <video
+            ref={videoRef}
             className="w-full h-full object-cover"
             autoPlay
             muted
@@ -345,8 +397,10 @@ export default function Landing(){
             poster="/hero.webp"
             onEnded={(e) => {
               const v = e.currentTarget;
+              // фиксируемся на финальном кадре
               v.currentTime = Math.max(0, v.duration - 0.02);
               v.pause();
+              heroEndedRef.current = true; // помечаем, что видео закончилось
             }}
           >
             <source src="/hero.mp4" type="video/mp4" />
@@ -416,8 +470,8 @@ export default function Landing(){
             <div className="flex items-center justify-between mb-3">
               <div className="text-lg font-semibold text-white/90">Ещё услуги</div>
               <div className="hidden md:flex gap-2">
-                <button onClick={() => scrollMore(-400)} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">←</button>
-                <button onClick={() => scrollMore(400)} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
+                <button onClick={() => moreRef.current?.scrollBy({ left: -400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">←</button>
+                <button onClick={() => moreRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
               </div>
             </div>
             <div
@@ -449,7 +503,7 @@ export default function Landing(){
               <div className="mt-4 grid md:grid-cols-2 gap-3">
                 {SERVICES.map(s=>(
                   <label key={s.id} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
-                    <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
+                    <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{ const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next); }} />
                     <div className="flex-1">
                       <div className="font-medium leading-tight">{s.title}</div>
                       <div className="text-xs text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -518,7 +572,7 @@ export default function Landing(){
         </div>
       </section>
 
-      {/*CONTACT — без встроенной карты*/}
+      {/*CONTACT*/}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid md:grid-cols-1 gap-6">
           <Reveal>
@@ -583,7 +637,7 @@ export default function Landing(){
         </button>
       )}
 
-      {/* WhatsApp CTA — повышенный z-index, пульс, всегда наверху */}
+      {/* WhatsApp CTA */}
       <a
         href={whatsappLink}
         target="_blank"
@@ -599,4 +653,3 @@ export default function Landing(){
     </div>
   );
 }
-
