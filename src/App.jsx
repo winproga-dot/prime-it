@@ -52,7 +52,6 @@ const BENEFITS = [
   { icon: Wrench, title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
 ];
 
-
 const FAQ = [
   { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
   { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
@@ -226,7 +225,7 @@ export default function Landing(){
   /* Глобально: плавный скролл и отступ для якорей под фикс-хедер */
   html{
     scroll-behavior:smooth;
-    scroll-padding-top: 96px; /* подстройка под высоту шапки; можно 84–104px */
+    scroll-padding-top: 96px; /* подстройка под высоту шапки */
   }
   @media (max-width: 767px){
     html{ scroll-padding-top: 80px; }
@@ -239,10 +238,49 @@ export default function Landing(){
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
   .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
+
+  /* WhatsApp CTA: мягкий пульс + рипплы */
+  .whats-cta{ 
+    position: relative;
+    animation: whatsGlow 3.8s ease-in-out infinite;
+    will-change: box-shadow;
+    isolation: isolate;
+  }
+  .whats-cta::after,
+  .whats-cta::before{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:9999px;
+    border:2px solid rgba(16,185,129,.45);
+    transform:scale(1);
+    opacity:0;
+    pointer-events:none;
+  }
+  .whats-cta::after{ animation: whatsRipple 2.9s ease-out infinite; }
+  .whats-cta::before{ animation: whatsRipple 2.9s ease-out 1.45s infinite; }
+
+  @keyframes whatsGlow{
+    0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 12px 24px rgba(0,0,0,.25); }
+    60%   { box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 12px 24px rgba(0,0,0,.25); }
+  }
+  @keyframes whatsRipple{
+    from { transform:scale(1);    opacity:.35; }
+    to   { transform:scale(1.35); opacity:0;   }
+  }
+
+  @media (max-width: 767px){
+    .whats-cta::after, .whats-cta::before{ inset:-4px; }
+    .whats-cta{ animation-duration: 4.4s; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .whats-cta, .whats-cta::before, .whats-cta::after{ animation:none !important; }
+  }
+  .whats-cta:hover{ animation-play-state: paused; }
+  .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
 `}</style>
 
-
-      {/* PROMO BAR (вернул -10% за отзыв) */}
+      {/* PROMO BAR */}
       <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
         −10% на следующий заказ, если оставите отзыв в 2GIS.{" "}
         <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">
@@ -276,7 +314,7 @@ export default function Landing(){
         </div>
       </header>
 
-      {/* HERO — твоё видео без изменений, лёгкий градиент и компактный текст снизу слева */}
+      {/* HERO — твоё видео, лёгкий градиент и компактный текст снизу слева */}
       <section id="hero" className="relative h-[72vh] md:h-[86vh]">
         {/* ВИДЕО ФОН */}
         <div className="absolute inset-0 overflow-hidden">
@@ -300,7 +338,7 @@ export default function Landing(){
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/55" />
         </div>
 
-        {/* КОНТЕНТ — компактный, у края, с лёгкой тенью, без «плашек» */}
+        {/* КОНТЕНТ — компактный, у края, без «плашек» */}
         <div className="relative h-full">
           <div className="absolute bottom-8 left-4 md:bottom-12 md:left-8 max-w-xl">
             <h1 className="text-white text-glow text-3xl md:text-5xl font-extrabold leading-tight">
@@ -529,7 +567,15 @@ export default function Landing(){
           <ChevronUp className="h-5 w-5"/> Наверх
         </button>
       )}
-      <a href={whatsappLink} target="_blank" rel="noreferrer" className="fixed bottom-6 right-6 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-lg hover:bg-emerald-400"><MessageSquare className="h-5 w-5"/> WhatsApp</a>
+      <a
+        href={whatsappLink}
+        target="_blank"
+        rel="noreferrer"
+        className="whats-cta fixed bottom-6 right-6 z-50 relative inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-lg hover:bg-emerald-400"
+        aria-label="Написать в WhatsApp"
+      >
+        <MessageSquare className="h-5 w-5"/> WhatsApp
+      </a>
       <button onClick={()=>setShowLicenses(true)} className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"><KeyRound className="h-5 w-5"/> Ключи</button>
     </div>
   );
