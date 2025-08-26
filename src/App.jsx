@@ -172,11 +172,6 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
 }
 
 export default function Landing(){
-  // --- промо-плашка -10% за отзыв в 2ГИС ---
-  const [promoHidden, setPromoHidden] = useState(() => {
-    try { return localStorage.getItem("promoHidden")==="1"; } catch { return false; }
-  });
-
   // по умолчанию отмечена только Windows
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
@@ -186,7 +181,7 @@ export default function Landing(){
   const moreRef = useRef(null);
   const scrollMore = (dx) => moreRef.current?.scrollBy({ left: dx, behavior: "smooth" });
 
-  // авто-прокрутка ленты «Ещё услуги» с паузой при наведении
+  // авто-прокрутка ленты «Ещё услуги»
   const [isHoverMore, setIsHoverMore] = useState(false);
   useEffect(() => {
     const el = moreRef.current;
@@ -225,7 +220,7 @@ export default function Landing(){
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
-      {/* CSS для анимаций и плавного скролла */}
+      {/* CSS локально */}
       <style>{`
         html{scroll-behavior:smooth}
         .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease; will-change:opacity,transform}
@@ -234,42 +229,19 @@ export default function Landing(){
         .reveal-in{opacity:1; transform:none}
         @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
         .btn-floaty{animation:floaty 2.8s ease-in-out infinite}
-        @keyframes blobPulse{0%,100%{opacity:.35; transform:scale(1)}50%{opacity:.6; transform:scale(1.06)}}
-        .blob-anim{animation:blobPulse 7s ease-in-out infinite}
+        .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
       `}</style>
 
-      {/* PROMO BAR: -10% за отзыв в 2ГИС */}
-      {!promoHidden && (
-        <div className="sticky top-0 z-[60] bg-emerald-600/95 text-white backdrop-blur">
-          <div className="mx-auto max-w-7xl px-4 py-2 flex items-center gap-3">
-            <div className="text-sm md:text-[15px]">
-              Оставьте отзыв в 2ГИС — получите <b className="font-extrabold">−10%</b> на следующий заказ
-            </div>
-            <a
-              href={BRAND.map2gis}
-              target="_blank"
-              rel="noreferrer"
-              className="ml-2 rounded-lg border border-white/20 px-3 py-1 text-sm hover:bg-white/10"
-            >
-              Оставить отзыв
-            </a>
-            <button
-              onClick={() => { setPromoHidden(true); try{localStorage.setItem("promoHidden","1");}catch{} }}
-              className="ml-auto rounded-md px-2 py-1 text-white/80 hover:text-white"
-              aria-label="Скрыть"
-              title="Скрыть"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
+      {/* PROMO BAR (вернул -10% за отзыв) */}
+      <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
+        −10% на следующий заказ, если оставите отзыв в 2GIS.{" "}
+        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">
+          Открыть 2GIS
+        </a>
+      </div>
 
-      {/*HEADER (подвинут вниз, если плашка видима)*/}
-      <header
-        className="sticky z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10"
-        style={{ top: promoHidden ? 0 : 42 }}
-      >
+      {/*HEADER*/}
+      <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
@@ -294,9 +266,9 @@ export default function Landing(){
         </div>
       </header>
 
-      {/* HERO — полноэкранный видеобаннер с усиленной читаемостью */}
-      <section id="hero" className="relative">
-        {/* ВИДЕО-ФОН */}
+      {/* HERO — твоё видео без изменений, лёгкий градиент и компактный текст снизу слева */}
+      <section id="hero" className="relative h-[72vh] md:h-[86vh]">
+        {/* ВИДЕО ФОН */}
         <div className="absolute inset-0 overflow-hidden">
           <video
             className="w-full h-full object-cover"
@@ -314,45 +286,35 @@ export default function Landing(){
             <source src="/hero.mp4" type="video/mp4" />
           </video>
 
-          {/* затемнение для текста */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/85 via-slate-950/60 to-slate-950/92 backdrop-blur-[2px]" />
-          {/* мягкая «неоновая» подложка */}
-          <div className="absolute -inset-16 bg-gradient-to-tr from-emerald-500/25 via-sky-500/15 to-fuchsia-500/15 blur-3xl opacity-60 pointer-events-none blob-anim" />
+          {/* Лёгкий градиент: не убивает картинку */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/55" />
         </div>
 
-        {/* КОНТЕНТ */}
-        <div className="relative mx-auto max-w-7xl px-4 py-20 md:py-32">
-          <div className="max-w-2xl rounded-3xl bg-slate-950/45 backdrop-blur-md ring-1 ring-white/10 p-5 md:p-7">
-            <Reveal>
-              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight text-white drop-shadow-lg tracking-tight">
-                Ремонт ПК и ноутбуков в {BRAND.city}
-              </h1>
-            </Reveal>
-
-            <Reveal delay={0.08}>
-              <p className="mt-4 text-white/90 text-lg md:text-xl drop-shadow-md">
-                Установим Windows, почистим от пыли, ускорим SSD/ОЗУ, обслужим видеокарту. Честные цены и гарантия.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.16}>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="#pricing"
-                  className="inline-flex items-center gap-2 rounded-2xl bg-white text-slate-900 px-5 py-3 font-semibold shadow-lg transition hover:-translate-y-0.5"
-                >
-                  Посмотреть цены <ChevronRight className="h-4 w-4"/>
-                </a>
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/20 px-5 py-3 font-semibold hover:bg-white/10 btn-floaty"
-                >
-                  Записаться <MousePointerClick className="h-4 w-4"/>
-                </a>
-              </div>
-            </Reveal>
+        {/* КОНТЕНТ — компактный, у края, с лёгкой тенью, без «плашек» */}
+        <div className="relative h-full">
+          <div className="absolute bottom-8 left-4 md:bottom-12 md:left-8 max-w-xl">
+            <h1 className="text-white text-glow text-3xl md:text-5xl font-extrabold leading-tight">
+              Ремонт ПК и ноутбуков в {BRAND.city}
+            </h1>
+            <p className="mt-3 text-white/90 text-base md:text-lg text-glow max-w-lg">
+              Windows, чистка, ускорение SSD/ОЗУ, видеокарты. Честные цены и гарантия.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <a
+                href="#pricing"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white"
+              >
+                Посмотреть цены <ChevronRight className="h-4 w-4"/>
+              </a>
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45"
+              >
+                Записаться <MousePointerClick className="h-4 w-4"/>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -493,7 +455,7 @@ export default function Landing(){
         </Reveal>
       </section>
 
-      {/*CONTACT (карта 2ГИС удалена, осталась ссылка)*/}
+      {/*CONTACT — без встроенной карты*/}
       <section id="contact" className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid md:grid-cols-1 gap-6">
           <Reveal>
