@@ -74,7 +74,7 @@ const FAQ_ITEMS = [
   { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
   { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
   { q:"Можно ли сохранить данные при переустановке Windows?", a:"Да, делаем резервную копию и переносим важные файлы, если носитель в порядке." },
-  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные ключи и программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
+  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
   { q:"Как оплачивать?", a:"Наличные, Kaspi QR, Kaspi перевод, банковские карты (POS), безнал — счёт на компанию." },
   { q:"Гарантия на работы?", a:"До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика." },
   { q:"График работы?", a:"Без выходных, с 10:00 до 20:00." },
@@ -85,6 +85,25 @@ function currency(n){ return new Intl.NumberFormat("ru-RU").format(n) + " ₸"; 
 function placeholder(text){
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='640' height='420'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='#0ea5e9' offset='0'/><stop stop-color='#10b981' offset='1'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/><text x='50%' y='50%' font-family='Inter,Arial' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'>${text}</text></svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+/* WhatsApp ссылки под разные сценарии */
+function waLinkContact(){
+  return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
+    `Здравствуйте! Пишу с вашего сайта ${BRAND.name}. Нужна консультация/запись на ремонт. Удобное время: … Имя: `
+  )}`;
+}
+function waLinkCalc(selected, rush, onsite, total){
+  return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
+    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${
+      [...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"
+    }\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
+  )}`;
+}
+function waLinkLicense(name, term){
+  return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
+    `Здравствуйте! Хочу купить лицензионную программу: ${name} (${term}).`
+  )}`;
 }
 
 /* ====== UI ====== */
@@ -225,12 +244,27 @@ function MobileLite(){
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
 
-  // НОВОЕ: модал лицензий (кнопка в шапке и плавающая)
+  /* Лицензионные программы — модал (bottom-sheet) */
   const [showLicenses, setShowLicenses] = useState(false);
+
+  const openLicenses = () => {
+    setShowLicenses(true);
+    try {
+      document.body.style.overflow = "hidden";
+      window.history.pushState({ modal: "licenses" }, "", "#licenses");
+    } catch {}
+  };
+  const closeLicenses = () => {
+    setShowLicenses(false);
+    try {
+      document.body.style.overflow = "";
+      if (location.hash === "#licenses") window.history.back();
+    } catch {}
+  };
   useEffect(() => {
-    const onKey = (e)=> e.key === "Escape" && setShowLicenses(false);
-    if (showLicenses) document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    const onPop = () => showLicenses && setShowLicenses(false);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
   }, [showLicenses]);
 
   const total = useMemo(()=> {
@@ -242,9 +276,8 @@ function MobileLite(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
-    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${[...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
-  )}`;
+  const whatsappLinkCalc = waLinkCalc(selected, rush, onsite, total);
+  const whatsappLinkContact = waLinkContact();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -276,10 +309,10 @@ function MobileLite(){
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={()=>setShowLicenses(true)}
+              onClick={openLicenses}
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10"
             >
-              <KeyRound className="h-4 w-4" /> Ключи
+              <KeyRound className="h-4 w-4" /> Лицензионные программы
             </button>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
               <Phone className="h-4 w-4"/> Позвонить
@@ -309,7 +342,7 @@ function MobileLite(){
             <a href="#pricing" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
               Цены <ChevronRight className="h-4 w-4"/>
             </a>
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
+            <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
               Записаться <MousePointerClick className="h-4 w-4"/>
             </a>
           </div>
@@ -360,7 +393,7 @@ function MobileLite(){
             <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium text-sm">Выезд мастера</div><div className="text-[11px] text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
           </div>
           <MobileTotal selected={selected} rush={rush} onsite={onsite} />
-          <a href={whatsappLink} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+          <a href={whatsappLinkCalc} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
             Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
           </a>
         </div>
@@ -370,7 +403,7 @@ function MobileLite(){
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
           </div>
@@ -388,33 +421,34 @@ function MobileLite(){
       </footer>
 
       {/* Плавающие CTA */}
-      <a href={whatsappLink} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+      <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
       <button
         type="button"
-        onClick={()=>setShowLicenses(true)}
+        onClick={openLicenses}
         className="keys-cta inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-2 font-semibold shadow-lg hover:bg-white/20"
       >
-        <KeyRound className="h-4 w-4" /> Ключи
+        <KeyRound className="h-4 w-4" /> Лицензионные программы
       </button>
 
-      {/* Модал «Лицензии» — мобильный bottom sheet */}
+      {/* Модал «Лицензионные программы» — mobile bottom sheet с Back */}
       {showLicenses && (
         <div
           className="fixed inset-0 z-[220] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
-          onClick={()=>setShowLicenses(false)}
+          onClick={closeLicenses}
         >
           <div
-            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-slate-900 ring-1 ring-white/10 p-5 sm:p-6"
+            className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-slate-900 ring-1 ring-white/10 p-5 sm:p-6 max-h-[85vh] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]"
             onClick={(e)=>e.stopPropagation()}
+            role="dialog" aria-modal="true"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 font-bold text-lg">
-                <KeyRound className="h-5 w-5"/> Лицензионные ключи
+                <KeyRound className="h-5 w-5"/> Лицензионные программы
               </div>
               <button
-                onClick={()=>setShowLicenses(false)}
+                onClick={closeLicenses}
                 className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10"
               >
                 Закрыть
@@ -431,7 +465,7 @@ function MobileLite(){
                   </div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
                   <a
-                    href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`}
+                    href={waLinkLicense(l.name, l.term)}
                     target="_blank" rel="noreferrer"
                     className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400"
                   >
@@ -518,9 +552,8 @@ function DesktopLanding(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const whatsappLink = `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(
-    `${BRAND.whatsappPreset}\n\nВыбранные услуги: ${[...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ")||"—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `
-  )}`;
+  const whatsappLinkCalc = waLinkCalc(selected, rush, onsite, total);
+  const whatsappLinkContact = waLinkContact();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -593,13 +626,13 @@ function DesktopLanding(){
             <a href="#benefits" className="nav-link">Преимущества</a>
             <a href="#faq" className="nav-link">FAQ</a>
             <button onClick={()=>setShowLicenses(true)} className="nav-link nav-cta" type="button">
-              <KeyRound className="h-3.5 w-3.5"/> Лицензии
+              <KeyRound className="h-3.5 w-3.5"/> Лицензионные программы
             </button>
           </nav>
 
           <div className="flex items-center gap-3">
             <a href={`tel:${BRAND.phoneTel}`} className="hidden sm:flex items-center gap-2 rounded-2xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
-            <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
           </div>
         </div>
       </header>
@@ -629,7 +662,7 @@ function DesktopLanding(){
               <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
                 Посмотреть цены <ChevronRight className="h-4 w-4"/>
               </a>
-              <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
+              <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
                 Записаться <MousePointerClick className="h-4 w-4"/>
               </a>
             </div>
@@ -717,7 +750,7 @@ function DesktopLanding(){
 
               <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
                 <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
-                <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/></a>
+                <a href={whatsappLinkCalc} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/></a>
               </div>
             </div>
           </Reveal>
@@ -737,7 +770,7 @@ function DesktopLanding(){
 
       <section id="licenses" className="mx-auto max-w-7xl px-4 py-12">
         <Reveal>
-          <h2 className="text-2xl md:text-3xl font-bold">Лицензионные ключи</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Лицензионные программы</h2>
           <p className="mt-1 text-white/70 text-sm">Windows, Office, Autodesk, Adobe, антивирусы — можем установить удалённо через AnyDesk.</p>
           <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {LICENSES.map((l,i)=>(
@@ -746,7 +779,7 @@ function DesktopLanding(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <a href={waLinkLicense(l.name, l.term)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
                 </div>
               </Reveal>
             ))}
@@ -774,7 +807,7 @@ function DesktopLanding(){
             <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
               <h2 className="text-2xl font-bold">Связаться</h2>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a href={whatsappLink} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+                <a href={whatsappLinkContact} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
                 <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
                 <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
                 <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
@@ -798,10 +831,10 @@ function DesktopLanding(){
       </footer>
 
       {showLicenses && (
-        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={()=>setShowLicenses(false)}>
+          <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6 max-h-[85vh] overflow-y-auto overscroll-contain" onClick={(e)=>e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные ключи</div>
+              <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные программы</div>
               <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
             </div>
             <div className="mt-4 divide-y divide-white/10">
@@ -810,7 +843,7 @@ function DesktopLanding(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={`https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(`Здравствуйте! Хочу купить лицензию: ${l.name} (${l.term}).`)}`} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <a href={waLinkLicense(l.name, l.term)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
                 </div>
               ))}
             </div>
@@ -830,7 +863,7 @@ function DesktopLanding(){
       )}
 
       <a
-        href={whatsappLink}
+        href={whatsappLinkContact}
         target="_blank"
         rel="noreferrer"
         className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
