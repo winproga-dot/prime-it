@@ -100,7 +100,6 @@ const wa = {
 };
 
 /* ====== UI ====== */
-// Значок программы
 function ProgramIcon({ type }) {
   let classes = "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white ring-1 ";
   let label = "•";
@@ -113,7 +112,6 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
-// Reveal-анимации
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -214,23 +212,21 @@ function useHashScroll(headerOffset = 96) {
       const el = document.getElementById(id);
       if (!el) return;
 
-      // если карточка в горизонтальной ленте — центрируем её
       const scroller = el.closest("[data-hscroll]");
       if (scroller) {
         const left = Math.max(0, el.offsetLeft - (scroller.clientWidth - el.clientWidth) / 2);
         scroller.scrollTo({ left, behavior: "smooth" });
       }
 
-      // вертикальная прокрутка с учётом высоты хедера
       const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
 
-      // подсветка (spotlight) на 5 секунд
       if (lastSpot) lastSpot.classList.remove("spotlight");
       el.classList.add("spotlight");
       lastSpot = el;
       clearTimeout(spotlightTimer);
-      spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 5000);
+      // убираем подсветку через ~2 секунды
+      spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 2000);
     };
 
     const run = () => {
@@ -292,7 +288,6 @@ function MobileLite(){
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
 
-  // закрытие модалки «Назад» на Android
   useEffect(() => {
     if (!showLicenses) return;
     const stateObj = { modal: "licenses" };
@@ -329,17 +324,21 @@ function MobileLite(){
         .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
 
-        /* Подсветка привязанной услуги */
+        /* ПЛАВАЮЩАЯ ПОДСВЕТКА (1.8s, фирменные цвета) */
         .spotlight .cv-card{
-          outline: 2px solid rgba(251,146,60,.7);
-          border-radius: 1.5rem;
-          box-shadow: 0 0 0 0 rgba(251,146,60,.35);
-          animation: spotPulse 1.8s ease-in-out 3;
+          position: relative;
+          z-index: 1;
+          outline: 2px solid rgba(16,185,129,.55); /* emerald */
+          box-shadow:
+            0 14px 34px rgba(0,0,0,.35),
+            0 0 0 10px rgba(16,185,129,.12),   /* мягкий ореол */
+            0 0 22px rgba(14,165,233,.25);    /* sky акцент */
+          animation: spotFloat 1.8s ease-out 1;
         }
-        @keyframes spotPulse{
-          0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
-          70%{ box-shadow: 0 0 0 14px rgba(251,146,60,0); }
-          100%{ box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+        @keyframes spotFloat{
+          0%   { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+          40%  { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 44px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.16), 0 0 24px rgba(14,165,233,.28); }
+          100% { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
         }
       `}</style>
 
@@ -469,7 +468,6 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Плавающий WhatsApp + Лицензии */}
       <a href={waGeneric} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
@@ -477,7 +475,6 @@ function MobileLite(){
         <KeyRound className="h-5 w-5"/> Лицензии
       </button>
 
-      {/* Модал: Лицензионные ПРОГРАММЫ */}
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
@@ -538,7 +535,6 @@ function DesktopLanding(){
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // повторный автозапуск видео при возврате (макс. 2 раза)
   useEffect(() => {
     const heroEl = heroRef.current;
     const vid = videoRef.current;
@@ -621,17 +617,21 @@ function DesktopLanding(){
   @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
   .whats-cta:hover, .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
 
-  /* Подсветка привязанной услуги */
+  /* ПЛАВАЮЩАЯ ПОДСВЕТКА (1.8s, фирменные цвета) */
   .spotlight .cv-card{
-    outline: 2px solid rgba(251,146,60,.7);
-    border-radius: 1.5rem;
-    box-shadow: 0 0 0 0 rgba(251,146,60,.35);
-    animation: spotPulse 1.8s ease-in-out 3;
+    position: relative;
+    z-index: 1;
+    outline: 2px solid rgba(16,185,129,.55);
+    box-shadow:
+      0 16px 38px rgba(0,0,0,.35),
+      0 0 0 12px rgba(16,185,129,.12),
+      0 0 26px rgba(14,165,233,.25);
+    animation: spotFloat 1.8s ease-out 1;
   }
-  @keyframes spotPulse{
-    0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
-    70%{ box-shadow: 0 0 0 14px rgba(251,146,60,0); }
-    100%{ box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+  @keyframes spotFloat{
+    0%   { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+    40%  { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 46px rgba(0,0,0,.36), 0 0 0 14px rgba(16,185,129,.16), 0 0 28px rgba(14,165,233,.28); }
+    100% { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
   }
 `}</style>
 
@@ -737,7 +737,7 @@ function DesktopLanding(){
               <div className="text-lg font-semibold text-white/90">Ещё услуги</div>
               <div className="hidden md:flex gap-2">
                 <button onClick={() => moreRef.current?.scrollBy({ left: -400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">←</button>
-                <button onClick={() => moreRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
+                <button onClick={() => moreRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded- xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
               </div>
             </div>
             <div
@@ -865,7 +865,6 @@ function DesktopLanding(){
         <div className="mt-6 text-xs">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Модал: Лицензионные ПРОГРАММЫ */}
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
@@ -898,7 +897,6 @@ function DesktopLanding(){
         </button>
       )}
 
-      {/* Плавающий WhatsApp */}
       <a
         href={waGeneric}
         target="_blank"
