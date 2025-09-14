@@ -13,7 +13,7 @@ const BRAND = {
   address: "Алматы, Ади Шарипова 100",
   phoneDisplay: "8 (707) 684-06-25",
   phoneTel: "+77076840625",
-  whatsapp: "77076840625",
+  whatsapp: "77076840625", // только цифры, с кодом страны
   map2gis: "https://go.2gis.com/f7IzE",
   email: "prime.it.08@gmail.com",
 };
@@ -86,9 +86,36 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-/* WhatsApp сообщения */
+/* ====== WhatsApp helper: максимально совместимо ====== */
 const wa = {
-  link: (msg) => `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`,
+  endpoint() {
+    if (typeof navigator !== "undefined") {
+      const ua = navigator.userAgent || "";
+      // iOS любит wa.me, Android/десктоп — api.whatsapp.com
+      const isIOS = /iP(hone|od|ad)/i.test(ua);
+      return isIOS ? "wa.me" : "api";
+    }
+    return "api";
+  },
+  url(msg){
+    const ep = this.endpoint();
+    return ep === "wa.me"
+      ? `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`
+      : `https://api.whatsapp.com/send?phone=${BRAND.whatsapp}&text=${encodeURIComponent(msg)}`;
+  },
+  open(msg, newTab = false){
+    const url = this.url(msg);
+    if (newTab) {
+      try {
+        const w = window.open(url, "_blank", "noopener");
+        if (!w) window.location.href = url;
+        return;
+      } catch { /* fallthrough */ }
+    }
+    // Самый надёжный вариант — перейти в этом же окне
+    window.location.href = url;
+  },
+  // Шаблоны сообщений:
   msgGeneric: `Здравствуйте! Пишу с сайта ${BRAND.name}. Нужна консультация.`,
   msgHero:    `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу записаться на ремонт.`,
   msgContact: `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу уточнить условия и цены.`,
@@ -112,6 +139,7 @@ function ProgramIcon({ type }) {
   return <div className={classes} aria-label={type}>{label}</div>;
 }
 
+// Reveal-анимации
 function Reveal({ children, className = "", delay = 0, variant = "up" }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -225,7 +253,6 @@ function useHashScroll(headerOffset = 96) {
       el.classList.add("spotlight");
       lastSpot = el;
       clearTimeout(spotlightTimer);
-      // убираем подсветку через ~2 секунды
       spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 2000);
     };
 
@@ -288,6 +315,7 @@ function MobileLite(){
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
 
+  // поддержка "Назад" для модалки
   useEffect(() => {
     if (!showLicenses) return;
     const stateObj = { modal: "licenses" };
@@ -309,10 +337,6 @@ function MobileLite(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const waCalc = wa.link(wa.msgCalc([...selected], rush, onsite, total));
-  const waGeneric = wa.link(wa.msgGeneric);
-  const waHero = wa.link(wa.msgHero);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <style>{`
@@ -324,21 +348,17 @@ function MobileLite(){
         .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
 
-        /* ПЛАВАЮЩАЯ ПОДСВЕТКА (1.8s, фирменные цвета) */
+        /* Плавающая подсветка 1.8s */
         .spotlight .cv-card{
-          position: relative;
-          z-index: 1;
-          outline: 2px solid rgba(16,185,129,.55); /* emerald */
-          box-shadow:
-            0 14px 34px rgba(0,0,0,.35),
-            0 0 0 10px rgba(16,185,129,.12),   /* мягкий ореол */
-            0 0 22px rgba(14,165,233,.25);    /* sky акцент */
+          position: relative; z-index: 1;
+          outline: 2px solid rgba(16,185,129,.55);
+          box-shadow: 0 14px 34px rgba(0,0,0,.35), 0 0 0 10px rgba(16,185,129,.12), 0 0 22px rgba(14,165,233,.25);
           animation: spotFloat 1.8s ease-out 1;
         }
         @keyframes spotFloat{
-          0%   { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
-          40%  { transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 44px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.16), 0 0 24px rgba(14,165,233,.28); }
-          100% { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+          0% { transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+          40%{ transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 44px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.16), 0 0 24px rgba(14,165,233,.28); }
+          100%{ transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
         }
       `}</style>
 
@@ -366,16 +386,26 @@ function MobileLite(){
             >
               <KeyRound className="h-4 w-4"/> Лицензии
             </button>
-            <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
-              <Phone className="h-4 w-4"/> Позвонить
-            </a>
+            <button
+              onClick={()=>wa.open(wa.msgHero)}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10"
+              type="button"
+            >
+              <Phone className="h-4 w-4"/> Позвонить/WhatsApp
+            </button>
           </div>
         </div>
       </header>
 
       <section id="hero" className="relative">
         <div className="aspect-[16/10] w-full overflow-hidden">
-          <img src="/hero.webp" alt="PRIME IT" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
+          <img
+            src="/hero.webp"
+            alt="PRIME IT"
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+          />
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4">
           <h1 className="text-[22px] font-extrabold leading-tight text-white text-glow">
@@ -388,9 +418,13 @@ function MobileLite(){
             <a href="#pricing" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
               Цены <ChevronRight className="h-4 w-4"/>
             </a>
-            <a href={waHero} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
+            <button
+              onClick={()=>wa.open(wa.msgHero)}
+              className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45"
+              type="button"
+            >
               Записаться <MousePointerClick className="h-4 w-4"/>
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -441,9 +475,13 @@ function MobileLite(){
             <label className="flex items-center gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium text-sm">Выезд мастера</div><div className="text-[11px] text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
           </div>
           <MobileTotal selected={selected} rush={rush} onsite={onsite} />
-          <a href={waCalc} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+          <button
+            onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, (()=>{ let sum=0; for(const s of SERVICES) if (selected.has(s.id)) sum+=s.price; if (rush) sum=Math.round(sum*1.2); if (onsite) sum+=2000; return Math.max(sum,0);})()))}
+            className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400"
+            type="button"
+          >
             Отправить в WhatsApp <ChevronRight className="h-4 w-4"/>
-          </a>
+          </button>
         </div>
       </section>
 
@@ -451,7 +489,7 @@ function MobileLite(){
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={wa.link(wa.msgContact)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <button onClick={()=>wa.open(wa.msgContact)} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400" type="button"><MessageSquare className="h-4 w-4"/> WhatsApp</button>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
           </div>
@@ -468,10 +506,10 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      <a href={waGeneric} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+      <button onClick={()=>wa.open(wa.msgGeneric)} className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400" type="button">
         <MessageSquare className="h-5 w-5"/> WhatsApp
-      </a>
-      <button onClick={()=>setShowLicenses(true)} className="fixed left-4 bottom-[4.25rem] inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20">
+      </button>
+      <button onClick={()=>setShowLicenses(true)} className="fixed left-4 bottom-[4.25rem] inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20" type="button">
         <KeyRound className="h-5 w-5"/> Лицензии
       </button>
 
@@ -480,7 +518,7 @@ function MobileLite(){
           <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
             <div className="flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur px-0 pb-3">
               <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные программы</div>
-              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
+              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10" type="button">Закрыть</button>
             </div>
             <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
@@ -488,7 +526,13 @@ function MobileLite(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <button
+                    onClick={()=>wa.open(wa.msgLicense(l.name,l.term))}
+                    className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400"
+                    type="button"
+                  >
+                    Заказать
+                  </button>
                 </div>
               ))}
             </div>
@@ -566,10 +610,6 @@ function DesktopLanding(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const waCalc = wa.link(wa.msgCalc([...selected], rush, onsite, total));
-  const waGeneric = wa.link(wa.msgGeneric);
-  const waHero = wa.link(wa.msgHero);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <style>{`
@@ -615,23 +655,17 @@ function DesktopLanding(){
   .whats-cta::before{ animation: whatsRipple 2.9s ease-out 1.45s infinite; }
   @keyframes whatsGlow{ 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28);} 60%{ box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28);} }
   @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
-  .whats-cta:hover, .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
 
-  /* ПЛАВАЮЩАЯ ПОДСВЕТКА (1.8s, фирменные цвета) */
   .spotlight .cv-card{
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     outline: 2px solid rgba(16,185,129,.55);
-    box-shadow:
-      0 16px 38px rgba(0,0,0,.35),
-      0 0 0 12px rgba(16,185,129,.12),
-      0 0 26px rgba(14,165,233,.25);
+    box-shadow: 0 16px 38px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.12), 0 0 26px rgba(14,165,233,.25);
     animation: spotFloat 1.8s ease-out 1;
   }
   @keyframes spotFloat{
-    0%   { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
-    40%  { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 46px rgba(0,0,0,.36), 0 0 0 14px rgba(16,185,129,.16), 0 0 28px rgba(14,165,233,.28); }
-    100% { transform: translateY(0) scale(1);   box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+    0% { transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
+    40%{ transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 46px rgba(0,0,0,.36), 0 0 0 14px rgba(16,185,129,.16), 0 0 28px rgba(14,165,233,.28); }
+    100%{ transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
   }
 `}</style>
 
@@ -658,13 +692,13 @@ function DesktopLanding(){
             <a href="#benefits" className="nav-link">Преимущества</a>
             <a href="#faq" className="nav-link">FAQ</a>
             <button onClick={()=>setShowLicenses(true)} className="nav-link nav-cta" type="button">
-              <KeyRound className="h-3.5 w-3.5"/> Лицензии
+              <KeyRound className="h-3.5 w-3.5"/> Лицензионные программы
             </button>
           </nav>
 
           <div className="flex items-center gap-3">
             <a href={`tel:${BRAND.phoneTel}`} className="hidden sm:flex items-center gap-2 rounded-2xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
-            <a href={waGeneric} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <button onClick={()=>wa.open(wa.msgGeneric)} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400" type="button"><MessageSquare className="h-4 w-4"/> WhatsApp</button>
           </div>
         </div>
       </header>
@@ -694,9 +728,9 @@ function DesktopLanding(){
               <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
                 Посмотреть цены <ChevronRight className="h-4 w-4"/>
               </a>
-              <a href={waHero} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
+              <button onClick={()=>wa.open(wa.msgHero)} className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45" type="button">
                 Записаться <MousePointerClick className="h-4 w-4"/>
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -737,7 +771,7 @@ function DesktopLanding(){
               <div className="text-lg font-semibold text-white/90">Ещё услуги</div>
               <div className="hidden md:flex gap-2">
                 <button onClick={() => moreRef.current?.scrollBy({ left: -400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">←</button>
-                <button onClick={() => moreRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded- xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
+                <button onClick={() => moreRef.current?.scrollBy({ left: 400, behavior: "smooth" })} className="rounded-xl border border-white/15 px-3 py-1 hover:bg-white/10">→</button>
               </div>
             </div>
             <div
@@ -785,7 +819,9 @@ function DesktopLanding(){
 
               <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
                 <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
-                <a href={waCalc} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400">Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/></a>
+                <button onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, total))} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400" type="button">
+                  Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/>
+                </button>
               </div>
             </div>
           </Reveal>
@@ -814,7 +850,7 @@ function DesktopLanding(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <button onClick={()=>wa.open(wa.msgLicense(l.name,l.term))} className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400" type="button">Заказать</button>
                 </div>
               </Reveal>
             ))}
@@ -842,7 +878,7 @@ function DesktopLanding(){
             <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
               <h2 className="text-2xl font-bold">Связаться</h2>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a href={wa.link(wa.msgContact)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+                <button onClick={()=>wa.open(wa.msgContact)} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400" type="button"><MessageSquare className="h-4 w-4"/> WhatsApp</button>
                 <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
                 <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
                 <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
@@ -870,7 +906,7 @@ function DesktopLanding(){
           <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
             <div className="flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur px-0 pb-3">
               <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные программы</div>
-              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
+              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10" type="button">Закрыть</button>
             </div>
             <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
@@ -878,7 +914,7 @@ function DesktopLanding(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <button onClick={()=>wa.open(wa.msgLicense(l.name,l.term))} className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400" type="button">Заказать</button>
                 </div>
               ))}
             </div>
@@ -892,20 +928,21 @@ function DesktopLanding(){
           className="fixed bottom-24 right-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20 btn-floaty"
           aria-label="Наверх"
           title="Наверх"
+          type="button"
         >
           <ChevronUp className="h-5 w-5"/> Наверх
         </button>
       )}
 
-      <a
-        href={waGeneric}
-        target="_blank"
-        rel="noreferrer"
+      <button
+        onClick={()=>wa.open(wa.msgGeneric)}
         className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
         aria-label="Написать в WhatsApp"
+        type="button"
+        style={{ position:"fixed" }}
       >
         <MessageSquare className="h-5 w-5"/> WhatsApp
-      </a>
+      </button>
     </div>
   );
 }
