@@ -14,7 +14,6 @@ const BRAND = {
   phoneDisplay: "8 (707) 684-06-25",
   phoneTel: "+77076840625",
   whatsapp: "77076840625",
-  whatsappPreset: "Здравствуйте! Хочу записаться на ремонт.",
   map2gis: "https://go.2gis.com/f7IzE",
   email: "prime.it.08@gmail.com",
 };
@@ -40,75 +39,41 @@ const handleServiceError = (id) => (e) => {
 };
 
 const SERVICES = [
-  { id:"winms", icon:Monitor, title:"Установка Windows и MS Office",
-    desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.",
-    price:10000, pricePrefix:"от", badge:"Популярно", badgeColor:"emerald" },
+  { id:"winms", icon:Monitor, title:"Установка Windows и MS Office", desc:"Установлю Windows 10/11 с драйверами и необходимыми программами. Microsoft Office. Быстро, аккуратно, с сохранением ваших файлов. Срок: от 1 часа. Office при необходимости ставим удалённо через AnyDesk.", price:10000, pricePrefix:"от", badge:"Популярно" },
+  { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты", desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.", price:8000, pricePrefix:"от", badge:"Рекомендуется раз в год", badgeTone:"warn" },
+  { id:"gpu_service", icon:Cpu, title:"Обслуживание видеокарт (GPU)", desc:"Чистка, замена термопасты и термопрокладок. GTX 10 / RTX 20–50 серии. Снижает температуры, повышает FPS. Рекомендуем раз в год.", price:12000, pricePrefix:"от", priceNote:"до 22 000 — по модели", badge:"Рекомендуется раз в год", badgeTone:"warn" },
+  { id:"data", icon:HardDrive, title:"Восстановление данных", desc:"Фото, документы и видео с флешек, HDD, карт памяти. Срок: 2–3 часа.", price:12000, pricePrefix:"от" },
+  { id:"soft", icon:Layers3, title:"Установка графических программ (Autodesk, Adobe)", desc:"AutoCAD, Revit, Photoshop, Illustrator, Premiere Pro и др. Возможна удалённая установка через AnyDesk.", price:5000, pricePrefix:"от" },
+  { id:"build", icon:Cpu, title:"Сборка компьютера", desc:"Игровой, офисный или дизайнерский ПК под задачи и бюджет. Установка и настройка ПО. Срок: 1 день.", price:16000, pricePrefix:"от" },
 
-  { id:"clean", icon:Fan, title:"Чистка от пыли и замена термопасты",
-    desc:"Полная чистка ноутбука или ПК от пыли с разбором и заменой качественной термопасты (Arctic MX-4, Thermal Grizzly и др.). Срок: от 2 часов.",
-    price:8000, pricePrefix:"от", badge:"Рекомендуется раз в год", badgeColor:"orange" },
-
-  { id:"gpu_service", icon:Cpu, title:"Обслуживание видеокарт (GPU)",
-    desc:"Чистка, замена термопасты и термопрокладок. GTX 10 / RTX 20–50 серии. Снижает температуры, повышает FPS. Рекомендуем раз в год.",
-    price:12000, pricePrefix:"от", priceNote:"до 22 000 — по модели", badge:"Рекомендуется раз в год", badgeColor:"orange" },
-
-  { id:"data", icon:HardDrive, title:"Восстановление данных",
-    desc:"Фото, документы и видео с флешек, HDD, карт памяти. Срок: 2–3 часа.",
-    price:12000, pricePrefix:"от" },
-
-  { id:"soft", icon:Layers3, title:"Установка графических программ (Autodesk, Adobe)",
-    desc:"AutoCAD, Revit, Photoshop, Illustrator, Premiere Pro и др. Возможна удалённая установка через AnyDesk.",
-    price:5000, pricePrefix:"от" },
-
-  { id:"build", icon:Cpu, title:"Сборка компьютера",
-    desc:"Игровой, офисный или дизайнерский ПК под задачи и бюджет. Установка и настройка ПО. Срок: 1 день.",
-    price:16000, pricePrefix:"от" },
-
-  { id:"speedup", icon:Layers3, title:"Ускорение ПК/ноутбука (SSD + ОЗУ)",
-    desc:"Подбор и установка SSD и оперативной памяти. Перенос системы, настройка, оптимизация.",
-    price:7000, pricePrefix:"от" },
-
-  { id:"parts", icon:Laptop, title:"Замена матрицы, клавиатуры, кулера",
-    desc:"Профессиональная замена экрана, клавиатуры, вентилятора охлаждения на ноутбуках всех моделей.",
-    price:10000, pricePrefix:"от", priceNote:"+ деталь" },
-
-  { id:"hinge", icon:Laptop, title:"Ремонт петель ноутбука, замена корпуса",
-    desc:"Ремонт или замена петель крышки, восстановление корпуса. Срок: 1–2 дня.",
-    price:8000, pricePrefix:"от" },
-
-  { id:"battery", icon:HardDrive, title:"Замена батареи и зарядки",
-    desc:"Замена аккумуляторов ноутбука и блоков питания. Срок: ~1 час при наличии детали.",
-    price:5000, pricePrefix:"от", priceNote:"+ деталь" },
-
-  { id:"misc", icon:Wrench, title:"Другие услуги",
-    desc:"Настройка Wi-Fi, драйверов, печати, BIOS/UEFI, мелкий ремонт и пр.",
-    price:5000, pricePrefix:"от" },
-
-  { id:"sale", icon:Monitor, title:"Продажа ноутбуков и ПК",
-    desc:"Подбор, тестирование и продажа. Windows + Office + нужные программы — в подарок.",
-    price:45000, pricePrefix:"от" },
+  { id:"speedup", icon:Layers3, title:"Ускорение ПК/ноутбука (SSD + ОЗУ)", desc:"Подбор и установка SSD и оперативной памяти. Перенос системы, настройка, оптимизация.", price:7000, pricePrefix:"от" },
+  { id:"parts", icon:Laptop, title:"Замена матрицы, клавиатуры, кулера", desc:"Профессиональная замена экрана, клавиатуры, вентилятора охлаждения на ноутбуках всех моделей.", price:10000, pricePrefix:"от", priceNote:"+ деталь" },
+  { id:"hinge", icon:Laptop, title:"Ремонт петель ноутбука, замена корпуса", desc:"Ремонт или замена петель крышки, восстановление корпуса. Срок: 1–2 дня.", price:8000, pricePrefix:"от" },
+  { id:"battery", icon:HardDrive, title:"Замена батареи и зарядки", desc:"Замена аккумуляторов ноутбука и блоков питания. Срок: ~1 час при наличии детали.", price:5000, pricePrefix:"от", priceNote:"+ деталь" },
+  { id:"misc", icon:Wrench, title:"Другие услуги", desc:"Настройка Wi-Fi, драйверов, печати, BIOS/UEFI, мелкий ремонт и пр.", price:5000, pricePrefix:"от" },
+  { id:"sale", icon:Monitor, title:"Продажа ноутбуков и ПК", desc:"Подбор, тестирование и продажа. Windows + Office + нужные программы — в подарок.", price:45000, pricePrefix:"от" },
 ];
 
 const LICENSES = [
-  { key:'windows',   name:"Windows 10/11 (Home/Pro)",         term:"Бессрочно", price:"16 000–19 000 ₸" },
-  { key:'office',    name:"Microsoft Office 2021/2024",       term:"Бессрочно", price:"18 000–25 000 ₸" },
+  { key:'windows',   name:"Windows 10/11 (Home/Pro)", term:"Бессрочно", price:"16 000–19 000 ₸" },
+  { key:'office',    name:"Microsoft Office 2021/2024", term:"Бессрочно", price:"18 000–25 000 ₸" },
   { key:'autodesk',  name:"Autodesk (AutoCAD, 3ds Max, Revit, Maya и др.)", term:"1 год", price:"40 000 ₸" },
-  { key:'adobe',     name:"Adobe Creative Cloud",             term:"4 месяца",  price:"40 000 ₸" },
-  { key:'kaspersky', name:"Kaspersky (1–3 устройства)",       term:"1–3 года",  price:"6 500–20 000 ₸" },
+  { key:'adobe',     name:"Adobe Creative Cloud", term:"4 месяца", price:"40 000 ₸" },
+  { key:'kaspersky', name:"Kaspersky (1–3 устройства)", term:"1–3 года", price:"6 500–20 000 ₸" },
 ];
 
 const BENEFITS = [
   { icon: ShieldCheck, title: "Гарантия до 2 лет (на отдельные товары)", text: "Официальные чек и гарантийный талон." },
-  { icon: Clock,       title: "Сроки от 1 часа",                         text: "Большинство работ в день обращения." },
-  { icon: MapPin,      title: `Выезд по ${BRAND.city}`,                  text: "Домой или в офис — по согласованию." },
-  { icon: Wrench,      title: "Делаем до конца",                         text: "Не уходим, пока всё не работает." },
+  { icon: Clock,       title: "Сроки от 1 часа", text: "Большинство работ в день обращения." },
+  { icon: MapPin,      title: `Выезд по ${BRAND.city}`, text: "Домой или в офис — по согласованию." },
+  { icon: Wrench,      title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
 ];
 
 const FAQ_ITEMS = [
   { q:"Что если проблему не удалось решить?", a:"Оплату за работу не берём. Предложим альтернативы (замена детали, перенос данных) — всё согласуем заранее." },
   { q:"Сколько стоит диагностика?", a:"3000 ₸. Если остаётесь на ремонт — диагностика бесплатна." },
   { q:"Можно ли сохранить данные при переустановке Windows?", a:"Да, делаем резервную копию и переносим важные файлы, если носитель в порядке." },
-  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные ключи и программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
+  { q:"Вы устанавливаете программы удалённо?", a:"Да. Лицензионные программы (Office, Autodesk, Adobe) можем установить удалённо через AnyDesk." },
   { q:"Как оплачивать?", a:"Наличные, Kaspi QR, Kaspi перевод, банковские карты (POS), безнал — счёт на компанию." },
   { q:"Гарантия на работы?", a:"До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика." },
   { q:"График работы?", a:"Без выходных, с 10:00 до 20:00." },
@@ -121,83 +86,18 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-/* WhatsApp ссылки под разные сценарии */
-function buildWAText(kind, payload = {}) {
-  const base = "Здравствуйте! Пишу с сайта PRIME IT.";
-  if (kind === "calc") {
-    const { selectedTitles = [], rush, onsite, total } = payload;
-    return `${base}\n\nХочу оформить услуги: ${selectedTitles.join(", ") || "—"}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `;
+/* WhatsApp сообщения */
+const wa = {
+  link: (msg) => `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(msg)}`,
+  msgGeneric: `Здравствуйте! Пишу с сайта ${BRAND.name}. Нужна консультация.`,
+  msgHero:    `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу записаться на ремонт.`,
+  msgContact: `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу уточнить условия и цены.`,
+  msgLicense: (name,term)=>`Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу купить лицензию: ${name} (${term}).`,
+  msgCalc: (selectedIds, rush, onsite, total) => {
+    const list = selectedIds.map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ") || "—";
+    return `Здравствуйте! Пишу с сайта ${BRAND.name}.\n\nВыбранные услуги: ${list}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `;
   }
-  if (kind === "service") {
-    const { title } = payload;
-    return `${base}\nИнтересует услуга: ${title}.\nМожно записаться на ближайшее время?\nИмя: `;
-  }
-  if (kind === "license") {
-    const { name, term } = payload;
-    return `${base}\nХочу приобрести лицензионную программу: ${name} (${term}).\nКак оплатить и получить?\nИмя: `;
-  }
-  if (kind === "hero" || kind === "header" || kind === "floating" || kind === "contact") {
-    return `${base}\nНужна консультация/ремонт. Когда сможете принять или выехать?\nИмя: `;
-  }
-  // fallback
-  return `${base}\nИнтересует консультация.\nИмя: `;
-}
-function waLink(kind, payload) {
-  const txt = buildWAText(kind, payload);
-  return `https://wa.me/${BRAND.whatsapp}?text=${encodeURIComponent(txt)}`;
-}
-
-/* Прокрутка по якорю + горизонтальные ленты */
-function useHashScroll(headerOffset = 96) {
-  useEffect(() => {
-    const scrollToHash = () => {
-      const hash = decodeURIComponent(window.location.hash || "").slice(1);
-      if (!hash) return;
-      const el = document.getElementById(hash);
-      if (!el) return;
-
-      // Если карточка внутри горизонтального скроллера — доскроллим ленту
-      const scroller = el.closest("[data-hscroll]");
-      if (scroller) {
-        const left = el.offsetLeft - 16;
-        scroller.scrollTo({ left, behavior: "smooth" });
-      }
-
-      const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    };
-
-    const t = setTimeout(scrollToHash, 80);
-    window.addEventListener("hashchange", scrollToHash);
-    return () => { clearTimeout(t); window.removeEventListener("hashchange", scrollToHash); };
-  }, [headerOffset]);
-}
-
-/* Back-button совместимый модальный хук (для Android/iOS) */
-function useBackClosableModal(isOpen, setIsOpen, hash = "#licenses") {
-  useEffect(() => {
-    const onPop = () => {
-      if (window.location.hash !== hash && isOpen) {
-        setIsOpen(false);
-      }
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, [isOpen, setIsOpen, hash]);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (window.location.hash !== hash) {
-        history.pushState(null, "", hash);
-      }
-    } else {
-      if (window.location.hash === hash) {
-        history.back();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
-}
+};
 
 /* ====== UI ====== */
 // Значок программы
@@ -241,6 +141,7 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
 
 // Карточка услуги — одинаковая высота
 function ServiceCard({ s, selected, toggle, onImgError }) {
+  const WarnBadge = s.badge && s.badgeTone === "warn";
   return (
     <div className="cv-card h-full min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
       <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
@@ -263,10 +164,9 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
           <div className="font-semibold leading-tight">{s.title}</div>
           {s.badge && (
             <span
-              className={`text-[10px] rounded-full px-2 py-0.5 ring-1
-                ${s.badgeColor==="orange"
-                  ? "bg-orange-500/20 text-orange-200 ring-orange-400/30"
-                  : "bg-emerald-500/20 text-emerald-300 ring-emerald-400/30"}`}
+              className={`text-xs rounded-full px-2 py-0.5 ring-1
+              ${WarnBadge ? "bg-orange-500/20 text-orange-200 ring-orange-400/30" : "bg-emerald-500/20 text-emerald-300 ring-emerald-400/30"}`}
+              title={s.badge}
             >
               {s.badge}
             </span>
@@ -300,6 +200,51 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
       </div>
     </div>
   );
+}
+
+/* ====== ХЭШ-ФОКУС / ПОДСВЕТКА ====== */
+function useHashScroll(headerOffset = 96) {
+  useEffect(() => {
+    let spotlightTimer;
+    let lastSpot;
+
+    const focusTarget = (raw) => {
+      if (!raw) return;
+      const id = raw.startsWith("service-") ? raw : `service-${raw}`;
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // если карточка в горизонтальной ленте — центрируем её
+      const scroller = el.closest("[data-hscroll]");
+      if (scroller) {
+        const left = Math.max(0, el.offsetLeft - (scroller.clientWidth - el.clientWidth) / 2);
+        scroller.scrollTo({ left, behavior: "smooth" });
+      }
+
+      // вертикальная прокрутка с учётом высоты хедера
+      const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+
+      // подсветка (spotlight) на 5 секунд
+      if (lastSpot) lastSpot.classList.remove("spotlight");
+      el.classList.add("spotlight");
+      lastSpot = el;
+      clearTimeout(spotlightTimer);
+      spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 5000);
+    };
+
+    const run = () => {
+      const hash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+      const params = new URLSearchParams(window.location.search);
+      const qp = params.get("service") || params.get("s");
+      const target = hash || (qp ? `service-${qp}` : "");
+      if (target) focusTarget(target);
+    };
+
+    const t = setTimeout(run, 80);
+    window.addEventListener("hashchange", run);
+    return () => { clearTimeout(t); window.removeEventListener("hashchange", run); };
+  }, [headerOffset]);
 }
 
 /* ====== МОБАЙЛ ХУК ====== */
@@ -347,7 +292,18 @@ function MobileLite(){
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
 
-  useBackClosableModal(showLicenses, setShowLicenses, "#licenses");
+  // закрытие модалки «Назад» на Android
+  useEffect(() => {
+    if (!showLicenses) return;
+    const stateObj = { modal: "licenses" };
+    const newUrl = "#licenses-modal";
+    const hadHash = window.location.hash === newUrl;
+    if (!hadHash) history.pushState(stateObj, "", newUrl);
+
+    const onPop = () => setShowLicenses(false);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [showLicenses]);
 
   const total = useMemo(()=> {
     let sum=0; for (const s of SERVICES) if (selected.has(s.id)) sum+=s.price;
@@ -358,19 +314,33 @@ function MobileLite(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const waCalc = waLink("calc", {
-    selectedTitles: [...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean),
-    rush, onsite, total
-  });
+  const waCalc = wa.link(wa.msgCalc([...selected], rush, onsite, total));
+  const waGeneric = wa.link(wa.msgGeneric);
+  const waHero = wa.link(wa.msgHero);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <style>{`
         html{scroll-behavior:smooth; scroll-padding-top: 76px;}
+        .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
+        .reveal-in{opacity:1; transform:none}
         .text-glow{text-shadow:0 2px 18px rgba(0,0,0,.55),0 1px 4px rgba(0,0,0,.45)}
         @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
         .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
+
+        /* Подсветка привязанной услуги */
+        .spotlight .cv-card{
+          outline: 2px solid rgba(251,146,60,.7);
+          border-radius: 1.5rem;
+          box-shadow: 0 0 0 0 rgba(251,146,60,.35);
+          animation: spotPulse 1.8s ease-in-out 3;
+        }
+        @keyframes spotPulse{
+          0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
+          70%{ box-shadow: 0 0 0 14px rgba(251,146,60,0); }
+          100%{ box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+        }
       `}</style>
 
       <div className="bg-emerald-600 text-white text-xs py-2 text-center">
@@ -389,13 +359,13 @@ function MobileLite(){
               <div className="text-[11px] text-white/60 flex items-center gap-1"><MapPin className="h-3 w-3"/>{BRAND.city}</div>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               onClick={()=>setShowLicenses(true)}
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10"
+              type="button"
             >
-              <KeyRound className="h-3.5 w-3.5" /> Лицензии
+              <KeyRound className="h-4 w-4"/> Лицензии
             </button>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10">
               <Phone className="h-4 w-4"/> Позвонить
@@ -406,13 +376,7 @@ function MobileLite(){
 
       <section id="hero" className="relative">
         <div className="aspect-[16/10] w-full overflow-hidden">
-          <img
-            src="/hero.webp"
-            alt="PRIME IT"
-            className="w-full h-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
+          <img src="/hero.webp" alt="PRIME IT" className="w-full h-full object-cover" loading="eager" fetchPriority="high" />
         </div>
         <div className="absolute inset-x-0 bottom-0 p-4">
           <h1 className="text-[22px] font-extrabold leading-tight text-white text-glow">
@@ -425,7 +389,7 @@ function MobileLite(){
             <a href="#pricing" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
               Цены <ChevronRight className="h-4 w-4"/>
             </a>
-            <a href={waLink("hero")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
+            <a href={waHero} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45">
               Записаться <MousePointerClick className="h-4 w-4"/>
             </a>
           </div>
@@ -450,8 +414,8 @@ function MobileLite(){
         </div>
         <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory" data-hscroll>
           {SERVICES.slice(0, 6).map((s) => (
-            <div key={s.id} id={`service-${s.id}`} className="snap-start w-[320px] shrink-0 scroll-mt-28">
-              <ServiceCard s={s} selected={selected} toggle={(id)=>{ const n=new Set(selected); n.has(id)?n.delete(id):n.add(id); setSelected(n); }} onImgError={handleServiceError}/>
+            <div key={s.id} id={`service-${s.id}`} className="snap-start w-[320px] shrink-0">
+              <ServiceCard s={s} selected={selected} toggle={(id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); }} onImgError={handleServiceError}/>
             </div>
           ))}
         </div>
@@ -462,8 +426,10 @@ function MobileLite(){
           <h3 className="text-lg font-bold">Калькулятор стоимости</h3>
           <div className="mt-3 grid grid-cols-1 gap-2">
             {SERVICES.slice(0,8).map(s=>(
-              <label key={s.id} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
-                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{ const n=new Set(selected); n.has(s.id)?n.delete(s.id):n.add(s.id); setSelected(n); }} />
+              <label key={s.id} id={`service-${s.id}-calc`} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
+                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{
+                  const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next);
+                }} />
                 <div className="flex-1">
                   <div className="font-medium leading-tight text-sm">{s.title}</div>
                   <div className="text-[11px] text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -486,7 +452,7 @@ function MobileLite(){
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={waLink("contact")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={wa.link(wa.msgContact)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
             <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
             <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
           </div>
@@ -503,38 +469,29 @@ function MobileLite(){
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Плавающие CTA */}
-      <a href={waLink("floating")} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
+      {/* Плавающий WhatsApp + Лицензии */}
+      <a href={waGeneric} target="_blank" rel="noreferrer" className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400">
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
-      <button
-        onClick={()=>setShowLicenses(true)}
-        className="fixed bottom-[4.25rem] left-4 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"
-      >
+      <button onClick={()=>setShowLicenses(true)} className="fixed left-4 bottom-[4.25rem] inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20">
         <KeyRound className="h-5 w-5"/> Лицензии
       </button>
 
-      {/* Мобильная шторка «Лицензионные программы» */}
+      {/* Модал: Лицензионные ПРОГРАММЫ */}
       {showLicenses && (
-        <div className="fixed inset-0 z-[60] bg-black/50" onClick={() => history.back()}>
-          <div
-            className="absolute inset-x-0 bottom-0 max-h-[80vh] rounded-t-3xl bg-slate-900 ring-1 ring-white/10 p-5"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Лицензионные программы"
-            onClick={(e)=>e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
+            <div className="flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur px-0 pb-3">
               <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные программы</div>
-              <button onClick={()=>history.back()} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
+              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
             </div>
-            <div className="mt-4 overflow-y-auto pr-1" style={{maxHeight:"calc(80vh - 64px)"}}>
+            <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
-                <div key={i} className="py-3 flex items-center gap-3 border-b border-white/10 last:border-0">
+                <div key={i} className="py-3 flex items-center gap-3">
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={waLink("license", {name:l.name, term:l.term})} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
                 </div>
               ))}
             </div>
@@ -554,8 +511,6 @@ function DesktopLanding(){
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
   const [showTop, setShowTop] = useState(false);
-
-  useBackClosableModal(showLicenses, setShowLicenses, "#licenses");
 
   const moreRef = useRef(null);
   const heroRef = useRef(null);
@@ -583,24 +538,23 @@ function DesktopLanding(){
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // повторный автозапуск видео при возврате (макс. 2 раза)
   useEffect(() => {
     const heroEl = heroRef.current;
     const vid = videoRef.current;
     if (!heroEl || !vid) return;
     const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && heroEndedRef.current && replayCountRef.current < 2) {
-            try {
-              vid.currentTime = 0;
-              const p = vid.play();
-              if (p && typeof p.then === "function") p.catch(()=>{});
-              replayCountRef.current += 1;
-              heroEndedRef.current = false;
-            } catch {}
-          }
-        });
-      },
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting && heroEndedRef.current && replayCountRef.current < 2) {
+          try {
+            vid.currentTime = 0;
+            const p = vid.play();
+            if (p && typeof p.then === "function") p.catch(()=>{});
+            replayCountRef.current += 1;
+            heroEndedRef.current = false;
+          } catch {}
+        }
+      }),
       { threshold: 0.55 }
     );
     io.observe(heroEl);
@@ -616,10 +570,9 @@ function DesktopLanding(){
 
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
-  const waCalc = waLink("calc", {
-    selectedTitles: [...selected].map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean),
-    rush, onsite, total
-  });
+  const waCalc = wa.link(wa.msgCalc([...selected], rush, onsite, total));
+  const waGeneric = wa.link(wa.msgGeneric);
+  const waHero = wa.link(wa.msgHero);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -667,6 +620,19 @@ function DesktopLanding(){
   @keyframes whatsGlow{ 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28);} 60%{ box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28);} }
   @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
   .whats-cta:hover, .whats-cta:hover::before, .whats-cta:hover::after{ animation-play-state: paused; }
+
+  /* Подсветка привязанной услуги */
+  .spotlight .cv-card{
+    outline: 2px solid rgba(251,146,60,.7);
+    border-radius: 1.5rem;
+    box-shadow: 0 0 0 0 rgba(251,146,60,.35);
+    animation: spotPulse 1.8s ease-in-out 3;
+  }
+  @keyframes spotPulse{
+    0% { box-shadow: 0 0 0 0 rgba(251,146,60,.35); }
+    70%{ box-shadow: 0 0 0 14px rgba(251,146,60,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(251,146,60,0); }
+  }
 `}</style>
 
       <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
@@ -698,7 +664,7 @@ function DesktopLanding(){
 
           <div className="flex items-center gap-3">
             <a href={`tel:${BRAND.phoneTel}`} className="hidden sm:flex items-center gap-2 rounded-2xl border border-white/15 px-4 py-2 text-sm hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
-            <a href={waLink("header")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+            <a href={waGeneric} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-medium hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
           </div>
         </div>
       </header>
@@ -728,7 +694,7 @@ function DesktopLanding(){
               <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
                 Посмотреть цены <ChevronRight className="h-4 w-4"/>
               </a>
-              <a href={waLink("hero")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
+              <a href={waHero} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45">
                 Записаться <MousePointerClick className="h-4 w-4"/>
               </a>
             </div>
@@ -755,11 +721,10 @@ function DesktopLanding(){
           <a href="#pricing" className="text-sm text-white/70 hover:text-white">Смотреть цены</a>
         </div>
 
-        {/* Топ-6 — одинаковой высоты */}
         <div className="mt-6 grid md:grid-cols-3 items-stretch gap-4">
           {SERVICES.slice(0, 6).map((s, i) => (
             <Reveal key={s.id} delay={i*0.05}>
-              <div id={`service-${s.id}`} className="scroll-mt-28">
+              <div id={`service-${s.id}`}>
                 <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
               </div>
             </Reveal>
@@ -783,7 +748,7 @@ function DesktopLanding(){
               className="overflow-x-auto flex gap-4 snap-x snap-mandatory cursor-grab active:cursor-grabbing"
             >
               {SERVICES.slice(6).map((s, i) => (
-                <div key={s.id} id={`service-${s.id}`} className="snap-start w-[320px] shrink-0 scroll-mt-28">
+                <div key={s.id} id={`service-${s.id}`} className="snap-start w-[320px] shrink-0">
                   <Reveal delay={i*0.03}>
                     <ServiceCard s={s} selected={selected} toggle={toggle} onImgError={handleServiceError}/>
                   </Reveal>
@@ -803,7 +768,7 @@ function DesktopLanding(){
 
               <div className="mt-4 grid md:grid-cols-2 gap-3">
                 {SERVICES.map(s=>(
-                  <label key={s.id} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
+                  <label key={s.id} id={`service-${s.id}-calc`} className={`flex items-start gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer ${selected.has(s.id) ? "outline outline-2 outline-white/30" : ""}`}>
                     <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>toggle(s.id)} />
                     <div className="flex-1">
                       <div className="font-medium leading-tight">{s.title}</div>
@@ -849,7 +814,7 @@ function DesktopLanding(){
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={waLink("license", {name:l.name, term:l.term})} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
                 </div>
               </Reveal>
             ))}
@@ -877,7 +842,7 @@ function DesktopLanding(){
             <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
               <h2 className="text-2xl font-bold">Связаться</h2>
               <div className="mt-5 flex flex-wrap gap-3">
-                <a href={waLink("contact")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
+                <a href={wa.link(wa.msgContact)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400"><MessageSquare className="h-4 w-4"/> WhatsApp</a>
                 <a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><Phone className="h-4 w-4"/> {BRAND.phoneDisplay}</a>
                 <a href={`mailto:${BRAND.email}`} className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10">Email: {BRAND.email}</a>
                 <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 px-5 py-3 font-semibold hover:bg-white/10"><MapPin className="h-4 w-4"/> 2GIS (Маршрут)</a>
@@ -900,21 +865,21 @@ function DesktopLanding(){
         <div className="mt-6 text-xs">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
 
-      {/* Модал «Лицензионные программы» (центральный) */}
+      {/* Модал: Лицензионные ПРОГРАММЫ */}
       {showLicenses && (
-        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={()=>history.back()}>
-          <div className="w-full max-w-2xl rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6" onClick={(e)=>e.stopPropagation()}>
-            <div className="flex items-center justify-between">
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-auto rounded-3xl bg-slate-900 ring-1 ring-white/10 p-6">
+            <div className="flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur px-0 pb-3">
               <div className="flex items-center gap-2 font-bold text-lg"><KeyRound className="h-5 w-5"/> Лицензионные программы</div>
-              <button onClick={()=>history.back()} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
+              <button onClick={()=>setShowLicenses(false)} className="rounded-xl border border-white/15 px-3 py-1 text-sm hover:bg-white/10">Закрыть</button>
             </div>
-            <div className="mt-4 divide-y divide-white/10">
+            <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
                 <div key={i} className="py-3 flex items-center gap-3">
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
-                  <a href={waLink("license", {name:l.name, term:l.term})} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
+                  <a href={wa.link(wa.msgLicense(l.name,l.term))} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold hover:bg-emerald-400">Заказать</a>
                 </div>
               ))}
             </div>
@@ -935,7 +900,7 @@ function DesktopLanding(){
 
       {/* Плавающий WhatsApp */}
       <a
-        href={waLink("floating")}
+        href={waGeneric}
         target="_blank"
         rel="noreferrer"
         className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
@@ -943,8 +908,6 @@ function DesktopLanding(){
       >
         <MessageSquare className="h-5 w-5"/> WhatsApp
       </a>
-
-      <button onClick={()=>setShowLicenses(true)} className="fixed bottom-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-5 py-3 font-semibold shadow-lg hover:bg-white/20"><KeyRound className="h-5 w-5"/> Лицензии</button>
     </div>
   );
 }
