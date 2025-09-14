@@ -86,12 +86,11 @@ function placeholder(text){
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
-/* ====== WhatsApp helper: максимально совместимо ====== */
+/* ====== WhatsApp helper ====== */
 const wa = {
   endpoint() {
     if (typeof navigator !== "undefined") {
       const ua = navigator.userAgent || "";
-      // iOS любит wa.me, Android/десктоп — api.whatsapp.com
       const isIOS = /iP(hone|od|ad)/i.test(ua);
       return isIOS ? "wa.me" : "api";
     }
@@ -110,12 +109,10 @@ const wa = {
         const w = window.open(url, "_blank", "noopener");
         if (!w) window.location.href = url;
         return;
-      } catch { /* fallthrough */ }
+      } catch {}
     }
-    // Самый надёжный вариант — перейти в этом же окне
     window.location.href = url;
   },
-  // Шаблоны сообщений:
   msgGeneric: `Здравствуйте! Пишу с сайта ${BRAND.name}. Нужна консультация.`,
   msgHero:    `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу записаться на ремонт.`,
   msgContact: `Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу уточнить условия и цены.`,
@@ -228,46 +225,106 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
   );
 }
 
-/* ====== ХЭШ-ФОКУС / ПОДСВЕТКА ====== */
-function useHashScroll(headerOffset = 96) {
+/* ====== ГЛУБОКИЕ ССЫЛКИ (услуги + лицензии) ====== */
+function useHashScroll(headerOffset = 96, opts = {}) {
+  const openLicensesModal = opts.openLicensesModal || null;
+
   useEffect(() => {
     let spotlightTimer;
     let lastSpot;
 
-    const focusTarget = (raw) => {
-      if (!raw) return;
-      const id = raw.startsWith("service-") ? raw : `service-${raw}`;
-      const el = document.getElementById(id);
+    const addSpotlight = (el) => {
       if (!el) return;
+      if (lastSpot) lastSpot.classList.remove("spotlight");
+      el.classList.add("spotlight");
+      lastSpot = el;
+      clearTimeout(spotlightTimer);
+      spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 1800);
+    };
 
+    const centerInScroller = (el) => {
       const scroller = el.closest("[data-hscroll]");
       if (scroller) {
         const left = Math.max(0, el.offsetLeft - (scroller.clientWidth - el.clientWidth) / 2);
         scroller.scrollTo({ left, behavior: "smooth" });
       }
+    };
 
+    const scrollToEl = (el) => {
       const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
+    };
 
-      if (lastSpot) lastSpot.classList.remove("spotlight");
-      el.classList.add("spotlight");
-      lastSpot = el;
-      clearTimeout(spotlightTimer);
-      spotlightTimer = setTimeout(() => el.classList.remove("spotlight"), 2000);
+    const focusService = (id) => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      centerInScroller(el);
+      scrollToEl(el);
+      addSpotlight(el);
+      return true;
+    };
+
+    const focusLicenseInSection = (id) => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      scrollToEl(document.getElementById("licenses") || el);
+      addSpotlight(el);
+      return true;
+    };
+
+    const focusLicenseInModal = (key) => {
+      if (!openLicensesModal) return false;
+      openLicensesModal(); // открыть
+      setTimeout(() => {
+        const el = document.getElementById(`license-${key}-modal`);
+        if (el) {
+          el.scrollIntoView({ block: "center" });
+          el.classList.add("spotlight");
+          setTimeout(() => el.classList.remove("spotlight"), 1800);
+        }
+      }, 120);
+      return true;
     };
 
     const run = () => {
-      const hash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
-      const params = new URLSearchParams(window.location.search);
-      const qp = params.get("service") || params.get("s");
-      const target = hash || (qp ? `service-${qp}` : "");
-      if (target) focusTarget(target);
+      const rawHash = decodeURIComponent(window.location.hash || "").replace(/^#/, "");
+      const sp = new URLSearchParams(window.location.search);
+
+      let target = "";
+      // поддерживаем разные формы
+      if (rawHash) target = rawHash;
+      if (!target && (sp.get("service") || sp.get("s"))) target = `service-${sp.get("service") || sp.get("s")}`;
+      if (!target && (sp.get("license") || sp.get("lic") || sp.get("l"))) target = `license-${sp.get("license") || sp.get("lic") || sp.get("l")}`;
+
+      if (!target) return;
+
+      // просто #licenses — перейти к секции/открыть модалку
+      if (target === "licenses" || target === "license") {
+        const ok = focusLicenseInSection("licenses");
+        if (!ok) openLicensesModal && openLicensesModal();
+        return;
+      }
+
+      if (target.startsWith("service-")) {
+        focusService(target);
+        return;
+      }
+
+      if (target.startsWith("license-")) {
+        // сначала пробуем секцию (десктоп)
+        const ok = focusLicenseInSection(target);
+        if (!ok) {
+          // если это мобильная версия (без секции) — открываем модалку и фокусим элемент
+          const key = target.replace(/^license-/, "");
+          focusLicenseInModal(key);
+        }
+      }
     };
 
-    const t = setTimeout(run, 80);
+    const t = setTimeout(run, 90);
     window.addEventListener("hashchange", run);
     return () => { clearTimeout(t); window.removeEventListener("hashchange", run); };
-  }, [headerOffset]);
+  }, [headerOffset, openLicensesModal]);
 }
 
 /* ====== МОБАЙЛ ХУК ====== */
@@ -308,21 +365,20 @@ function MobileTotal({selected,rush,onsite}){
 }
 
 function MobileLite(){
-  useHashScroll(76);
-
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
 
-  // поддержка "Назад" для модалки
+  // deep-links (на мобиле — открываем модалку для лицензий)
+  useHashScroll(76, { openLicensesModal: () => setShowLicenses(true) });
+
+  // поддержка кнопки «Назад» для модалки на Android/Samsung
   useEffect(() => {
     if (!showLicenses) return;
     const stateObj = { modal: "licenses" };
     const newUrl = "#licenses-modal";
-    const hadHash = window.location.hash === newUrl;
-    if (!hadHash) history.pushState(stateObj, "", newUrl);
-
+    if (window.location.hash !== newUrl) history.pushState(stateObj, "", newUrl);
     const onPop = () => setShowLicenses(false);
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -348,13 +404,16 @@ function MobileLite(){
         .whats-cta{ position:fixed; right:1rem; bottom:calc(1rem + env(safe-area-inset-bottom)); }
         .whats-cta::after{ content:""; position:absolute; inset:-4px; border-radius:9999px; border:2px solid rgba(16,185,129,.45); transform:scale(1); opacity:0; animation: whatsRipple 3s ease-out infinite; }
 
-        /* Плавающая подсветка 1.8s */
-        .spotlight .cv-card{
+        /* универсальная подсветка (плавающая ~1.8s) */
+        .spotlight{
           position: relative; z-index: 1;
           outline: 2px solid rgba(16,185,129,.55);
           box-shadow: 0 14px 34px rgba(0,0,0,.35), 0 0 0 10px rgba(16,185,129,.12), 0 0 22px rgba(14,165,233,.25);
+          border-radius: 1rem;
           animation: spotFloat 1.8s ease-out 1;
         }
+        .spotlight .cv-card{ outline: 0; box-shadow: none; } /* чтобы не дублировать */
+
         @keyframes spotFloat{
           0% { transform: translateY(0) scale(1); box-shadow: 0 12px 28px rgba(0,0,0,.28), 0 0 0 0 rgba(16,185,129,0), 0 0 0 rgba(14,165,233,0); }
           40%{ transform: translateY(-6px) scale(1.01); box-shadow: 0 18px 44px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.16), 0 0 24px rgba(14,165,233,.28); }
@@ -443,7 +502,6 @@ function MobileLite(){
       <section id="services" className="mx-auto max-w-7xl px-4 py-4">
         <div className="flex items-end justify-between">
           <h2 className="text-xl font-bold">Услуги</h2>
-          <a href="#pricing" className="text-xs text-white/70 hover:text-white">Смотреть цены</a>
         </div>
         <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory" data-hscroll>
           {SERVICES.slice(0, 6).map((s) => (
@@ -460,9 +518,7 @@ function MobileLite(){
           <div className="mt-3 grid grid-cols-1 gap-2">
             {SERVICES.slice(0,8).map(s=>(
               <label key={s.id} id={`service-${s.id}-calc`} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
-                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{
-                  const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next);
-                }} />
+                <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{ const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next); }} />
                 <div className="flex-1">
                   <div className="font-medium leading-tight text-sm">{s.title}</div>
                   <div className="text-[11px] text-white/60">{s.pricePrefix?`${s.pricePrefix} `:""}{currency(s.price)}{s.priceNote?` • ${s.priceNote}`:""}</div>
@@ -522,7 +578,7 @@ function MobileLite(){
             </div>
             <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
-                <div key={i} className="py-3 flex items-center gap-3">
+                <div key={i} id={`license-${l.key}-modal`} className="py-3 flex items-center gap-3">
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
@@ -545,13 +601,14 @@ function MobileLite(){
 
 /* ====== ДЕСКТОП ====== */
 function DesktopLanding(){
-  useHashScroll(96);
-
   const [selected, setSelected] = useState(()=>new Set(["winms"]));
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
   const [showTop, setShowTop] = useState(false);
+
+  // deep-links (на десктопе фокусим секцию/карточку; модалка — как запасной вариант)
+  useHashScroll(96, { openLicensesModal: () => setShowLicenses(true) });
 
   const moreRef = useRef(null);
   const heroRef = useRef(null);
@@ -646,20 +703,12 @@ function DesktopLanding(){
   }
   .nav-cta:hover{ background:rgba(16,185,129,.42); border-color:rgba(16,185,129,.6); }
 
-  .whats-cta{ position: fixed; animation: whatsGlow 3.8s ease-in-out infinite; isolation:isolate; }
-  .whats-cta::after, .whats-cta::before{
-    content:""; position:absolute; inset:-6px; border-radius:9999px; border:2px solid rgba(16,185,129,.45);
-    transform:scale(1); opacity:0; pointer-events:none;
-  }
-  .whats-cta::after{ animation: whatsRipple 2.9s ease-out infinite; }
-  .whats-cta::before{ animation: whatsRipple 2.9s ease-out 1.45s infinite; }
-  @keyframes whatsGlow{ 0%,100%{ box-shadow: 0 0 0 0 rgba(16,185,129,0), 0 14px 28px rgba(0,0,0,.28);} 60%{ box-shadow: 0 0 0 10px rgba(16,185,129,.10), 0 14px 28px rgba(0,0,0,.28);} }
-  @keyframes whatsRipple{ from{ transform:scale(1); opacity:.35;} to{ transform:scale(1.35); opacity:0;} }
-
-  .spotlight .cv-card{
+  /* универсальная подсветка также для секции лицензий */
+  .spotlight{
     position: relative; z-index: 1;
     outline: 2px solid rgba(16,185,129,.55);
     box-shadow: 0 16px 38px rgba(0,0,0,.35), 0 0 0 12px rgba(16,185,129,.12), 0 0 26px rgba(14,165,233,.25);
+    border-radius: 1rem;
     animation: spotFloat 1.8s ease-out 1;
   }
   @keyframes spotFloat{
@@ -839,6 +888,7 @@ function DesktopLanding(){
         </div>
       </section>
 
+      {/* СЕКЦИЯ ЛИЦЕНЗИЙ (для десктопа и deep-link) */}
       <section id="licenses" className="mx-auto max-w-7xl px-4 py-12">
         <Reveal>
           <h2 className="text-2xl md:text-3xl font-bold">Лицензионные программы</h2>
@@ -846,7 +896,7 @@ function DesktopLanding(){
           <div className="mt-6 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {LICENSES.map((l,i)=>(
               <Reveal key={i} delay={i*0.05}>
-                <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex items-center gap-4">
+                <div id={`license-${l.key}`} className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex items-center gap-4">
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-semibold leading-tight">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
@@ -910,7 +960,7 @@ function DesktopLanding(){
             </div>
             <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
-                <div key={i} className="py-3 flex items-center gap-3">
+                <div key={i} id={`license-${l.key}-modal`} className="py-3 flex items-center gap-3">
                   <ProgramIcon type={l.key}/>
                   <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
