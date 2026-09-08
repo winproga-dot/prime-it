@@ -29,11 +29,7 @@ const handleServiceError = (id) => (e) => {
     el.src = `/services/${id}.${SERVICE_EXTS[next]}`;
     return;
   }
-  if (!el.dataset.triedUnsplash) {
-    el.dataset.triedUnsplash = "1";
-    el.src = `https://source.unsplash.com/640x420/?computer,repair,${id}`;
-    return;
-  }
+
   el.onerror = null;
   el.src = placeholder(id);
 };
@@ -63,7 +59,7 @@ const LICENSES = [
 ];
 
 const BENEFITS = [
-  { icon: ShieldCheck, title: "Гарантия до 2 лет (на отдельные товары)", text: "Официальные чек и гарантийный талон." },
+  { icon: ShieldCheck, title: "Гарантия на работы — до 3 месяцев", text: "На отдельные товары — до 2 лет. На запчасти — гарантия поставщика. Официальные чек и гарантийный талон." },
   { icon: Clock,       title: "Сроки от 1 часа", text: "Большинство работ в день обращения." },
   { icon: MapPin,      title: `Выезд по ${BRAND.city}`, text: "Домой или в офис — по согласованию." },
   { icon: Wrench,      title: "Делаем до конца", text: "Не уходим, пока всё не работает." },
@@ -119,9 +115,32 @@ const wa = {
   msgLicense: (name,term)=>`Здравствуйте! Пишу с сайта ${BRAND.name}. Хочу купить лицензию: ${name} (${term}).`,
   msgCalc: (selectedIds, rush, onsite, total) => {
     const list = selectedIds.map(id=>SERVICES.find(s=>s.id===id)?.title).filter(Boolean).join(", ") || "—";
-    return `Здравствуйте! Пишу с сайта ${BRAND.name}.\n\nВыбранные услуги: ${list}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nОриентир: ${currency(total)}\n\nИмя: `;
+    return `Здравствуйте! Пишу с сайта ${BRAND.name}.\n\nВыбранные услуги: ${list}\nСрочно: ${rush?"да":"нет"}\nВыезд: ${onsite?"да":"нет"}\nПредварительный ориентир: от ${currency(total)}. Точная цена после диагностики; детали отдельно, где указано.\n\nИмя: `;
   }
 };
+
+
+function SymptomContact() {
+  const [symptom, setSymptom] = useState("");
+  const message = symptom
+    ? `Здравствуйте! Пишу с сайта ${BRAND.name}. Проблема: ${symptom.toLowerCase()}. Хочу узнать предварительную стоимость ремонта.\nМодель устройства: \nПодробности: `
+    : `Здравствуйте! Пишу с сайта ${BRAND.name}. Нужна помощь с компьютером или ноутбуком. Хочу узнать предварительную стоимость ремонта.\nМодель устройства: \nОписание проблемы: `;
+  return (
+    <section id="estimate" className="mx-auto max-w-7xl px-4 py-8">
+      <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 md:p-8">
+        <h2 className="text-2xl font-bold">Что случилось с устройством?</h2>
+        <p className="mt-2 text-white/70">Выберите симптом или сразу напишите нам. Определять вид ремонта самостоятельно не нужно.</p>
+        <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Симптом неисправности">
+          {["Не включается", "Тормозит", "Греется", "Разбит экран", "Другая проблема"].map(item => (
+            <button key={item} type="button" aria-pressed={symptom === item} onClick={() => setSymptom(item)} className={`rounded-xl border px-4 py-3 ${symptom === item ? "bg-white text-slate-900 border-white" : "border-white/20 hover:bg-white/10"}`}>{item}</button>
+          ))}
+        </div>
+        <a href={wa.url(message)} className="mt-5 inline-flex rounded-xl bg-emerald-500 px-5 py-3 font-semibold">Узнать стоимость в WhatsApp</a>
+        <p className="mt-3 text-sm text-white/70">Оценка предварительная. Точную цену подтверждаем после диагностики: 3 000 ₸, бесплатно при ремонте.</p>
+      </div>
+    </section>
+  );
+}
 
 /* ====== UI ====== */
 function ProgramIcon({ type }) {
@@ -166,7 +185,7 @@ function Reveal({ children, className = "", delay = 0, variant = "up" }) {
 function ServiceCard({ s, selected, toggle, onImgError }) {
   const WarnBadge = s.badge && s.badgeTone === "warn";
   return (
-    <div className="cv-card h-full min-w-[280px] md:min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
+    <div className="cv-card h-full min-w-0 rounded-3xl bg-white/5 ring-1 ring-white/10 p-5 flex flex-col transition duration-300 hover:-translate-y-1 hover:ring-white/20">
       <div className="aspect-[16/9] rounded-xl overflow-hidden ring-1 ring-white/10 mb-3">
         <img
           src={`/services/${s.id}.${SERVICE_EXTS[0]}`}
@@ -217,7 +236,7 @@ function ServiceCard({ s, selected, toggle, onImgError }) {
             }`}
           >
             {selected.has(s.id) ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
-            {selected.has(s.id) ? "В заказе" : "Добавить в заказ"}
+            {selected.has(s.id) ? "В расчёте" : "Добавить в расчёт"}
           </button>
         </div>
       </div>
@@ -358,14 +377,14 @@ function MobileTotal({selected,rush,onsite}){
     <div className="mt-4 flex items-center justify-between rounded-2xl bg-white/5 ring-1 ring-white/10 p-4">
       <div>
         <div className="text-xs text-white/60">Ориентировочная стоимость</div>
-        <div className="text-xl font-extrabold">{currency(total)}</div>
+        <div className="text-xl font-extrabold">{selected.size ? `от ${currency(total)}` : "Услуги не выбраны"}</div>
       </div>
     </div>
   );
 }
 
 function MobileLite(){
-  const [selected, setSelected] = useState(()=>new Set(["winms"]));
+  const [selected, setSelected] = useState(()=>new Set());
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
@@ -394,8 +413,12 @@ function MobileLite(){
   const toggle = (id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="mobile-page min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <style>{`
+        button:disabled { opacity: .45; cursor: not-allowed; }
+        a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid #34d399; outline-offset: 3px; }
+        .mobile-page a, .mobile-page button { min-height:44px; }
+        .mobile-page { overflow-wrap:anywhere; }
         html{scroll-behavior:smooth; scroll-padding-top: 76px;}
         .reveal-base{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
         .reveal-in{opacity:1; transform:none}
@@ -421,13 +444,9 @@ function MobileLite(){
         }
       `}</style>
 
-      <div className="bg-emerald-600 text-white text-xs py-2 text-center">
-        −10% на следующий заказ за отзыв в 2GIS.{" "}
-        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
-      </div>
 
       <header className="sticky top-0 z-40 backdrop-blur bg-slate-950/70 border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 py-3 flex flex-wrap gap-3 items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 overflow-hidden">
               <img src={LOGO} alt={BRAND.name} className="h-10 w-10 object-contain" />
@@ -445,13 +464,7 @@ function MobileLite(){
             >
               <KeyRound className="h-4 w-4"/> Лицензии
             </button>
-            <button
-              onClick={()=>wa.open(wa.msgHero)}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium hover:bg-white/10"
-              type="button"
-            >
-              <Phone className="h-4 w-4"/> Позвонить/WhatsApp
-            </button>
+<a href={`tel:${BRAND.phoneTel}`} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-3 py-2 text-xs font-medium"><Phone className="h-4 w-4"/> Позвонить</a>
           </div>
         </div>
       </header>
@@ -466,27 +479,29 @@ function MobileLite(){
             fetchPriority="high"
           />
         </div>
-        <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="relative p-4 bg-slate-950">
           <h1 className="text-[22px] font-extrabold leading-tight text-white text-glow">
-            Ремонт ПК и ноутбуков в {BRAND.city}
+            Ремонт компьютеров и ноутбуков в {BRAND.city}
           </h1>
           <p className="mt-2 text-white/90 text-sm text-glow">
-            Windows, чистка, ускорение SSD/ОЗУ, видеокарты. Честные цены и гарантия.
+            {BRAND.address}. Диагностика — 3 000 ₸, бесплатно при ремонте. Предварительная оценка — в WhatsApp.
           </p>
-          <div className="mt-3 flex gap-2">
-            <a href="#pricing" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
-              Цены <ChevronRight className="h-4 w-4"/>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a href="#estimate" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
+              Узнать стоимость ремонта <ChevronRight className="h-4 w-4"/>
             </a>
             <button
               onClick={()=>wa.open(wa.msgHero)}
               className="inline-flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-sm font-semibold hover:bg-black/45"
               type="button"
             >
-              Записаться <MousePointerClick className="h-4 w-4"/>
+              WhatsApp <MousePointerClick className="h-4 w-4"/>
             </button>
           </div>
         </div>
       </section>
+
+      <SymptomContact />
 
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-6">
         <div className="grid grid-cols-2 gap-3">
@@ -503,9 +518,9 @@ function MobileLite(){
         <div className="flex items-end justify-between">
           <h2 className="text-xl font-bold">Услуги</h2>
         </div>
-        <div className="mt-4 -mx-4 px-4 overflow-x-auto flex gap-3 snap-x snap-mandatory" data-hscroll>
-          {SERVICES.slice(0, 6).map((s) => (
-            <div key={s.id} id={`service-${s.id}`} className="snap-start w-[320px] shrink-0">
+        <div className="mt-4 grid grid-cols-1 gap-3" data-hscroll>
+          {SERVICES.map((s) => (
+            <div key={s.id} id={`service-${s.id}`} className="min-w-0">
               <ServiceCard s={s} selected={selected} toggle={(id)=>{ const next=new Set(selected); next.has(id)?next.delete(id):next.add(id); setSelected(next); }} onImgError={handleServiceError}/>
             </div>
           ))}
@@ -514,9 +529,9 @@ function MobileLite(){
 
       <section id="pricing" className="mx-auto max-w-7xl px-4 py-6">
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-4">
-          <h3 className="text-lg font-bold">Калькулятор стоимости</h3>
+          <h3 className="text-lg font-bold">Калькулятор стоимости (по желанию)</h3><p className="mt-2 text-sm text-white/70">Точная цена — после диагностики. Цены «от», детали оплачиваются отдельно, где указано.</p>
           <div className="mt-3 grid grid-cols-1 gap-2">
-            {SERVICES.slice(0,8).map(s=>(
+            {SERVICES.map(s=>(
               <label key={s.id} id={`service-${s.id}-calc`} className={`flex items-start gap-3 rounded-xl p-3 ring-1 ring-white/10 bg-white/5 ${selected.has(s.id)?"outline outline-2 outline-white/30":""}`}>
                 <input type="checkbox" className="mt-1" checked={selected.has(s.id)} onChange={()=>{ const next=new Set(selected); next.has(s.id)?next.delete(s.id):next.add(s.id); setSelected(next); }} />
                 <div className="flex-1">
@@ -532,7 +547,7 @@ function MobileLite(){
           </div>
           <MobileTotal selected={selected} rush={rush} onsite={onsite} />
           <button
-            onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, (()=>{ let sum=0; for(const s of SERVICES) if (selected.has(s.id)) sum+=s.price; if (rush) sum=Math.round(sum*1.2); if (onsite) sum+=2000; return Math.max(sum,0);})()))}
+            disabled={!selected.size} onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, (()=>{ let sum=0; for(const s of SERVICES) if (selected.has(s.id)) sum+=s.price; if (rush) sum=Math.round(sum*1.2); if (onsite) sum+=2000; return Math.max(sum,0);})()))}
             className="mt-3 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold hover:bg-emerald-400"
             type="button"
           >
@@ -541,6 +556,10 @@ function MobileLite(){
         </div>
       </section>
 
+      <section id="faq" className="px-4 py-8">
+        <h2 className="text-xl font-bold">Частые вопросы</h2>
+        <div className="mt-4 divide-y divide-white/10">{FAQ_ITEMS.map(f => <details key={f.q} className="py-4"><summary className="cursor-pointer font-semibold">{f.q}</summary><p className="mt-2 text-sm text-white/70">{f.a}</p></details>)}</div>
+      </section>
       <section id="contact" className="mx-auto max-w-7xl px-4 py-8">
         <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
           <h2 className="text-xl font-bold">Связаться</h2>
@@ -551,8 +570,10 @@ function MobileLite(){
           </div>
           <div className="mt-4 text-sm text-white/70 space-y-1">
             <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
+            <div>Без выходных, 10:00–20:00</div>
             <div>Тел.: {BRAND.phoneDisplay}</div>
             <div>Email: {BRAND.email}</div>
+            <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex py-3 underline">Маршрут в 2GIS</a>
           </div>
         </div>
       </section>
@@ -561,13 +582,6 @@ function MobileLite(){
         <div className="font-semibold text-white">{BRAND.name}</div>
         <div className="mt-1">© {new Date().getFullYear()} {BRAND.name}. Все права защищены.</div>
       </footer>
-
-      <button onClick={()=>wa.open(wa.msgGeneric)} className="whats-cta inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400" type="button">
-        <MessageSquare className="h-5 w-5"/> WhatsApp
-      </button>
-      <button onClick={()=>setShowLicenses(true)} className="fixed left-4 bottom-[4.25rem] inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/15 px-4 py-3 font-semibold shadow-lg hover:bg-white/20" type="button">
-        <KeyRound className="h-5 w-5"/> Лицензии
-      </button>
 
       {showLicenses && (
         <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -578,9 +592,9 @@ function MobileLite(){
             </div>
             <div className="mt-2 divide-y divide-white/10">
               {LICENSES.map((l,i)=>(
-                <div key={i} id={`license-${l.key}-modal`} className="py-3 flex items-center gap-3">
+                <div key={i} id={`license-${l.key}-modal`} className="py-3 flex flex-wrap items-center gap-3">
                   <ProgramIcon type={l.key}/>
-                  <div className="flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
+                  <div className="min-w-0 flex-1"><div className="font-medium">{l.name}</div><div className="text-xs text-white/60">Срок: {l.term}</div></div>
                   <div className="text-sm text-white/80 w-28">{l.price}</div>
                   <button
                     onClick={()=>wa.open(wa.msgLicense(l.name,l.term))}
@@ -601,7 +615,7 @@ function MobileLite(){
 
 /* ====== ДЕСКТОП ====== */
 function DesktopLanding(){
-  const [selected, setSelected] = useState(()=>new Set(["winms"]));
+  const [selected, setSelected] = useState(()=>new Set());
   const [rush, setRush] = useState(false);
   const [onsite, setOnsite] = useState(false);
   const [showLicenses, setShowLicenses] = useState(false);
@@ -670,6 +684,8 @@ function DesktopLanding(){
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
       <style>{`
+        button:disabled { opacity: .45; cursor: not-allowed; }
+        a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid #34d399; outline-offset: 3px; }
   html{ scroll-behavior:smooth; scroll-padding-top: 96px; }
   @media (max-width: 767px){ html{ scroll-padding-top: 80px; } }
 
@@ -718,10 +734,6 @@ function DesktopLanding(){
   }
 `}</style>
 
-      <div className="bg-emerald-600 text-white text-xs md:text-sm py-2 text-center">
-        −10% на следующий заказ, если оставите отзыв в 2GIS.{" "}
-        <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="underline underline-offset-2">Открыть 2GIS</a>
-      </div>
 
       <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-slate-950/70 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
@@ -735,7 +747,7 @@ function DesktopLanding(){
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden xl:flex items-center gap-2">
             <a href="#services" className="nav-link">Услуги</a>
             <a href="#pricing" className="nav-link">Цены</a>
             <a href="#benefits" className="nav-link">Преимущества</a>
@@ -768,14 +780,14 @@ function DesktopLanding(){
         <div className="relative h-full">
           <div className="absolute bottom-8 left-4 md:bottom-12 md:left-8 max-w-xl">
             <h1 className="text-white text-glow text-3xl md:text-5xl font-extrabold leading-tight">
-              Ремонт ПК и ноутбуков в {BRAND.city}
+              Ремонт компьютеров и ноутбуков в {BRAND.city}
             </h1>
             <p className="mt-3 text-white/90 text-base md:text-lg text-glow max-w-lg">
-              Windows, чистка, ускорение SSD/ОЗУ, видеокарты. Честные цены и гарантия.
+              {BRAND.address}. Диагностика — 3 000 ₸, бесплатно при ремонте. Предварительная оценка — в WhatsApp.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
-              <a href="#pricing" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
-                Посмотреть цены <ChevronRight className="h-4 w-4"/>
+              <a href="#estimate" className="inline-flex items-center gap-2 rounded-2xl bg-white/90 text-slate-900 px-4 py-2 font-semibold shadow-lg hover:bg-white">
+                Узнать стоимость ремонта <ChevronRight className="h-4 w-4"/>
               </a>
               <button onClick={()=>wa.open(wa.msgHero)} className="inline-flex items-center gap-2 rounded-2xl bg-black/35 px-4 py-2 font-semibold hover:bg-black/45" type="button">
                 Записаться <MousePointerClick className="h-4 w-4"/>
@@ -784,6 +796,8 @@ function DesktopLanding(){
           </div>
         </div>
       </section>
+
+      <SymptomContact />
 
       <section id="benefits" className="mx-auto max-w-7xl px-4 py-10">
         <div className="grid md:grid-cols-4 gap-4">
@@ -846,7 +860,7 @@ function DesktopLanding(){
         <div className="grid lg:grid-cols-3 gap-6">
           <Reveal className="lg:col-span-2">
             <div className="rounded-3xl bg-white/5 ring-1 ring-white/10 p-6">
-              <h3 className="text-xl md:text-2xl font-bold">Калькулятор стоимости</h3>
+              <h3 className="text-xl md:text-2xl font-bold">Калькулятор стоимости (по желанию)</h3>
               <p className="mt-1 text-white/70 text-sm">Ориентировочно. Точную цену подтверждаем после диагностики.</p>
 
               <div className="mt-4 grid md:grid-cols-2 gap-3">
@@ -866,9 +880,9 @@ function DesktopLanding(){
                 <label className="flex items-center gap-3 rounded-2xl p-3 ring-1 ring-white/10 bg-white/5 cursor-pointer"><input type="checkbox" checked={onsite} onChange={()=>setOnsite(!onsite)} /><div><div className="font-medium">Выезд мастера</div><div className="text-xs text-white/60">+2000 ₸ по {BRAND.city}</div></div></label>
               </div>
 
-              <div className="mt-6 flex items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
-                <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{currency(total)}</div></div>
-                <button onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, total))} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400" type="button">
+              <div className="mt-6 flex flex-wrap gap-4 items-center justify-between rounded-3xl bg-white/5 ring-1 ring-white/10 p-5">
+                <div><div className="text-sm text-white/60">Ориентировочная стоимость</div><div className="text-2xl font-extrabold">{selected.size ? `от ${currency(total)}` : "Услуги не выбраны"}</div></div>
+                <button disabled={!selected.size} onClick={()=>wa.open(wa.msgCalc([...selected], rush, onsite, total))} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-semibold hover:bg-emerald-400" type="button">
                   Отправить расчёт в WhatsApp <ChevronRight className="h-4 w-4"/>
                 </button>
               </div>
@@ -935,8 +949,10 @@ function DesktopLanding(){
               </div>
               <div className="mt-5 text-sm text-white/70 space-y-1">
                 <div className="flex items-center gap-2"><MapPin className="h-4 w-4"/> {BRAND.address}</div>
-                <div>Тел.: {BRAND.phoneDisplay}</div>
+                <div>Без выходных, 10:00–20:00</div>
+            <div>Тел.: {BRAND.phoneDisplay}</div>
                 <div>Email: {BRAND.email}</div>
+            <a href={BRAND.map2gis} target="_blank" rel="noreferrer" className="inline-flex py-3 underline">Маршрут в 2GIS</a>
               </div>
             </div>
           </Reveal>
@@ -986,7 +1002,7 @@ function DesktopLanding(){
 
       <button
         onClick={()=>wa.open(wa.msgGeneric)}
-        className="whats-cta bottom-6 right-6 z-[200] inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
+        className="whats-cta bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-3 font-semibold shadow-xl ring-1 ring-emerald-300/40 hover:bg-emerald-400 focus-visible:outline outline-2 outline-offset-2 outline-emerald-400"
         aria-label="Написать в WhatsApp"
         type="button"
         style={{ position:"fixed" }}
