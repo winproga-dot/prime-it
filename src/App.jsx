@@ -136,7 +136,7 @@ function SymptomContact() {
           ))}
         </div>
         <a href={wa.url(message)} className="mt-5 inline-flex rounded-xl bg-emerald-500 px-5 py-3 font-semibold">Узнать стоимость в WhatsApp</a>
-        <p className="mt-3 text-sm text-white/70">Оценка предварительная. Точную цену подтверждаем после диагностики: 3 000 ₸, бесплатно при ремонте.</p>
+        <p className="mt-3 text-sm text-white/70">Оценка предварительная. Точную цену подтверждаем после диагностики: Диагностика бесплатная.</p>
       </div>
     </section>
   );
