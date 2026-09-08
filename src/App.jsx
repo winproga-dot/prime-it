@@ -484,7 +484,7 @@ function MobileLite(){
             Ремонт компьютеров и ноутбуков в {BRAND.city}
           </h1>
           <p className="mt-2 text-white/90 text-sm text-glow">
-            {BRAND.address}. Диагностика — 3 000 ₸, бесплатно при ремонте. Предварительная оценка — в WhatsApp.
+            {BRAND.address}. Диагностика — бесплатная. Предварительная оценка — в WhatsApp.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a href="#estimate" className="inline-flex items-center gap-2 rounded-xl bg-white/90 text-slate-900 px-3 py-2 text-sm font-semibold shadow-lg hover:bg-white">
