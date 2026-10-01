@@ -41,7 +41,7 @@ try {
    await page.keyboard.press('Escape');
   }
   await page.addStyleTag({content:'html{font-size:200%!important}'});
-  measurements.push({width,enlarged:await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,actions:[...document.querySelectorAll('.hero-actions a,.hero-route')].map(el=>({text:el.innerText,box:el.getBoundingClientRect().toJSON()}))}))});
+  measurements.push({width,enlarged:await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,offenders:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1 && el.checkVisibility()).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,text:el.innerText?.slice(0,60)})).slice(0,16),actions:[...document.querySelectorAll('.hero-actions a,.hero-route')].map(el=>({text:el.innerText,box:el.getBoundingClientRect().toJSON()}))}))});
   if([360,900].includes(width))await capture(page,'audit-enlarged-'+width);
   await page.close();
  }

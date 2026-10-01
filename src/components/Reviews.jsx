@@ -8,7 +8,7 @@ export default function Reviews() {
       <p>Реальные отзывы из 2GIS — с фотографиями профилей авторов и ссылками на оригиналы.</p></div><span className="source-badge">Источник: 2GIS</span></div>
     {reviews.length ? <div className="reviews-grid">{reviews.map(review => <figure className="review-card" key={review.reviewId || review.sourceUrl + review.author}>
       <figcaption className="review-person">
-        {review.avatar ? <img className="review-avatar" src={review.avatar} width="160" height="160" alt="Фото профиля автора в 2GIS" loading="lazy" decoding="async" />
+        {review.avatar ? <img className="review-avatar" src={review.avatar} width="160" height="160" alt={'Фото профиля ' + review.author + ' в 2GIS'} loading="lazy" decoding="async" />
           : <span className="review-avatar review-initials" aria-hidden="true">{review.author.split(' ').map(part => part[0]).slice(0,2).join('')}</span>}
         <div className="review-person-info"><strong>{review.author}</strong><span>Отзыв в 2GIS</span>
           {review.date && <time dateTime={review.date}>{new Intl.DateTimeFormat('ru-RU', { day:'numeric', month:'long', year:'numeric', timeZone:'UTC' }).format(new Date(review.date))}</time>}

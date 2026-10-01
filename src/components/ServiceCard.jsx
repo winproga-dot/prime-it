@@ -15,14 +15,15 @@ export default function ServiceCard({ service }) {
     </div>
     <div className="service-content"><div className="service-title"><Icon name={service.icon} />
       <h3>{service.path ? <a href={service.path} onClick={() => track('service_click', { service: service.id, location: 'service_details' })}>{service.title}</a> : service.title}</h3></div>
-      <p>{service.description}</p><div className="service-price"><strong>{priceLabel(service)}</strong>
+      <p>{service.description}</p>
+      {service.links && <a className="service-sub-link" href={service.links[0]}>Ремонт стационарных компьютеров <Icon name="ArrowUpRight" size={14} /></a>}
+      <div className="service-price"><strong>{priceLabel(service)}</strong>
         <small>{service.priceNote || (service.price ? 'Точная стоимость после бесплатной диагностики.' : 'Диагностика — бесплатно.')}</small></div>
       <div className="service-actions"><ContactLink className="button button-service" message={messages.service(service.title)}
         context={{ service: service.id }} location="service_card">Узнать стоимость</ContactLink>
         {service.path && <a className="service-details" href={service.path} aria-label={'Подробнее: ' + service.title}
           onClick={() => track('service_click', { service: service.id, location: 'service_details' })}><Icon name="ArrowUpRight" /></a>}
       </div>
-      {service.links && <a className="service-sub-link" href={service.links[0]}>Ремонт стационарных компьютеров <Icon name="ArrowUpRight" size={14} /></a>}
     </div>
   </article>;
 }

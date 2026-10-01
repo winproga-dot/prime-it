@@ -17,6 +17,6 @@ export default function App({ pathname = '/' }) {
   useLegacyLinks();
   return <><a className="skip-link" href="#main">Перейти к содержимому</a>
     <Header home={home} localSections={Boolean(page)} message={message} context={context} />
-    {home ? <Home symptom={symptom} onSymptomSelect={setSymptom} /> : page ? <ServicePage page={page} /> : <NotFound />}
+    {home ? <Home symptom={symptom} onSymptomSelect={setSymptom} message={symptom ? message : undefined} context={context} /> : page ? <ServicePage page={page} /> : <NotFound />}
     <Footer /><MobileActionBar message={message} context={context} /></>;
 }
