@@ -1,8 +1,10 @@
 name: PRIME IT production quality
 on:
   push:
-    branches: [prime-it-redesign-2026]
+    branches: [prime-it-redesign-2026, main]
+    paths-ignore: ['**/*.md']
   pull_request:
+    paths-ignore: ['**/*.md']
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
