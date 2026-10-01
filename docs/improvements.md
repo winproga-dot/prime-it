@@ -50,13 +50,13 @@
 
 Исходники находятся в assets/photos, информация об авторах и лицензиях — в src/data/media.js. При сборке создаются WebP 640/960 px с лимитом 300 КБ на файл, заданными width/height, responsive srcset, lazy loading и decoding=async. Фото запрашиваются по точным URL. Страница /photo-credits/ содержит источники, лицензии и описание обработки; ссылка есть в footer.
 
-В первом этапе редизайна 12 исходных PNG общим объёмом 27,13 МБ были оптимизированы до 0,78 МБ WebP. После замечания владельца эти изображения заменены настоящими фотографиями; актуальные размеры записываются в .qa/asset-report.json каждого production QA.
+В первом этапе редизайна 12 исходных PNG общим объёмом 27,13 МБ были оптимизированы до 0,78 МБ WebP. После замечания владельца эти изображения заменены настоящими фотографиями; актуальные 26 файлов для 13 услуг занимают 1,05 МБ, каждый 8,8–105,7 КБ. Размеры записаны в .qa/asset-report.json; таблица — в media-refresh.md.
 
 Видео: 2,54 МБ → 619 КБ. Проверенный H.264/Main, yuv420p, faststart хранится в assets/prepared/hero.mp4: его содержимое одинаково на CI и Vercel, ffmpeg на хостинге не требуется. Загрузка только после явного нажатия на desktop, нативные controls, повтор, зацикливание и понятное состояние ошибки. На mobile видео не загружается; reduced motion и saveData не запускают его автоматически. Плеер вызывается внутри пользовательского клика, чтобы Safari не терял активацию. Новый лёгкий постер из реальной фотографии сразу находится в HTML.
 
 Подробности последнего обновления и проверки: [media-refresh.md](media-refresh.md).
 
-Framer Motion и неиспользуемый Tailwind удалены. Шрифты системные; сторонние font/CDN-запросы не нужны. JS около 67 КБ gzip для всей функциональности и десяти страниц.
+Framer Motion и неиспользуемый Tailwind удалены. Шрифты системные; сторонние font/CDN-запросы не нужны. JS около 68 КБ gzip для всей функциональности и десяти страниц.
 
 ## Accessibility / QA / Build
 - Один H1; семантические header/main/nav/section/address/footer.
@@ -64,13 +64,13 @@ Framer Motion и неиспользуемый Tailwind удалены. Шриф�
 - Нативные details для FAQ, дополнительных услуг и лицензий.
 - Подписи у иконок-кнопок, alt, контраст, reduced motion и safe-area.
 - Основные touch targets не меньше 44 px, фиксированная нижняя панель имеет отступ в контенте.
-- В предыдущем полном прогоне — 154 проверки Chromium/WebKit: главная и все десять страниц на 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080, 2560×1440.
+- 154 проверки Chromium/WebKit: главная и все десять страниц на 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080, 2560×1440.
 - Проверены WhatsApp-сообщения и tel URLs, events, якоря, query aliases, карточки лицензий, меню, FAQ, видео, 404 и страницы без JS.
 - Axe: 0 нарушений в проверенных состояниях главной и страницы услуги.
 - npm install, npm run build и static QA проходят; npm audit: 0 vulnerabilities.
-- Предыдущий Lighthouse lab, production output: главная — 99/100/100/100; страница чистки — 99/100/100/100 (Performance/Accessibility/Best Practices/SEO).
-- LCP: 1,9 с / 2,0 с; CLS: 0; TBT: 40 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
-- [Полный QA после добавления реальных отзывов 2GIS](https://github.com/winproga-dot/prime-it/actions/runs/36867726462); screenshots (включая отзывы на mobile/desktop), browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
+- Lighthouse lab, актуальный production output: главная — 98/100/100/100; страница чистки — 99/100/100/100 (Performance/Accessibility/Best Practices/SEO).
+- LCP: 2,3 с / 1,8 с; CLS: 0; TBT: 50 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
+- [Полный QA новых фото, отзывов с фото и desktop-видео](https://github.com/winproga-dot/prime-it/actions/runs/36904070885); screenshots (включая отзывы на mobile/desktop), browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
 
 Физические Android/iOS устройства не использовались: переход в установленный WhatsApp и реальный звонок нужно проверить после deployment.
 
