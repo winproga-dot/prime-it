@@ -1,0 +1,26 @@
+name: PRIME IT UI audit
+on:
+  push:
+    branches: [prime-it-ui-audit-2026]
+permissions:
+  contents: write
+jobs:
+  ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+      - run: node scripts/ui-audit.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ui-audit
+          path: .qa/
+          include-hidden-files: true
