@@ -218,13 +218,15 @@ try {
     assert(lastItem.x>=0 && lastItem.x+lastItem.width<=1024 && lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
     await landscape.close();
     const mapPage=await browser.newPage({viewport:{width:390,height:844}});
-    await mapPage.route('https://www.openstreetmap.org/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html lang="ru"><title>QA map provider</title><p>Map request received</p></html>'}));
+    await mapPage.route('https://widgets.2gis.com/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html lang="ru"><title>QA map provider</title><p>Map request received</p></html>'}));
     await mapPage.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await mapPage.locator('.map-frame').count(),0,'No third-party map loaded before user request');
     await mapPage.getByRole('button',{name:'Показать карту',exact:true}).click();
     const mapUrl=new URL(await mapPage.locator('.map-frame').getAttribute('src'));
-    assert.equal(mapUrl.hostname,'www.openstreetmap.org');
-    assert.equal(mapUrl.searchParams.get('marker'),'43.234996,76.884087','Verified business destination');
+    assert.equal(mapUrl.hostname,'widgets.2gis.com');
+    const mapOptions=JSON.parse(mapUrl.searchParams.get('options'));
+    assert.equal(mapOptions.pos,'76.884087,43.234996','Verified business destination');
+    assert.deepEqual(mapOptions.firms,['70000001078609004'],'Owner-provided business card');
     assert((await mapPage.locator('.map-frame').getAttribute('title')).includes('Сатпаева, 105А'));
     await mapPage.close();
     const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});

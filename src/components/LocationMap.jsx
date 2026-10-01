@@ -16,6 +16,6 @@ export default function LocationMap() {
       </div>}
     <div className="map-links"><ContactLink type="route" className="text-link" location="map">Маршрут в 2GIS</ContactLink>
       <ContactLink type="route" href={brand.twoGisUrl} className="text-link" location="business_card">Карточка PRIME IT</ContactLink></div>
-    {map && <a className="map-attribution" href={map.link} target="_blank" rel="noopener noreferrer">© OpenStreetMap · Открыть карту отдельно</a>}
+    {map && <p className="map-attribution">Карта: 2GIS</p>}
   </div>;
 }

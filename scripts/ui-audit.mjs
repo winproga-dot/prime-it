@@ -41,7 +41,7 @@ try {
    await page.keyboard.press('Escape');
   }
   await page.addStyleTag({content:'html{font-size:200%!important}'});
-  measurements.push({width,enlarged:await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,offenders:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1 && el.checkVisibility()).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,text:el.innerText?.slice(0,60)})).slice(0,16),actions:[...document.querySelectorAll('.hero-actions a,.hero-route')].map(el=>({text:el.innerText,box:el.getBoundingClientRect().toJSON()}))}))});
+  measurements.push({width,enlarged:await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,offenders:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+.1 && el.checkVisibility()).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,text:el.innerText?.slice(0,60)})).slice(0,16),actions:[...document.querySelectorAll('.hero-actions a,.hero-route')].map(el=>({text:el.innerText,box:el.getBoundingClientRect().toJSON()}))}))});
   if([360,900].includes(width))await capture(page,'audit-enlarged-'+width);
   await page.close();
  }
@@ -55,10 +55,12 @@ try {
  const mapUrl=await liveMap.locator('.map-frame').getAttribute('src');
  try {
   const response=await fetch(mapUrl,{signal:AbortSignal.timeout(20000)});
-  const html=await response.text();console.log('LIVE_MAP_HTTP',JSON.stringify({status:response.status,url:response.url,leaflet:html.includes('leaflet') || html.includes('Leaflet')}));
-  await liveMap.frameLocator('.map-frame').locator('.leaflet-tile-loaded').first().waitFor({timeout:20000});
+  const html=await response.text();console.log('LIVE_MAP_HTTP',JSON.stringify({status:response.status,url:response.url,bodyLength:html.length,title:html.match(/<title>([^<]*)/)?.[1],widget:html.includes('2gis') || html.includes('2GIS')}));
+  await liveMap.frameLocator('.map-frame').locator('body').waitFor({timeout:20000});
+  await liveMap.waitForTimeout(4000);
+  console.log('LIVE_MAP_BODY',JSON.stringify((await liveMap.frameLocator('.map-frame').locator('body').innerText()).slice(0,2000)));
   await capture(liveMap,'audit-live-map',liveMap.locator('#contact'));
-  console.log('LIVE_MAP_RENDER',JSON.stringify({tiles:await liveMap.frameLocator('.map-frame').locator('.leaflet-tile-loaded').count()}));
+  console.log('LIVE_MAP_RENDER',JSON.stringify({images:await liveMap.frameLocator('.map-frame').locator('img').count(),canvases:await liveMap.frameLocator('.map-frame').locator('canvas').count()}));
  }catch(error){console.log('LIVE_MAP_UNAVAILABLE',JSON.stringify({message:error.message}));}
  await liveMap.close();
  console.log('UI_AUDIT',JSON.stringify(measurements));
