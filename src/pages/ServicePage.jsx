@@ -9,7 +9,6 @@ import RepairProcess from '../components/RepairProcess.jsx';
 import Icon from '../components/Icon.jsx';
 export default function ServicePage({ page }) {
   const service = services.find(item => item.id === page.serviceId);
-  const hero = service.image === 'hero';
   return <main id="main">
     <nav className="container breadcrumbs" aria-label="Хлебные крошки"><ol><li><a href="/">Главная</a></li><li aria-current="page">{page.breadcrumb}</li></ol></nav>
     <section className="container service-hero" aria-labelledby="service-heading">
@@ -20,9 +19,9 @@ export default function ServicePage({ page }) {
           <ContactLink type="phone" className="button button-secondary" location="service_hero" /></div>
         <p className="service-hero-contact"><Icon name="MapPin" size={17} /> {brand.address} · {brand.hours}</p>
       </div>
-      <img className="service-page-image" src={hero ? '/hero.webp' : '/media/' + service.image + '-960.webp'}
-        {...(!hero ? {srcSet:'/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w',sizes:'(max-width: 900px) 100vw, 500px'} : {})}
-        width="960" height="600" alt={page.h1} loading="eager" fetchpriority="high" decoding="async" />
+      <img className="service-page-image" src={'/media/' + service.image + '-960.webp'}
+        srcSet={'/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w'} sizes="(max-width: 900px) 100vw, 500px"
+        width="960" height="600" alt={service.imageAlt || page.h1} loading="eager" fetchpriority="high" decoding="async" />
     </section>
     <section className="section container service-explanation"><div><p className="eyebrow">Подход к работе</p><h2>Что входит в услугу</h2><p>{page.body}</p>
       <ul className="check-list">{page.includes.map(item => <li key={item}><Icon name="CheckCircle2" /><span>{item}</span></li>)}</ul></div>

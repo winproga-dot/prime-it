@@ -85,7 +85,10 @@ try {
           const contactImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
           await writeFile('.qa/location-mobile.webp',contactImage);await evidenceBlob('location-mobile',contactImage);
         }
-        const reviewsImage=await sharp(await page.locator('#reviews').screenshot()).webp({quality:78}).toBuffer();
+        await page.locator('#reviews').scrollIntoViewIfNeeded();
+        await page.waitForFunction(()=>Array.from(document.querySelectorAll('.review-avatar')).every(image=>image.tagName !== 'IMG' || image.complete && image.naturalWidth>0));
+        assert.equal(await page.locator('.review-avatar').count(),3);
+        const reviewsImage=await sharp(await page.locator('#reviews').screenshot({style:'.site-header,.mobile-action-bar,.skip-link{visibility:hidden!important}'})).webp({quality:78}).toBuffer();
         await writeFile('.qa/reviews-' + width + '.webp',reviewsImage);await evidenceBlob('reviews-' + width,reviewsImage);
         assert.equal(axe.violations.length,0,'Accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,impact:item.impact,nodes:item.nodes.map(node=>({target:node.target,summary:node.failureSummary}))}))));
       }
@@ -141,13 +144,25 @@ try {
     await page.setViewportSize({width:1366,height:768});
     await page.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await page.locator('video').count(),0);
-    assert.equal(await page.locator('.video-control').count(),0);
+    assert.equal(await page.locator('.video-control').count(),1);
     await page.emulateMedia({reducedMotion:'no-preference'});
     await page.goto(server.url,{waitUntil:'networkidle'});
     await page.locator('.video-control').click();
     await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.readyState>=2 && video.currentTime>0;});
+    assert.equal(await page.locator('video').getAttribute('controls'),'');
+    assert.equal(await page.locator('video').getAttribute('loop'),'');
+    assert.equal(await page.locator('.hero-media').getAttribute('data-video-state'),'playing');
     await page.locator('.video-control').click();
     assert.equal(await page.locator('video').count(),0);
+    // A missing/blocked video must show a recoverable state, not silently vanish.
+    await page.route('**/media/hero.mp4', route => route.fulfill({status:404,contentType:'text/plain',body:'QA missing video'}));
+    await page.locator('.video-control').click();
+    await page.waitForFunction(()=>document.querySelector('.hero-media').dataset.videoState==='error');
+    assert(await page.getByRole('button',{name:'Повторить загрузку видео'}).isVisible());
+    await page.unroute('**/media/hero.mp4');
+    await page.getByRole('button',{name:'Повторить загрузку видео'}).click();
+    await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.currentTime>0;});
+    await page.locator('.video-control').click();
     const missing=await page.goto(server.url+'/missing-page/',{waitUntil:'networkidle'});
     assert.equal(missing.status(),404);assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
     await page.close();

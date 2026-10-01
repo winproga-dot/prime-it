@@ -6,11 +6,11 @@ export function priceLabel(service) {
   return service.price ? 'от ' + new Intl.NumberFormat('ru-RU').format(service.price) + ' ₸' : 'После диагностики';
 }
 export default function ServiceCard({ service }) {
-  const image = service.image === 'hero' ? '/media/hero-small.webp' : '/media/' + service.image + '-640.webp';
+  const image = '/media/' + service.image + '-640.webp';
   return <article id={'service-' + service.id} className="service-card">
     <div className="service-image"><img src={image}
-      {...(service.image !== 'hero' ? { srcSet: '/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w', sizes: '(max-width: 600px) 100vw, (max-width: 900px) 50vw, 400px' } : {})}
-      width="640" height="400" loading="lazy" decoding="async" alt={service.title} />
+      srcSet={'/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w'} sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 400px"
+      width="640" height="400" loading="lazy" decoding="async" alt={service.imageAlt || service.title} />
       {service.tag && <span className="service-tag">{service.tag}</span>}
     </div>
     <div className="service-content"><div className="service-title"><Icon name={service.icon} />

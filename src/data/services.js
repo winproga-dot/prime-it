@@ -9,8 +9,9 @@ export const services = [
     "links": [
       "/remont-kompyuterov-almaty/"
     ],
-    "image": "hero",
-    "tag": "Начните с диагностики"
+    "image": "repair",
+    "tag": "Начните с диагностики",
+    "imageAlt": "Открытый корпус ноутбука: плата, охлаждение и накопитель"
   },
   {
     "id": "clean",
@@ -20,7 +21,8 @@ export const services = [
     "price": 8000,
     "path": "/chistka-noutbuka-almaty/",
     "image": "clean",
-    "tag": "От 2 часов"
+    "tag": "От 2 часов",
+    "imageAlt": "Вентилятор и радиатор системы охлаждения ноутбука"
   },
   {
     "id": "winms",
@@ -30,7 +32,8 @@ export const services = [
     "price": 10000,
     "path": "/ustanovka-windows-almaty/",
     "image": "winms",
-    "tag": "От 1 часа"
+    "tag": "От 1 часа",
+    "imageAlt": "Ноутбук с установленной Windows"
   },
   {
     "id": "data",
@@ -39,7 +42,8 @@ export const services = [
     "description": "Проверяем флешки, HDD и карты памяти. Возможность восстановления зависит от повреждения.",
     "price": 12000,
     "path": "/vosstanovlenie-dannyh-almaty/",
-    "image": "data"
+    "image": "data",
+    "imageAlt": "Магнитные пластины и механизм чтения жёсткого диска"
   },
   {
     "id": "gpu_service",
@@ -49,7 +53,8 @@ export const services = [
     "price": 12000,
     "priceNote": "Обслуживание: до 22 000 ₸ по модели",
     "path": "/remont-videokart-almaty/",
-    "image": "gpu_service"
+    "image": "gpu_service",
+    "imageAlt": "Видеокарта с тремя вентиляторами охлаждения"
   },
   {
     "id": "parts",
@@ -59,7 +64,8 @@ export const services = [
     "price": 10000,
     "priceNote": "Работа + стоимость детали",
     "path": "/zamena-matricy-noutbuka-almaty/",
-    "image": "parts"
+    "image": "parts",
+    "imageAlt": "Повреждённая матрица ноутбука с полосами на экране"
   },
   {
     "id": "hinge",
@@ -69,7 +75,8 @@ export const services = [
     "price": 8000,
     "path": "/remont-petel-noutbuka-almaty/",
     "image": "hinge",
-    "tag": "Обычно 1–2 дня"
+    "tag": "Обычно 1–2 дня",
+    "imageAlt": "Крупный план петли и крепления экрана ноутбука"
   },
   {
     "id": "speedup",
@@ -78,7 +85,8 @@ export const services = [
     "description": "Подбираем совместимые комплектующие, переносим систему и настраиваем устройство.",
     "price": 7000,
     "path": "/upgrade-noutbuka-kompyutera-almaty/",
-    "image": "speedup"
+    "image": "speedup",
+    "imageAlt": "Твердотельный накопитель NVMe для апгрейда компьютера"
   },
   {
     "id": "build",
@@ -87,7 +95,8 @@ export const services = [
     "description": "Игровой, офисный или рабочий ПК: подбор под задачи и бюджет, сборка и настройка.",
     "price": 16000,
     "path": "/sborka-kompyutera-almaty/",
-    "image": "build"
+    "image": "build",
+    "imageAlt": "Комплектующие собранного игрового компьютера"
   },
   {
     "id": "soft",
@@ -95,7 +104,8 @@ export const services = [
     "title": "Установка профессиональных программ",
     "description": "AutoCAD, Revit, Photoshop и другие программы. Возможна установка через AnyDesk.",
     "price": 5000,
-    "image": "soft"
+    "image": "soft",
+    "imageAlt": "Ноутбук с двумя экранами для рабочих задач"
   },
   {
     "id": "misc",
@@ -103,7 +113,8 @@ export const services = [
     "title": "Другие компьютерные услуги",
     "description": "Wi-Fi, драйверы, печать, BIOS/UEFI и другие задачи. Просто расскажите, что нужно.",
     "price": 5000,
-    "image": "misc"
+    "image": "misc",
+    "imageAlt": "Современная материнская плата компьютера"
   },
   {
     "id": "battery",
@@ -112,7 +123,8 @@ export const services = [
     "description": "Подбор и замена аккумуляторов и блоков питания. По модели устройства.",
     "price": 5000,
     "priceNote": "Работа + стоимость детали",
-    "image": "battery"
+    "image": "battery",
+    "imageAlt": "Аккумулятор в открытом корпусе ноутбука"
   },
   {
     "id": "sale",
@@ -120,7 +132,8 @@ export const services = [
     "title": "Подбор ноутбука или нового ПК",
     "description": "Подбор, тестирование и продажа. Поможем выбрать устройство под ваши задачи.",
     "price": 45000,
-    "image": "sale"
+    "image": "sale",
+    "imageAlt": "Современный ноутбук для работы и повседневных задач"
   }
 ];
 

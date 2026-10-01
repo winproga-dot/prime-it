@@ -25,3 +25,28 @@
 .more-services{margin-top:24px}.more-services>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 25px;border:1px solid #34485b;border-radius:14px;background:#111e29;cursor:pointer;min-height:78px}.more-services>summary::-webkit-details-marker{display:none}.more-services>summary strong{font-size:15px;font-weight:600}.more-services>summary small{display:block;font-size:11px;color:var(--muted);line-height:1.8;margin-top:5px}.more-services>summary svg{color:var(--cyan)}.more-services[open]>summary svg{transform:rotate(180deg)}.more-services>.services-grid{margin-top:22px}@media(max-width:600px){.more-services>summary{padding:18px;gap:15px}.more-services>summary strong{font-size:13px}.more-services>summary small{font-size:10px}}
 
 @media(max-width:600px){.footer-bottom a{min-height:44px}}
+
+
+/* Verified photographs, author profiles and an explicit desktop video player. */
+.service-image{background:#101821}
+.service-image img{filter:saturate(.86) contrast(1.025)}
+.service-image:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#0d151f50,transparent 40%)}
+.service-page-image{background:#101821;border:1px solid var(--line)}
+.review-card{padding:27px;background:linear-gradient(145deg,#16222b,#101922)}
+.review-card figcaption{display:flex;align-items:center;gap:14px;padding:0;margin:0 0 19px}
+.review-avatar{display:block;width:58px;height:58px;flex-shrink:0;border-radius:50%;object-fit:cover;border:2px solid #436053;background:#1a3028}
+.review-person-info{display:grid;gap:5px;min-width:0}
+.review-person-info strong{font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.review-person-info>span{font-size:11px;color:#b2c6be}
+.review-person-info time{font-size:11px;color:var(--muted)}
+.review-initials{display:flex;align-items:center;justify-content:center;font-size:19px;color:#b9e7ce}
+.review-rating{display:block;font-size:17px;letter-spacing:3px;color:#f5d47b;margin:0 0 15px}
+.review-card blockquote{font-size:14px;line-height:1.85;flex:1;color:#edf2f6}
+.review-card .review-source-link{margin-top:20px;font-size:12px}
+.hero-video{object-fit:contain;background:#080d13;z-index:2}
+.hero-media.is-playing .hero-media-shade,.hero-media.is-playing .media-label,.hero-media.is-playing .media-caption{visibility:hidden}
+.video-control{z-index:5;font-size:12px;box-shadow:0 4px 16px #0005}
+.hero-media.is-playing .video-control{top:18px;bottom:auto;right:18px;background:#102018f0}
+.video-status{position:absolute;z-index:4;left:20px;right:20px;top:50%;transform:translateY(-50%);display:none;padding:14px;border:1px solid #587a6b;border-radius:12px;background:#0e1c17ed;color:#edf7f1;text-align:center;font-size:13px;pointer-events:none}
+.video-status.is-visible{display:block}
+@media(max-width:600px){.review-card{padding:23px 21px}.review-card figcaption{gap:12px}.review-avatar{width:54px;height:54px}.review-person-info strong{font-size:13px}.review-card blockquote{font-size:13px}.review-rating{font-size:16px}}

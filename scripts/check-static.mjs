@@ -57,3 +57,9 @@ const diagnosisPattern = 'диагност.{0,60}3[[:space:]]*000|' + 'бесп�
 const paidDiagnosis = spawnSync('rg',['-ni',diagnosisPattern,'src','public','docs'],{encoding:'utf8'});
 if (!paidDiagnosis.error) assert.equal(paidDiagnosis.status,1,'No paid diagnosis contradiction: ' + paidDiagnosis.stdout);
 console.log('STATIC_QA_PASS',JSON.stringify({pages:routes.length,uniqueTitles:titles.size,uniqueDescriptions:descriptions.size,faqMatches:true,address:brand.address}));
+
+const creditsHtml = await readFile('dist/photo-credits/index.html','utf8');
+assert(creditsHtml.includes('noindex, follow') && creditsHtml.includes('creativecommons.org'),'Photo attribution is deployed');
+const videoFile = await readFile('dist/media/hero.mp4');
+assert.deepEqual(videoFile,await readFile('assets/prepared/hero.mp4'),'Same prepared video on every hosting provider');
+console.log('MEDIA_QA_PASS',JSON.stringify({preparedVideoBytes:videoFile.length,photoCredits:true}));
