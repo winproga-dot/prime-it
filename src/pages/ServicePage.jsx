@@ -1,3 +1,4 @@
+import { brand } from '../data/brand.js';
 import { services, servicePages } from '../data/services.js';
 import { messages } from '../utils/whatsapp.js';
 import { priceLabel } from '../components/ServiceCard.jsx';
@@ -17,11 +18,11 @@ export default function ServicePage({ page }) {
         <div className="service-hero-price"><strong>{priceLabel(service)}</strong><span>{service.priceNote || (service.price ? 'Точную стоимость согласуем после проверки.' : 'Стоимость ремонта согласуем после бесплатной диагностики.')}</span></div>
         <div className="hero-actions"><ContactLink className="button button-primary" message={messages.service(page.h1)} location="service_hero" context={{ service: page.slug }}>Узнать стоимость в WhatsApp</ContactLink>
           <ContactLink type="phone" className="button button-secondary" location="service_hero" /></div>
-        <p className="service-hero-contact"><Icon name="MapPin" size={17} /> Алматы, ул. Сатпаева, 105А · Ежедневно 10:00–20:00</p>
+        <p className="service-hero-contact"><Icon name="MapPin" size={17} /> {brand.address} · {brand.hours}</p>
       </div>
       <img className="service-page-image" src={hero ? '/hero.webp' : '/media/' + service.image + '-960.webp'}
         {...(!hero ? {srcSet:'/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w',sizes:'(max-width: 900px) 100vw, 500px'} : {})}
-        width="960" height="600" alt={page.h1} loading="eager" fetchPriority="high" decoding="async" />
+        width="960" height="600" alt={page.h1} loading="eager" fetchpriority="high" decoding="async" />
     </section>
     <section className="section container service-explanation"><div><p className="eyebrow">Подход к работе</p><h2>Что входит в услугу</h2><p>{page.body}</p>
       <ul className="check-list">{page.includes.map(item => <li key={item}><Icon name="CheckCircle2" /><span>{item}</span></li>)}</ul></div>

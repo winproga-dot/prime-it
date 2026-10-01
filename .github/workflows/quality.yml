@@ -16,6 +16,12 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Inspect dependency security
+        run: node scripts/dependency-report.mjs
+      - name: Install video encoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
       - name: Record generated lockfile
         run: node scripts/evidence.mjs lock
         env:
@@ -33,7 +39,7 @@ jobs:
       - name: Lighthouse on production build
         if: success()
         run: npm run qa:lighthouse
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: production-quality

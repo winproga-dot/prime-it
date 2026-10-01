@@ -25,7 +25,7 @@ export default function Hero() {
     <div className="hero-copy">
       <p className="eyebrow"><span className="status-dot" /> PRIME IT · Сервисный центр в Алматы</p>
       <h1 id="hero-title">Ремонт компьютеров<br className="desktop-break" /> и ноутбуков <span>в Алматы</span></h1>
-      <p className="hero-benefits">Бесплатная диагностика <span>•</span> Гарантия на работы <span>•</span> Ремонт от 1 часа</p>
+      <p className="hero-benefits"><span className="hero-benefit-item">Бесплатная диагностика</span> <span className="benefit-separator">•</span> <span className="hero-benefit-item">Гарантия на работы</span> <span className="benefit-separator">•</span> <span className="hero-benefit-item">Ремонт от 1 часа</span></p>
       <p className="hero-description">Расскажите, что случилось. Мы найдём причину и согласуем стоимость до начала ремонта.</p>
       <p className="hero-address"><Icon name="MapPin" size={18} /><span>{brand.street}<br /><span className="muted">{brand.hours}</span></span></p>
       <div className="hero-actions">
@@ -40,7 +40,7 @@ export default function Hero() {
         <picture>
           <source media="(max-width: 600px)" srcSet="/media/hero-small.webp" />
           <img src="/hero.webp" width="1536" height="1024" alt="Обслуживание ноутбука: проверка и установка компонентов"
-            fetchPriority="high" loading="eager" decoding="async" />
+            fetchpriority="high" loading="eager" decoding="async" />
         </picture>
         {playing && <video ref={videoRef} src="/media/hero.mp4" poster="/hero.webp" width="1536" height="1024"
           muted playsInline preload="none" className="hero-video" onEnded={() => setPlaying(false)} onError={() => setPlaying(false)} />}

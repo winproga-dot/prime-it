@@ -16,7 +16,8 @@ try {
   for (const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]) {
     const browser = await engine.launch();
     for (const [width,height] of sizes) {
-      const page = await browser.newPage({viewport:{width,height}});
+      const context = await browser.newContext({viewport:{width,height}});
+      const page = await context.newPage();
       const errors = [];
       page.on('pageerror',error=>errors.push(error.message));
       page.on('console',message=>{if(message.type() === 'error') errors.push(message.text());});
@@ -66,10 +67,11 @@ try {
       }
       assert.deepEqual(errors,[],'Browser errors: ' + engineName + ' ' + width);
       results.push({engine:engineName,width,height,page:'home',pass:true});
-      await page.close();
+      await context.close();
     }
     for (const entry of servicePages) {
-      const page = await browser.newPage({viewport:{width:390,height:844}});
+      const context = await browser.newContext({viewport:{width:390,height:844}});
+      const page = await context.newPage();
       const response = await page.goto(server.url + entry.path,{waitUntil:'networkidle'});
       assert.equal(response.status(),200);assert((await response.text()).includes(entry.h1),'HTML contains service before JS');
       assert.equal(await page.title(),entry.title);
@@ -84,7 +86,7 @@ try {
         await writeFile('.qa/service-mobile.webp',screenshot);await evidenceBlob('service-mobile',screenshot);
       }
       results.push({engine:engineName,page:entry.path,pass:true});
-      await page.close();
+      await context.close();
     }
     const page=await browser.newPage({viewport:{width:390,height:844}});
     for(const service of services) {
