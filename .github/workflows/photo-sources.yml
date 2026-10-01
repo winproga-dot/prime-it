@@ -16,6 +16,6 @@ jobs:
           node-version: 22
       - run: npm ci
       - name: Inspect verified public photo sources
-        run: node scripts/audit-media.mjs
+        run: node scripts/photo-profiles.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
