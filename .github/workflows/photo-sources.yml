@@ -1,0 +1,21 @@
+name: PRIME IT photo sources
+on:
+  push:
+    branches: [prime-it-photo-sources]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Inspect verified public photo sources
+        run: node scripts/audit-media.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
