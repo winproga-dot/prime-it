@@ -1,0 +1,52 @@
+name: PRIME IT production quality
+on:
+  push:
+    branches: [prime-it-redesign-2026, main]
+    paths-ignore: ['**/*.md']
+  pull_request:
+    paths-ignore: ['**/*.md']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Inspect dependency security
+        run: |
+          node scripts/dependency-report.mjs
+          npm audit --audit-level=moderate
+      - name: Record generated lockfile
+        run: node scripts/evidence.mjs lock
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Production build and static generation
+        run: npm run build
+      - name: Check crawlable HTML, metadata and content
+        run: npm run qa:static
+      - name: Install Chrome and Safari engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Browser, mobile and accessibility QA
+        run: npm run qa:browser
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Lighthouse on production build
+        if: success()
+        run: npm run qa:lighthouse
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: production-quality
+          path: |
+            dist/
+            .qa/
+          include-hidden-files: true
