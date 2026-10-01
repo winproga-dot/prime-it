@@ -30,5 +30,6 @@ if (video.status !== 0) {
   console.warn('ffmpeg unavailable: using the existing video. Install ffmpeg for compression.');
 }
 const videoReport = {originalBytes:(await stat('assets/source/hero.mp4')).size, optimizedBytes:(await stat(output)).size, compressed:video.status === 0};
-await writeFile('public/media/report.json', JSON.stringify({images:report,video:videoReport},null,2));
+await mkdir('.qa',{recursive:true});
+await writeFile('.qa/asset-report.json', JSON.stringify({images:report,video:videoReport},null,2));
 console.log('ASSET_REPORT', JSON.stringify({images:report,video:videoReport}));

@@ -46,6 +46,7 @@ try {
       await page.evaluate(()=>{window.qaEvents=[];window.addEventListener('primeit:analytics',event=>window.qaEvents.push(event.detail));});
       await page.getByRole('button',{name:'Сильно греется',exact:true}).click();
       assert.equal(await page.getByRole('button',{name:'Сильно греется',exact:true}).getAttribute('aria-pressed'),'true');
+      assert(new URL(await page.locator('.mobile-action-bar a[href^="https://wa.me/"]').getAttribute('href')).searchParams.get('text').includes('Сильно греется'));
       const symptomLink = page.locator('#estimate a[href^="https://wa.me/"]');
       const symptomMessage = new URL(await symptomLink.getAttribute('href')).searchParams.get('text');
       assert(symptomMessage.includes('Проблема: Сильно греется') && symptomMessage.includes('бесплатную диагностику') && symptomMessage.includes('Модель устройства:') && symptomMessage.includes('Комментарий:'));
@@ -101,6 +102,7 @@ try {
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false,'Service overflow: ' + entry.path);
       const link = page.locator('.service-hero a[href^="https://wa.me/"]');
       assert(new URL(await link.getAttribute('href')).searchParams.get('text').includes(entry.h1));
+      assert(new URL(await page.locator('.mobile-action-bar a[href^="https://wa.me/"]').getAttribute('href')).searchParams.get('text').includes(entry.h1));
       if(entry.slug === 'chistka-noutbuka-almaty' && engineName === 'chromium' && width === 390) {
         const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length,0,'Service accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>node.failureSummary)}))));
@@ -114,19 +116,24 @@ try {
     const page=await browser.newPage({viewport:{width:390,height:844}});
     for(const service of services) {
       await page.goto(server.url+'/#service-'+service.id,{waitUntil:'networkidle'});
+      await page.waitForFunction(id => {const y=document.getElementById(id)?.getBoundingClientRect().top;return y>=65 && y<400;},'service-'+service.id);
       const box=await page.locator('#service-'+service.id).boundingBox();
       assert(box.y>=65 && box.y<400,'Legacy service anchor: '+service.id+' y='+box.y);
     }
     for(const license of licenses) {
       await page.goto(server.url+'/#license-'+license.id,{waitUntil:'networkidle'});
+      await page.waitForFunction(id=>{const el=document.getElementById(id);return el && el.getBoundingClientRect().height>0;},'license-'+license.id);
       assert(await page.locator('#license-'+license.id).isVisible(),'Legacy license is visible: '+license.id);
       assert(await page.locator('.licenses-disclosure').evaluate(node=>node.open));
     }
     await page.goto(server.url+'/?service=parts',{waitUntil:'networkidle'});
+    await page.waitForFunction(()=>document.getElementById('service-parts').getBoundingClientRect().top<400);
     assert((await page.locator('#service-parts').boundingBox()).y<400);
     await page.goto(server.url+'/#service-clean-calc',{waitUntil:'networkidle'});
+    await page.waitForFunction(()=>document.getElementById('service-clean').getBoundingClientRect().top<400);
     assert((await page.locator('#service-clean').boundingBox()).y<400);
     await page.goto(server.url+'/#license-office-modal',{waitUntil:'networkidle'});
+    await page.waitForFunction(()=>document.querySelector('.licenses-disclosure').open);
     assert(await page.locator('#license-office').isVisible());
     await page.emulateMedia({reducedMotion:'reduce'});
     await page.setViewportSize({width:1366,height:768});

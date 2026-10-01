@@ -53,6 +53,7 @@ if (oldAddress.error?.code === 'ENOENT') {
   }};
   for(const directory of ['src','public','scripts','docs']) await visit(directory);
 } else assert.equal(oldAddress.status,1,'No obsolete address: ' + oldAddress.stdout);
-const paidDiagnosis = spawnSync('rg',['-ni','диагност.{0,60}3[[:space:]]*000|бесплатно при ремонте','src','public','docs'],{encoding:'utf8'});
+const diagnosisPattern = 'диагност.{0,60}3[[:space:]]*000|' + 'бесплатно' + ' при ремонте';
+const paidDiagnosis = spawnSync('rg',['-ni',diagnosisPattern,'src','public','docs'],{encoding:'utf8'});
 if (!paidDiagnosis.error) assert.equal(paidDiagnosis.status,1,'No paid diagnosis contradiction: ' + paidDiagnosis.stdout);
 console.log('STATIC_QA_PASS',JSON.stringify({pages:routes.length,uniqueTitles:titles.size,uniqueDescriptions:descriptions.size,faqMatches:true,address:brand.address}));

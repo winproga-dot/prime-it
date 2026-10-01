@@ -3,11 +3,11 @@ import { brand } from '../data/brand.js';
 import ContactLink from './ContactLink.jsx';
 import Icon from './Icon.jsx';
 const nav = [['services','Услуги'],['pricing','Цены'],['reviews','Отзывы'],['faq','FAQ'],['contact','Контакты']];
-export default function Header({ home = false }) {
+export default function Header({ home = false, localSections = false, message, context }) {
   const [open, setOpen] = useState(false);
   const toggleRef = useRef(null);
   const navRef = useRef(null);
-  const href = id => (home ? '' : '/') + '#' + id;
+  const href = id => (home || (localSections && ['faq','contact'].includes(id)) ? '' : '/') + '#' + id;
   useEffect(() => {
     if (!open) return;
     const onKey = event => {
@@ -38,7 +38,7 @@ export default function Header({ home = false }) {
       </nav>
       <div className="header-actions">
         <ContactLink type="phone" location="header" className="header-phone">{brand.phoneDisplay}</ContactLink>
-        <ContactLink location="header" className="button button-primary header-whatsapp" aria-label="Написать в WhatsApp">WhatsApp</ContactLink>
+        <ContactLink location="header" message={message} context={context} className="button button-primary header-whatsapp" aria-label="Написать в WhatsApp">WhatsApp</ContactLink>
         <button ref={toggleRef} type="button" className="icon-button menu-toggle" aria-controls="primary-navigation"
           aria-expanded={open} aria-label={open ? 'Закрыть меню' : 'Открыть меню'} onClick={() => setOpen(!open)}>
           <Icon name={open ? 'X' : 'Menu'} size={23} />
