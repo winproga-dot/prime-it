@@ -1,0 +1,12 @@
+import { brand } from '../data/brand.js';
+export const greeting = 'Здравствуйте! Пишу с сайта PRIME IT.';
+export const messages = {
+  hero: greeting + ' Хочу записаться на бесплатную диагностику.',
+  contact: greeting + ' Хочу уточнить стоимость и когда можно привезти устройство.',
+  service: title => greeting + ' Интересует ремонт/услуга: ' + title + '. Подскажите, пожалуйста, стоимость и когда можно привезти устройство?\n\nМодель устройства:\nКомментарий:',
+  symptom: title => greeting + ' Проблема: ' + (title || 'нужна помощь с компьютером или ноутбуком') + '. Хочу пройти бесплатную диагностику и узнать стоимость ремонта.\n\nМодель устройства:\nКомментарий:',
+  license: name => greeting + ' Интересует лицензия: ' + name + '. Подскажите условия покупки и установки.',
+};
+export function whatsappUrl(message = messages.hero) {
+  return 'https://wa.me/' + brand.whatsapp + '?text=' + encodeURIComponent(message);
+}

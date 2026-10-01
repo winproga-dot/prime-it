@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.ssr/
+public/media/
+public/og-image.jpg
+public/apple-touch-icon.png
+.qa/
+.audit/
+.DS_Store
