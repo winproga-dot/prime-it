@@ -184,7 +184,7 @@ try {
     const missing=await page.goto(server.url+'/missing-page/',{waitUntil:'networkidle'});
     assert.equal(missing.status(),404);assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
     await page.close();
-    const layoutWidths=[320,360,390,600,768,900,1024,1366];
+    const layoutWidths=[320,360,390,600,601,768,900,1024,1366];
     for(const width of layoutWidths) {
       const layout=await browser.newPage({viewport:{width,height:800}});
       await layout.goto(server.url,{waitUntil:'networkidle'});
@@ -215,7 +215,7 @@ try {
     await landscape.locator('.menu-toggle').focus();await landscape.keyboard.press('Enter');
     for(let i=0;i<4;i++)await landscape.keyboard.press('Tab');
     const lastItem=await landscape.locator('#primary-navigation a').last().boundingBox();
-    assert(lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
+    assert(lastItem.x>=0 && lastItem.x+lastItem.width<=1024 && lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
     await landscape.close();
     const mapPage=await browser.newPage({viewport:{width:390,height:844}});
     await mapPage.route('https://www.openstreetmap.org/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><html lang="ru"><title>QA map provider</title><p>Map request received</p></html>'}));

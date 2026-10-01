@@ -49,5 +49,17 @@ try {
  await page.goto(server.url);await page.locator('.menu-toggle').click();await capture(page,'audit-landscape-menu');
  console.log('LANDSCAPE_MENU',JSON.stringify(await page.locator('#primary-navigation').boundingBox()));await page.close();
  await writeFile('.qa/ui-audit.json',JSON.stringify(measurements,null,2));
+ const liveMap=await browser.newPage({viewport:{width:390,height:844}});
+ await liveMap.goto(server.url,{waitUntil:'networkidle'});
+ await liveMap.getByRole('button',{name:'Показать карту',exact:true}).click();
+ const mapUrl=await liveMap.locator('.map-frame').getAttribute('src');
+ try {
+  const response=await fetch(mapUrl,{signal:AbortSignal.timeout(20000)});
+  const html=await response.text();console.log('LIVE_MAP_HTTP',JSON.stringify({status:response.status,url:response.url,leaflet:html.includes('leaflet') || html.includes('Leaflet')}));
+  await liveMap.frameLocator('.map-frame').locator('.leaflet-tile-loaded').first().waitFor({timeout:20000});
+  await capture(liveMap,'audit-live-map',liveMap.locator('#contact'));
+  console.log('LIVE_MAP_RENDER',JSON.stringify({tiles:await liveMap.frameLocator('.map-frame').locator('.leaflet-tile-loaded').count()}));
+ }catch(error){console.log('LIVE_MAP_UNAVAILABLE',JSON.stringify({message:error.message}));}
+ await liveMap.close();
  console.log('UI_AUDIT',JSON.stringify(measurements));
 }finally{await browser.close();await server.close();}
