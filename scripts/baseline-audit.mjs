@@ -1,8 +1,15 @@
 import { chromium } from 'playwright';
 import sharp from 'sharp';
+import { spawn } from 'node:child_process';
+import { lookup } from 'node:dns/promises';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 await mkdir('.audit', { recursive: true });
+for (const domain of ['www.prime-it.kz', 'prime-it.kz']) {
+  try { console.log('DOMAIN_DNS', domain, await lookup(domain)); } catch (error) { console.log('DOMAIN_DNS', domain, error.code); }
+}
+const server = spawn('npx', ['vite', 'preview', '--host', '127.0.0.1'], { stdio: 'ignore' });
+await new Promise(resolve => setTimeout(resolve, 1500));
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
 const requests = [];
@@ -50,4 +57,12 @@ for (const url of [
     await writeFile('.audit/2gis-' + Math.random().toString(16).slice(2) + '.txt', content);
   } catch (error) { console.log('TWOGIS_UNAVAILABLE', url, error.message); }
 }
+await page.setViewportSize({ width: 1366, height: 768 });
+await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+await capture('baseline-desktop');
+await page.setViewportSize({ width: 390, height: 844 });
+await page.reload({ waitUntil: 'networkidle' });
+await capture('baseline-mobile');
+console.log('ORIGINAL_HERO', JSON.stringify(await sharp('public/hero.webp').metadata()));
 await browser.close();
+server.kill();
