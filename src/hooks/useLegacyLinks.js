@@ -16,7 +16,7 @@ export default function useLegacyLinks() {
         if (window.location.pathname !== '/' && /^(service-|license-|licenses$)/.test(hash)) window.location.assign('/#' + encodeURIComponent(hash));
         return;
       }
-      let disclosure = target.closest('details') || target.querySelector('details');
+      let disclosure = target.closest('details') || (hash === 'licenses' ? target.querySelector('details') : null);
       while (disclosure) { disclosure.open = true; disclosure = disclosure.parentElement?.closest('details'); }
       requestAnimationFrame(() => target.scrollIntoView({ block:'start', behavior:'instant' }));
     };

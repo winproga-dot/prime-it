@@ -45,6 +45,12 @@ try {
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
         assert(await page.locator('.menu-toggle').evaluate(node=>node === document.activeElement));
+        await page.locator('.menu-toggle').click();
+        await page.locator('#primary-navigation a[href="#services"]').click();
+        assert.equal(await page.locator('.more-services').evaluate(node=>node.open),false,'Section navigation does not expand unrelated services');
+        await page.locator('.menu-toggle').click();
+        await page.locator('#primary-navigation a[href="#faq"]').click();
+        assert.equal(await page.locator('.faq-item').first().evaluate(node=>node.open),false,'FAQ navigation does not choose an answer for the user');
       }
       await page.evaluate(()=>{window.qaEvents=[];window.addEventListener('primeit:analytics',event=>window.qaEvents.push(event.detail));});
       await page.getByRole('button',{name:'Сильно греется',exact:true}).click();
