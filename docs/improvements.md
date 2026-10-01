@@ -64,13 +64,13 @@ Framer Motion и неиспользуемый Tailwind удалены. Шриф�
 - Нативные details для FAQ, дополнительных услуг и лицензий.
 - Подписи у иконок-кнопок, alt, контраст, reduced motion и safe-area.
 - Основные touch targets не меньше 44 px, фиксированная нижняя панель имеет отступ в контенте.
-- 154 проверки Chromium/WebKit: главная и все десять страниц на 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080, 2560×1440.
+- 172 сценария Chromium/WebKit: главная и все десять страниц на 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080, 2560×1440.
 - Проверены WhatsApp-сообщения и tel URLs, events, якоря, query aliases, карточки лицензий, меню, FAQ, видео, 404 и страницы без JS.
 - Axe: 0 нарушений в проверенных состояниях главной и страницы услуги.
 - npm install, npm run build и static QA проходят; npm audit: 0 vulnerabilities.
 - Lighthouse lab, актуальный production output: главная — 98/100/100/100; страница чистки — 99/100/100/100 (Performance/Accessibility/Best Practices/SEO).
-- LCP: 2,3 с / 1,8 с; CLS: 0; TBT: 50 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
-- [Полный QA новых фото, отзывов с фото и desktop-видео](https://github.com/winproga-dot/prime-it/actions/runs/36904070885); screenshots (включая отзывы на mobile/desktop), browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
+- LCP: 2,4 с / 1,8 с; CLS: 0; TBT: 50 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
+- [Полный QA новых фото, отзывов с фото и desktop-видео](https://github.com/winproga-dot/prime-it/actions/runs/36939628643); screenshots (включая отзывы на mobile/desktop), browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
 
 Физические Android/iOS устройства не использовались: переход в установленный WhatsApp и реальный звонок нужно проверить после deployment.
 
@@ -98,3 +98,8 @@ Framer Motion и неиспользуемый Tailwind удалены. Шриф�
 7. Подключить выбранную аналитику и проверять обращения и Core Web Vitals.
 
 Подробные инструкции: [deployment.md](deployment.md). Позиции в поиске не гарантируются.
+
+## Повторный аудит UX
+Исправлены мелкий текст, горизонтальная прокрутка при тексте 200%, клавиатурное меню и его высота в landscape, расположение кнопок связи, WhatsApp-контекст FAQ/контактов, выравнивание цен, фотографии hero/ремонта ПК, поздняя ошибка отменённого видео и неожиданное раскрытие дополнительных услуг при навигации. Добавлены safe-area отступы, измерение высоты фиксированных панелей и явные правила Vercel. Карта и маршрут открывают проверенную карточку 2GIS в новом окне.
+
+[Подробный повторный аудит](audit-2026-10-01.md) · [Актуальный production QA](https://github.com/winproga-dot/prime-it/actions/runs/36939628643).
