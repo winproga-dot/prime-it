@@ -25,20 +25,49 @@ for(const [label,url] of sources) {
     if(!name)continue;
     let parent=name;
     const levels=[];
-    for(let n=0;n<6 && parent;n++,parent=parent.parentElement){
+    for(let n=0;n<9 && parent;n++,parent=parent.parentElement){
      levels.push({level:n,tag:parent.tagName,class:parent.className,
       text:parent.innerText.slice(0,2800),images:images(parent).slice(0,12),
-      backgrounds:Array.from(parent.querySelectorAll('[style]')).map(el=>el.getAttribute('style')).filter(style=>style.includes('url(')).slice(0,10),
+      backgrounds:[parent,...parent.querySelectorAll('*')].map(el=>getComputedStyle(el).backgroundImage).filter(style=>style.includes('url(')).slice(0,10),
       links:Array.from(parent.querySelectorAll('a[href]')).map(a=>({text:a.innerText,href:a.getAttribute('href')})).slice(0,15)});
     }
     records.push({author,levels});
    }
-   return {title:document.title,text:document.body.innerText.slice(0,label==='gallery'?12000:label==='card'?7000:17000),authorCards:records,images:images(document).slice(0,80),videoSources:Array.from(document.querySelectorAll('video,source')).map(el=>el.getAttribute('src'))};
+   return {title:document.title,text:document.body.innerText.slice(0,label==='gallery'?12000:label==='card'?7000:17000),authorCards:records,images:images(document).slice(0,80),backgrounds:Array.from(document.querySelectorAll('body *')).map(el=>({image:getComputedStyle(el).backgroundImage,text:el.innerText.slice(0,100)})).filter(el=>el.image.includes('url(')).slice(0,80),videoSources:Array.from(document.querySelectorAll('video,source')).map(el=>el.getAttribute('src'))};
   },{authors,label});
   console.log('SOURCE_'+label.toUpperCase(),JSON.stringify({url:response.url,status:response.status,...data}));
   await page.close();
  }catch(error){console.log('SOURCE_'+label.toUpperCase()+'_ERROR',String(error));}
 }
+
+const stockPages=[
+ ['repair','https://unsplash.com/s/photos/computer-repair'],
+ ['laptop','https://unsplash.com/s/photos/laptop'],
+ ['gpu','https://unsplash.com/s/photos/graphics-card'],
+ ['parts','https://unsplash.com/s/photos/computer-components']
+];
+for(const [label,url] of stockPages){
+ try{
+  const response=await fetch(url,{signal:AbortSignal.timeout(30000)});
+  const html=await response.text();
+  const context=await browser.newContext({javaScriptEnabled:false});
+  await context.route('**/*',r=>r.abort());
+  const page=await context.newPage();
+  await page.setContent(html,{waitUntil:'domcontentloaded'});
+  const data=await page.evaluate(()=>({title:document.title,text:document.body?.innerText?.slice(0,1200),photos:Array.from(document.querySelectorAll('img[src*="images.unsplash.com/photo-"]')).map(img=>{
+   let parent=img;
+   const paths=[];
+   for(let n=0;n<6&&parent;n++,parent=parent.parentElement){
+    const link=parent.querySelector('a[href*="/photos/"]');
+    if(link)paths.push({href:link.getAttribute('href'),text:link.textContent.trim().slice(0,150)});
+   }
+   return {src:img.getAttribute('src'),alt:img.getAttribute('alt'),paths};
+  }).slice(0,40)}));
+  console.log('STOCK_SOURCE',JSON.stringify({label,url:response.url,status:response.status,...data}));
+  await context.close();
+ }catch(error){console.log('STOCK_SOURCE_ERROR',JSON.stringify({label,error:String(error)}));}
+}
+
 await offline.close();
 const previewUrls=[
  'https://prime-it-git-prime-it-redesign-2026-winproga-dots-projects.vercel.app',
