@@ -1,6 +1,38 @@
 import { chromium } from 'playwright';
 
 const sourceUrl = 'https://2gis.kz/almaty/geo/70000001078609004';
+async function readPublicHtml(url, label) {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(25000) });
+    const html = await response.text();
+    const offline = await browser.newContext({ javaScriptEnabled: false });
+    await offline.route('**/*', route => route.abort());
+    const page = await offline.newPage();
+    try {
+      await page.setContent(html, { waitUntil: 'domcontentloaded' });
+      const record = await page.evaluate(() => ({
+        title: document.title,
+        canonical: document.querySelector('link[rel="canonical"]')?.href ?? null,
+        text: document.body?.innerText?.slice(0, 42000) ?? '',
+        links: Array.from(document.querySelectorAll('a[href]'))
+          .map(a => ({ text: a.innerText.trim(), href: a.getAttribute('href') }))
+          .filter(a => /reviews|отзыв|tel:|prime|сатпа|70000001078609004/i.test(a.text + ' ' + a.href))
+          .slice(0, 100),
+        schema: Array.from(document.querySelectorAll('script[type="application/ld+json"]')).map(s => s.textContent.slice(0, 20000))
+      }));
+      record.url = response.url;
+      record.status = response.status;
+      record.blocked = /captcha|капч|подтвердите,? что вы|подтвердить,? что вы|проверка браузера|are you a robot|доступ ограничен/i.test(record.url + ' ' + record.title + ' ' + record.text);
+      console.log('PUBLIC_2GIS_HTML_' + label, JSON.stringify(record));
+      return record;
+    } finally {
+      await offline.close();
+    }
+  } catch (error) {
+    console.log('PUBLIC_2GIS_HTML_' + label + '_ERROR', String(error));
+    return null;
+  }
+}
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ locale: 'ru-RU', viewport: { width: 1366, height: 900 } });
 async function inspect(url, label) {
@@ -31,16 +63,13 @@ async function inspect(url, label) {
   }
 }
 console.log('OWNER_PROVIDED_2GIS_URL', sourceUrl);
-try {
-  const response = await fetch(sourceUrl, { signal: AbortSignal.timeout(25000) });
-  const html = await response.text();
-  console.log('PUBLIC_2GIS_HTTP', JSON.stringify({ status: response.status, url: response.url,
-    title: html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? null,
-    canonical: html.match(/<link[^>]*rel=["']canonical["'][^>]*>/i)?.[0] ?? null,
-    bytes: Buffer.byteLength(html) }));
-} catch (error) {
-  console.log('PUBLIC_2GIS_HTTP_ERROR', String(error));
+const publicCard = await readPublicHtml(sourceUrl, 'CARD');
+if (publicCard && !publicCard.blocked) {
+  const reviewLink = publicCard.links.find(link => /\/tab\/reviews(?:[/?#]|$)/.test(link.href) && link.href.includes('70000001078609004'));
+  if (reviewLink) await readPublicHtml(new URL(reviewLink.href, publicCard.url).href, 'REVIEWS');
+  else console.log('PUBLIC_2GIS_HTML_REVIEWS_LINK_NOT_EXPOSED');
 }
+
 try {
   const card = await inspect(sourceUrl, 'CARD');
   if (card && !card.blocked) {
