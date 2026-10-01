@@ -1,0 +1,19 @@
+name: Verify owner-provided PRIME IT 2GIS card
+on:
+  push:
+    branches: [prime-it-2gis-audit]
+permissions:
+  contents: read
+jobs:
+  public-listing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Read public card and reviews without bypassing challenges
+        run: node scripts/verify-2gis.mjs
