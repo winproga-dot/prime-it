@@ -16,8 +16,8 @@ const requests = [];
 page.on('response', response => {
   if (response.status() >= 400) requests.push({ url: response.url(), status: response.status() });
 });
-async function capture(name) {
-  const png = await page.screenshot({ fullPage: false });
+async function capture(name, targetPage = page) {
+  const png = await targetPage.screenshot({ fullPage: false });
   const webp = await sharp(png).webp({ quality: 72 }).toBuffer();
   await writeFile('.audit/' + name + '.webp', webp);
   const response = await fetch('https://api.github.com/repos/' + process.env.GITHUB_REPOSITORY + '/git/blobs', {
@@ -57,12 +57,12 @@ for (const url of [
     await writeFile('.audit/2gis-' + Math.random().toString(16).slice(2) + '.txt', content);
   } catch (error) { console.log('TWOGIS_UNAVAILABLE', url, error.message); }
 }
-await page.setViewportSize({ width: 1366, height: 768 });
-await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
-await capture('baseline-desktop');
-await page.setViewportSize({ width: 390, height: 844 });
-await page.reload({ waitUntil: 'networkidle' });
-await capture('baseline-mobile');
+const localPage = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+await localPage.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+await capture('baseline-desktop', localPage);
+await localPage.setViewportSize({ width: 390, height: 844 });
+await localPage.reload({ waitUntil: 'networkidle' });
+await capture('baseline-mobile', localPage);
 console.log('ORIGINAL_HERO', JSON.stringify(await sharp('public/hero.webp').metadata()));
 await browser.close();
 server.kill();
