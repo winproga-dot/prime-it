@@ -11,8 +11,9 @@
 
 ## Business listings
 - Update/verify Google Business Profile: PRIME IT, Алматы, ул. Сатпаева, 105А, +77076840625, daily 10:00–20:00.
-- Update the 2GIS card with the same address, phone, opening hours and site.
-- Verify that route search resolves to the entrance you use. Replace the temporary 2GIS search with the confirmed business card and add real review excerpts.
+- Keep the owner-provided [2GIS card](https://2gis.kz/almaty/firm/70000001078609004) consistent with the site. Address and phone matched during the 2026-10-01 check. The listing currently shows 07:00–22:00 by prior phone call; change it to the actual daily 10:00–20:00 and check the business description.
+- Confirm that the 2GIS destination link opens the entrance you use on real mobile devices. The site uses the route URL exposed by the checked card, not an address search.
+- Keep the three real review excerpts and source links current. Only publish dates if independently verified; dates of official replies are not review dates.
 - Do not add geographic coordinates or aggregate ratings until independently confirmed from the current listing.
 
 ## Search indexing after deployment

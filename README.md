@@ -18,7 +18,7 @@ Deploy the entire `dist/` directory. The build generates complete HTML for the h
 - `src/data/brand.js`: the only source of contact information.
 - `src/data/services.js`: service prices and useful service-page content.
 - `src/data/faq.js`: displayed home FAQs; the same records generate FAQPage.
-- `src/data/reviews.js`: verified reviews only; currently empty.
+- `src/data/reviews.js`: verified real 2GIS excerpts and their source URLs.
 - `src/data/licenses.js`: existing license offers preserved from the project.
 - `src/components/` and `src/pages/`: one responsive interface.
 - `scripts/prepare-assets.mjs`: image derivatives, social preview, video compression.
@@ -35,9 +35,13 @@ prime.it.08@gmail.com · https://www.prime-it.kz/
 Diagnosis is free, including when the customer declines repair.
 Warranty: up to 3 months on work, supplier warranty on replacement parts, as stated in the original project.
 
-2GIS returned a CAPTCHA during verification. The historical short URL could not be verified against the new address and is not used in production. Until the current business card is confirmed, the reviews section links to a business/address search, and navigation uses Google Maps directions by the exact address. No ratings, coordinates or fabricated review excerpts are published.
+The owner supplied https://2gis.kz/almaty/geo/70000001078609004. On 2026-10-01 the public HTTP response redirected to https://2gis.kz/almaty/firm/70000001078609004 and confirmed Satpaeva 105A and +77076840625. Review and route links came directly from that card; LocalBusiness.sameAs uses its canonical URL. Browser navigation showed CAPTCHA, but the normal public HTML responses exposed the card and reviews without bypassing a challenge.
 
-To publish real reviews: verify the current 2GIS card and phone/address, set `brand.twoGisUrl` to its canonical `/firm/...` URL (without a tab suffix), then add verbatim excerpts with the actual author, date and source URL in `src/data/reviews.js`. Rebuild. That also adds the confirmed URL to LocalBusiness.sameAs.
+Three short verbatim review excerpts with actual author names are published in `src/data/reviews.js`. Their source URLs and verification date are retained. Publication dates were not exposed in that public HTML and are omitted rather than using dates of company replies. No aggregate rating, review count or geographic schema has been added. [Verification evidence](https://github.com/winproga-dot/prime-it/actions/runs/36866956096).
+
+The listing currently says 07:00–22:00 by prior phone call; the website keeps the owner's stated daily 10:00–20:00. Update the listing so its hours and business description agree with the actual service centre.
+
+To update reviews: check the real public source, copy only short verbatim excerpts with the actual author and source URL, add an optional publication date only when verified, and update `reviewsVerifiedAt`. Rebuild. The direct review URL is stored separately from the canonical card, so tab suffixes are never inferred from a shared `/geo/` link.
 
 ## Analytics
 No GA4/Metrica ID is configured. Register a provider after your SDK is ready:

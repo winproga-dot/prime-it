@@ -10,9 +10,10 @@ export const brand = Object.freeze({
   hours: 'Без выходных, 10:00–20:00',
   url: 'https://www.prime-it.kz/',
   warranty: 'До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика.',
-  // Set only after verifying the current business card, address and phone.
-  twoGisUrl: null,
-  twoGisSearch: 'https://2gis.kz/almaty/search/' + encodeURIComponent('PRIME IT Сатпаева 105А'),
-  twoGisAddress: 'https://2gis.kz/almaty/search/' + encodeURIComponent('Алматы Сатпаева 105А'),
-  routeUrl: 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent('Алматы, ул. Сатпаева, 105А'),
+  // Owner supplied /geo/70000001078609004; public card checked on 2026-10-01.
+  // Canonical URL, address, phone, review tab and route matched the current listing.
+  twoGisUrl: 'https://2gis.kz/almaty/firm/70000001078609004',
+  twoGisReviewsUrl: 'https://2gis.kz/almaty/firm/70000001078609004/tab/reviews',
+  // Exact destination link exposed by the verified 2GIS card; no inferred coordinates.
+  routeUrl: 'https://2gis.kz/almaty/directions/points/%7C76.884087%2C43.234996%3B70000001078609004',
 });

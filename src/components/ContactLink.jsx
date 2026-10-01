@@ -8,9 +8,9 @@ export default function ContactLink({ type = 'whatsapp', message = messages.hero
     whatsapp: { href: whatsappUrl(message), event: 'whatsapp_click', icon: 'MessageCircle', label: 'WhatsApp' },
     phone: { href: 'tel:' + brand.phoneTel, event: 'phone_click', icon: 'Phone', label: 'Позвонить' },
     route: { href: brand.routeUrl, event: 'route_click', icon: 'MapPin', label: 'Построить маршрут' },
-    reviews: { href: brand.twoGisUrl ? brand.twoGisUrl + '/tab/reviews' : brand.twoGisSearch,
+    reviews: { href: brand.twoGisReviewsUrl || brand.twoGisUrl,
       event: 'review_2gis_click', icon: 'ArrowUpRight',
-      label: brand.twoGisUrl ? 'Смотреть все отзывы в 2GIS' : 'Найти PRIME IT в 2GIS' },
+      label: 'Смотреть все отзывы в 2GIS' },
   };
   const link = links[type];
   return <a href={link.href} className={className}

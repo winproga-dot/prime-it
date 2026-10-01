@@ -58,7 +58,7 @@ try {
       if(engineName === 'chromium' && width === 390) {
         await page.locator('.hero-actions a[href^="tel:"]').click();
         await page.locator('.hero-route').click();
-        await page.locator('#reviews a[href*="2gis.kz"]').click();
+        await page.getByRole('link',{name:'Смотреть все отзывы в 2GIS',exact:true}).click();
         await page.locator('#service-clean .service-actions a[href^="https://wa.me/"]').click();
         const contactEvents = await page.evaluate(()=>window.qaEvents);
         for(const event of ['phone_click','route_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
@@ -85,6 +85,8 @@ try {
           const contactImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
           await writeFile('.qa/location-mobile.webp',contactImage);await evidenceBlob('location-mobile',contactImage);
         }
+        const reviewsImage=await sharp(await page.locator('#reviews').screenshot()).webp({quality:78}).toBuffer();
+        await writeFile('.qa/reviews-' + width + '.webp',reviewsImage);await evidenceBlob('reviews-' + width,reviewsImage);
         assert.equal(axe.violations.length,0,'Accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,impact:item.impact,nodes:item.nodes.map(node=>({target:node.target,summary:node.failureSummary}))}))));
       }
       assert.deepEqual(errors,[],'Browser errors: ' + engineName + ' ' + width);

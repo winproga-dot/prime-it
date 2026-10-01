@@ -15,7 +15,7 @@ export default function Location() {
       <div className="map-grid" aria-hidden="true" />
       <div className="map-street" aria-hidden="true">АЛМАТЫ</div>
       <div className="map-marker"><Icon name="MapPin" size={35} /><strong>PRIME IT</strong><span>Сатпаева, 105А</span></div>
-      <p>Алматы · ул. Сатпаева, 105А</p><ContactLink type="route" className="button button-map" location="map" href={brand.twoGisAddress}>Открыть адрес в 2GIS</ContactLink>
+      <p>Алматы · ул. Сатпаева, 105А</p><ContactLink type="route" className="button button-map" location="map" href={brand.twoGisUrl}>Открыть PRIME IT в 2GIS</ContactLink>
     </div></div>
   </section>;
 }
