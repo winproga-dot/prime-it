@@ -23,6 +23,18 @@ export async function startServer(port = 4173) {
       const headers = {'Content-Type':mime[extension] || 'application/octet-stream',
         'Cache-Control': extension === '.html' ? 'no-cache' : file.includes(sep + 'assets' + sep) ? 'public, max-age=31536000, immutable' : 'public, max-age=86400',
         'X-Content-Type-Options':'nosniff'};
+      if(extension === '.mp4') {
+        headers['Accept-Ranges']='bytes';
+        const range=request.headers.range?.match(/^bytes=(\d*)-(\d*)$/);
+        if(range) {
+          const start=range[1] ? Number(range[1]) : Math.max(0,data.length-Number(range[2]));
+          const end=range[1] ? Math.min(range[2] ? Number(range[2]) : data.length-1,data.length-1) : data.length-1;
+          if(start>=data.length || end<start) {response.writeHead(416,{'Content-Range':'bytes */'+data.length});response.end();return;}
+          headers['Content-Range']='bytes '+start+'-'+end+'/'+data.length;headers['Content-Length']=end-start+1;
+          response.writeHead(206,headers);response.end(data.subarray(start,end+1));return;
+        }
+        headers['Content-Length']=data.length;
+      }
       const compression = /\btext\/|application\/(xml|json)/.test(headers['Content-Type']) && /gzip/.test(request.headers['accept-encoding'] || '');
       if(compression) { headers['Content-Encoding']='gzip';headers.Vary='Accept-Encoding'; }
       response.writeHead(status,headers);response.end(compression ? gzipSync(data) : data);

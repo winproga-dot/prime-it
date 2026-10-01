@@ -38,7 +38,7 @@ export default function Header({ home = false }) {
       </nav>
       <div className="header-actions">
         <ContactLink type="phone" location="header" className="header-phone">{brand.phoneDisplay}</ContactLink>
-        <ContactLink location="header" className="button button-primary header-whatsapp">WhatsApp</ContactLink>
+        <ContactLink location="header" className="button button-primary header-whatsapp" aria-label="Написать в WhatsApp">WhatsApp</ContactLink>
         <button ref={toggleRef} type="button" className="icon-button menu-toggle" aria-controls="primary-navigation"
           aria-expanded={open} aria-label={open ? 'Закрыть меню' : 'Открыть меню'} onClick={() => setOpen(!open)}>
           <Icon name={open ? 'X' : 'Menu'} size={23} />

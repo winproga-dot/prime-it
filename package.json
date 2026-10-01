@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "dev": "node scripts/prepare-assets.mjs && vite",
@@ -22,7 +22,7 @@
   "devDependencies": {
     "vite": "^7.1.7",
     "@vitejs/plugin-react": "^5.0.4",
-    "sharp": "^0.34.3",
+    "sharp": "^0.35.5",
     "playwright": "^1.55.1",
     "@axe-core/playwright": "^4.10.2",
     "lighthouse": "^13.5.0"

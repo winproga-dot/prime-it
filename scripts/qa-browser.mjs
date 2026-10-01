@@ -49,11 +49,19 @@ try {
       const symptomLink = page.locator('#estimate a[href^="https://wa.me/"]');
       const symptomMessage = new URL(await symptomLink.getAttribute('href')).searchParams.get('text');
       assert(symptomMessage.includes('Проблема: Сильно греется') && symptomMessage.includes('бесплатную диагностику') && symptomMessage.includes('Модель устройства:') && symptomMessage.includes('Комментарий:'));
-      await page.evaluate(()=>document.addEventListener('click',event=>{if(event.target.closest('a[href^="https://wa.me/"]')) event.preventDefault();},{capture:true}));
+      await page.evaluate(()=>document.addEventListener('click',event=>{if(event.target.closest('a[href^="https://wa.me/"], a[href^="tel:"], a[href*="google.com/maps"], a[href*="2gis.kz"]')) event.preventDefault();},{capture:true}));
       await symptomLink.click();
       const events = await page.evaluate(()=>window.qaEvents);
       assert(events.some(event=>event.event === 'symptom_selected'));
       assert(events.some(event=>event.event === 'whatsapp_click'));
+      if(engineName === 'chromium' && width === 390) {
+        await page.locator('.hero-actions a[href^="tel:"]').click();
+        await page.locator('.hero-route').click();
+        await page.locator('#reviews a[href*="2gis.kz"]').click();
+        await page.locator('#service-clean .service-actions a[href^="https://wa.me/"]').click();
+        const contactEvents = await page.evaluate(()=>window.qaEvents);
+        for(const event of ['phone_click','route_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
+      }
       await page.locator('.faq-item').first().locator('summary').click();
       assert(await page.locator('.faq-item').first().locator('p').isVisible());
       if(engineName === 'chromium' && [390,1366].includes(width)) {
@@ -63,6 +71,19 @@ try {
         await evidenceBlob('home-' + width,screenshot);
         const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         await writeFile('.qa/axe-home-' + width + '.json',JSON.stringify(axe,null,2));
+        if(width === 1366) {
+          await page.locator('#services').scrollIntoViewIfNeeded();
+          const servicesImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
+          await writeFile('.qa/services-desktop.webp',servicesImage);await evidenceBlob('services-desktop',servicesImage);
+        }
+        if(width === 390) {
+          await page.locator('#estimate').scrollIntoViewIfNeeded();
+          const symptomImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
+          await writeFile('.qa/symptoms-mobile.webp',symptomImage);await evidenceBlob('symptoms-mobile',symptomImage);
+          await page.locator('#contact').scrollIntoViewIfNeeded();
+          const contactImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
+          await writeFile('.qa/location-mobile.webp',contactImage);await evidenceBlob('location-mobile',contactImage);
+        }
         assert.equal(axe.violations.length,0,'Accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,impact:item.impact,nodes:item.nodes.map(node=>({target:node.target,summary:node.failureSummary}))}))));
       }
       assert.deepEqual(errors,[],'Browser errors: ' + engineName + ' ' + width);
@@ -70,7 +91,8 @@ try {
       await context.close();
     }
     for (const entry of servicePages) {
-      const context = await browser.newContext({viewport:{width:390,height:844}});
+      for (const [width,height] of sizes) {
+      const context = await browser.newContext({viewport:{width,height}});
       const page = await context.newPage();
       const response = await page.goto(server.url + entry.path,{waitUntil:'networkidle'});
       assert.equal(response.status(),200);assert((await response.text()).includes(entry.h1),'HTML contains service before JS');
@@ -79,14 +101,15 @@ try {
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false,'Service overflow: ' + entry.path);
       const link = page.locator('.service-hero a[href^="https://wa.me/"]');
       assert(new URL(await link.getAttribute('href')).searchParams.get('text').includes(entry.h1));
-      if(entry.slug === 'chistka-noutbuka-almaty' && engineName === 'chromium') {
+      if(entry.slug === 'chistka-noutbuka-almaty' && engineName === 'chromium' && width === 390) {
         const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length,0,'Service accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>node.failureSummary)}))));
         const screenshot=await sharp(await page.screenshot({fullPage:true})).resize(390).webp({quality:70}).toBuffer();
         await writeFile('.qa/service-mobile.webp',screenshot);await evidenceBlob('service-mobile',screenshot);
       }
-      results.push({engine:engineName,page:entry.path,pass:true});
+      results.push({engine:engineName,width,height,page:entry.path,pass:true});
       await context.close();
+      }
     }
     const page=await browser.newPage({viewport:{width:390,height:844}});
     for(const service of services) {
@@ -110,6 +133,12 @@ try {
     await page.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await page.locator('video').count(),0);
     assert.equal(await page.locator('.video-control').count(),0);
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.goto(server.url,{waitUntil:'networkidle'});
+    await page.locator('.video-control').click();
+    await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.readyState>=2 && video.currentTime>0;});
+    await page.locator('.video-control').click();
+    assert.equal(await page.locator('video').count(),0);
     const missing=await page.goto(server.url+'/missing-page/',{waitUntil:'networkidle'});
     assert.equal(missing.status(),404);assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
     await page.close();

@@ -2,7 +2,7 @@
 Responsive React/Vite website for the computer service centre in Almaty.
 
 ## Run and build
-Requires Node.js 22.12+; ffmpeg is recommended to compress the optional desktop video.
+Requires Node.js 22.19+; ffmpeg is recommended to compress the optional desktop video.
 ```sh
 npm install
 npm run dev
