@@ -33,39 +33,28 @@ for(const [label,url] of sources) {
     }
     records.push({author,levels});
    }
-   return {title:document.title,text:document.body.innerText.slice(0,label==='gallery'?12000:label==='card'?7000:17000),authorCards:records,images:images(document).slice(0,80),backgrounds:Array.from(document.querySelectorAll('body *')).map(el=>({image:getComputedStyle(el).backgroundImage,text:el.innerText.slice(0,100)})).filter(el=>el.image.includes('url(')).slice(0,80),videoSources:Array.from(document.querySelectorAll('video,source')).map(el=>el.getAttribute('src'))};
+   return {title:document.title,text:document.body.innerText.slice(0,label==='gallery'?12000:label==='card'?7000:17000),authorCards:records,images:images(document).slice(0,80),backgrounds:Array.from(document.querySelectorAll('body *')).map(el=>({image:getComputedStyle(el).backgroundImage,text:(el.innerText||'').slice(0,100)})).filter(el=>el.image.includes('url(')).slice(0,80),videoSources:Array.from(document.querySelectorAll('video,source')).map(el=>el.getAttribute('src'))};
   },{authors,label});
   console.log('SOURCE_'+label.toUpperCase(),JSON.stringify({url:response.url,status:response.status,...data}));
   await page.close();
  }catch(error){console.log('SOURCE_'+label.toUpperCase()+'_ERROR',String(error));}
 }
 
-const stockPages=[
- ['repair','https://unsplash.com/s/photos/computer-repair'],
- ['laptop','https://unsplash.com/s/photos/laptop'],
- ['gpu','https://unsplash.com/s/photos/graphics-card'],
- ['parts','https://unsplash.com/s/photos/computer-components']
-];
-for(const [label,url] of stockPages){
+
+const searches=['laptop repair','computer motherboard','graphics card computer','gaming desktop computer','laptop solid state drive','laptop battery'];
+for(const search of searches){
  try{
-  const response=await fetch(url,{signal:AbortSignal.timeout(30000)});
-  const html=await response.text();
-  const context=await browser.newContext({javaScriptEnabled:false});
-  await context.route('**/*',r=>r.abort());
-  const page=await context.newPage();
-  await page.setContent(html,{waitUntil:'domcontentloaded'});
-  const data=await page.evaluate(()=>({title:document.title,text:document.body?.innerText?.slice(0,1200),photos:Array.from(document.querySelectorAll('img[src*="images.unsplash.com/photo-"]')).map(img=>{
-   let parent=img;
-   const paths=[];
-   for(let n=0;n<6&&parent;n++,parent=parent.parentElement){
-    const link=parent.querySelector('a[href*="/photos/"]');
-    if(link)paths.push({href:link.getAttribute('href'),text:link.textContent.trim().slice(0,150)});
-   }
-   return {src:img.getAttribute('src'),alt:img.getAttribute('alt'),paths};
-  }).slice(0,40)}));
-  console.log('STOCK_SOURCE',JSON.stringify({label,url:response.url,status:response.status,...data}));
-  await context.close();
- }catch(error){console.log('STOCK_SOURCE_ERROR',JSON.stringify({label,error:String(error)}));}
+  const url=new URL('https://commons.wikimedia.org/w/api.php');
+  const params={action:'query',generator:'search',gsrsearch:search+' filetype:bitmap',gsrnamespace:'6',gsrlimit:'8',prop:'imageinfo',iiprop:'url|extmetadata',iiurlwidth:'1600',format:'json'};
+  for(const [key,value]of Object.entries(params))url.searchParams.set(key,value);
+  const response=await fetch(url,{headers:{'User-Agent':'PrimeITWebsiteMediaResearch/1.0'},signal:AbortSignal.timeout(25000)});
+  const json=await response.json();
+  const photos=Object.values(json.query?.pages||{}).map(page=>{
+   const info=page.imageinfo?.[0],meta=info?.extmetadata||{};
+   return {title:page.title,fileUrl:info?.thumburl||info?.url,sourceUrl:info?.descriptionurl,artist:meta.Artist?.value,credit:meta.Credit?.value,license:meta.LicenseShortName?.value,licenseUrl:meta.LicenseUrl?.value,description:meta.ImageDescription?.value?.slice(0,1000),width:info?.thumbwidth,height:info?.thumbheight};
+  });
+  console.log('COMMONS_SOURCE',JSON.stringify({search,status:response.status,photos}));
+ }catch(error){console.log('COMMONS_SOURCE_ERROR',JSON.stringify({search,error:String(error)}));}
 }
 
 await offline.close();
