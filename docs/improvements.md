@@ -80,8 +80,8 @@ Framer Motion и неиспользуемый Tailwind удалены. Шриф�
 - Axe: 0 нарушений в проверенных состояниях главной и страницы услуги.
 - npm install, npm run build и static QA проходят; npm audit: 0 vulnerabilities.
 - Lighthouse lab, production output: главная — 99/100/100/100; страница чистки — 99/100/100/100 (Performance/Accessibility/Best Practices/SEO).
-- LCP: 1,9 с / 2,0 с; CLS: 0; TBT: 20 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
-- [Подтверждённый полный QA](https://github.com/winproga-dot/prime-it/actions/runs/36859020890); screenshots, browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
+- LCP: 1,9 с / 2,0 с; CLS: 0; TBT: 40 мс / 0 мс. Это лабораторные результаты: реальные Core Web Vitals, включая INP, проверяются после deployment и накопления трафика.
+- [Полный QA после добавления реальных отзывов 2GIS](https://github.com/winproga-dot/prime-it/actions/runs/36867726462); screenshots (включая отзывы на mobile/desktop), browser/axe/Lighthouse JSON и production output находятся в Actions artifacts.
 
 Физические Android/iOS устройства не использовались: переход в установленный WhatsApp и реальный звонок нужно проверить после deployment.
 
