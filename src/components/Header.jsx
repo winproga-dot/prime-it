@@ -2,16 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { brand } from '../data/brand.js';
 import ContactLink from './ContactLink.jsx';
 import Icon from './Icon.jsx';
+import useMeasuredHeight from '../hooks/useMeasuredHeight.js';
 const nav = [['services','Услуги'],['pricing','Цены'],['reviews','Отзывы'],['faq','FAQ'],['contact','Контакты']];
 export default function Header({ home = false, localSections = false, message, context }) {
   const [open, setOpen] = useState(false);
+  const headerRef = useRef(null);
   const toggleRef = useRef(null);
   const navRef = useRef(null);
+  useMeasuredHeight(headerRef, '--header-height');
   const href = id => (home || (localSections && ['faq','contact'].includes(id)) ? '' : '/') + '#' + id;
   useEffect(() => {
     if (!open) return;
+    navRef.current?.querySelector('a')?.focus({ preventScroll:true });
     const onKey = event => {
-      if (event.key === 'Escape') { setOpen(false); toggleRef.current?.focus(); }
+      if (event.key === 'Escape') { event.preventDefault(); setOpen(false); toggleRef.current?.focus(); }
     };
     const onPointer = event => {
       if (!navRef.current?.contains(event.target) && !toggleRef.current?.contains(event.target)) setOpen(false);
@@ -27,7 +31,7 @@ export default function Header({ home = false, localSections = false, message, c
       media.removeEventListener('change', onResize);
     };
   }, [open]);
-  return <header className="site-header">
+  return <header ref={headerRef} className="site-header">
     <div className="container header-inner">
       <a className="brand" href="/" aria-label="PRIME IT — главная">
         <img src="/logo.jpg" width="40" height="40" alt="" decoding="async" />

@@ -1,5 +1,5 @@
 import { brand } from '../data/brand.js';
-import { servicePages, services, pageForPath } from '../data/services.js';
+import { servicePages, pageForPath } from '../data/services.js';
 import { faq } from '../data/faq.js';
 export const homeMeta = {
   title: 'Ремонт компьютеров и ноутбуков в Алматы | PRIME IT',

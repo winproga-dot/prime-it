@@ -39,6 +39,9 @@ try {
         assert.equal(await page.locator('video').count(),0);
         await page.locator('.menu-toggle').click();
         assert(await page.locator('#primary-navigation').isVisible());
+        assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#services','Menu focuses its first link');
+        await page.keyboard.press('Tab');
+        assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('href')),'#pricing','Menu links follow keyboard order');
         await page.keyboard.press('Escape');
         assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'),'false');
         assert(await page.locator('.menu-toggle').evaluate(node=>node === document.activeElement));
@@ -105,6 +108,9 @@ try {
       assert.equal(await page.title(),entry.title);
       assert.equal(await page.locator('h1').innerText(),entry.h1);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false,'Service overflow: ' + entry.path);
+      for (const href of await page.locator('a[href^="https://wa.me/"]').evaluateAll(nodes=>nodes.map(node=>node.href))) {
+        assert(new URL(href).searchParams.get('text').includes(entry.h1),'Service context retained: ' + entry.path);
+      }
       const link = page.locator('.service-hero a[href^="https://wa.me/"]');
       assert(new URL(await link.getAttribute('href')).searchParams.get('text').includes(entry.h1));
       assert(new URL(await page.locator('.mobile-action-bar a[href^="https://wa.me/"]').getAttribute('href')).searchParams.get('text').includes(entry.h1));
@@ -163,9 +169,64 @@ try {
     await page.getByRole('button',{name:'Повторить загрузку видео'}).click();
     await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.currentTime>0;});
     await page.locator('.video-control').click();
+    // Closing a pending play request is intentional; a late AbortError must not reopen an error.
+    let heldRoute;
+    const requestBlocked = new Promise(resolve=>{heldRoute=resolve;});
+    await page.route('**/media/hero.mp4',route=>heldRoute(route));
+    await page.locator('.video-control').click();
+    const pendingRoute=await Promise.race([requestBlocked,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Expected video request')),5000))]);
+    await page.locator('.video-control').click();
+    await pendingRoute.abort().catch(()=>{});
+    await page.unroute('**/media/hero.mp4');
+    await page.waitForTimeout(250);
+    assert.equal(await page.locator('video').count(),0);
+    assert.equal(await page.locator('.hero-media').getAttribute('data-video-state'),'idle','Closing video is not a loading failure');
     const missing=await page.goto(server.url+'/missing-page/',{waitUntil:'networkidle'});
     assert.equal(missing.status(),404);assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
     await page.close();
+    const layoutWidths=[320,360,390,600,601,768,900,1024,1366];
+    for(const width of layoutWidths) {
+      const layout=await browser.newPage({viewport:{width,height:800}});
+      await layout.goto(server.url,{waitUntil:'networkidle'});
+      const checkActions=async()=>{
+        const boxes=await layout.locator('.hero-actions a').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
+        for(const box of boxes) assert(box.x>=-1 && box.right<=width+1 && box.height>=44,'Reachable hero action at ' + width);
+        for(let i=0;i<boxes.length;i++) for(let j=i+1;j<boxes.length;j++){
+          const overlapWidth=Math.min(boxes[i].right,boxes[j].right)-Math.max(boxes[i].left,boxes[j].left);
+          const overlapHeight=Math.min(boxes[i].bottom,boxes[j].bottom)-Math.max(boxes[i].top,boxes[j].top);
+          assert(!(overlapWidth>1 && overlapHeight>1),'Hero actions overlap at ' + width);
+        }
+      };
+      assert.equal(await layout.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Default layout overflow: '+width);
+      await checkActions();
+      await layout.addStyleTag({content:'html{font-size:200%!important}'});
+      await layout.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      assert.equal(await layout.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'Enlarged text overflow: '+engineName+' '+width);
+      await checkActions();
+      if(width<=600) {
+        const sticky=await layout.locator('.mobile-action-bar').boundingBox();
+        assert(parseFloat(await layout.locator('body').evaluate(node=>getComputedStyle(node).paddingBottom))>=sticky.height,'Enlarged text bottom bar clearance');
+      }
+      results.push({engine:engineName,width,height:800,page:'home',scenario:'text-200-percent',pass:true});
+      await layout.close();
+    }
+    const landscape=await browser.newPage({viewport:{width:1024,height:320}});
+    await landscape.goto(server.url,{waitUntil:'networkidle'});
+    await landscape.locator('.menu-toggle').focus();await landscape.keyboard.press('Enter');
+    for(let i=0;i<4;i++)await landscape.keyboard.press('Tab');
+    const lastItem=await landscape.locator('#primary-navigation a').last().boundingBox();
+    assert(lastItem.x>=0 && lastItem.x+lastItem.width<=1024 && lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
+    await landscape.close();
+    const mapPage=await browser.newPage({viewport:{width:390,height:844}});
+    const mapRequests=[];
+    mapPage.on('request',request=>{if(/widgets\.2gis|openstreetmap/.test(request.url()))mapRequests.push(request.url());});
+    await mapPage.goto(server.url,{waitUntil:'networkidle'});
+    assert.equal(await mapPage.locator('iframe').count(),0,'No unreliable third-party widget at page load');
+    assert.deepEqual(mapRequests,[],'Map links do not load external scripts');
+    const mapLink=mapPage.getByRole('link',{name:'Открыть карту в 2GIS',exact:true});
+    assert.equal(await mapLink.getAttribute('href'),'https://2gis.kz/almaty/firm/70000001078609004','Owner-provided business card');
+    assert.equal(await mapLink.getAttribute('target'),'_blank');
+    await mapPage.close();
     const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
     const staticPage=await noJS.newPage();
     for(const path of ['/',...servicePages.map(entry=>entry.path)]) {
@@ -177,5 +238,5 @@ try {
     await noJS.close();await browser.close();
   }
   await writeFile('.qa/browser-results.json',JSON.stringify(results,null,2));
-  console.log('BROWSER_QA_PASS',JSON.stringify({engines:['Chromium','WebKit'],viewports:sizes,checks:results.length,deepLinks:true,noJavaScript:true,axeViolations:0}));
+  console.log('BROWSER_QA_PASS',JSON.stringify({engines:['Chromium','WebKit'],viewports:sizes,checks:results.length,textResize:true,menuLandscape:true,mapLinks:true,serviceContext:true,deepLinks:true,noJavaScript:true,axeViolations:0}));
 } finally { await server.close(); }

@@ -105,7 +105,8 @@ export const services = [
     "description": "AutoCAD, Revit, Photoshop и другие программы. Возможна установка через AnyDesk.",
     "price": 5000,
     "image": "soft",
-    "imageAlt": "Ноутбук с двумя экранами для рабочих задач"
+    "imageAlt": "Ноутбук с двумя экранами для рабочих задач",
+    "priceNote": "Лицензия и установка — по согласованию."
   },
   {
     "id": "misc",
@@ -133,7 +134,8 @@ export const services = [
     "description": "Подбор, тестирование и продажа. Поможем выбрать устройство под ваши задачи.",
     "price": 45000,
     "image": "sale",
-    "imageAlt": "Современный ноутбук для работы и повседневных задач"
+    "imageAlt": "Современный ноутбук для работы и повседневных задач",
+    "priceNote": "Стоимость устройства зависит от модели и комплектации."
   }
 ];
 
@@ -232,7 +234,9 @@ export const servicePages = [
       "upgrade-noutbuka-kompyutera-almaty",
       "remont-videokart-almaty"
     ],
-    "path": "/remont-kompyuterov-almaty/"
+    "path": "/remont-kompyuterov-almaty/",
+    "image": "build",
+    "imageAlt": "Охлаждение, видеокарта и другие компоненты настольного компьютера"
   },
   {
     "slug": "chistka-noutbuka-almaty",
