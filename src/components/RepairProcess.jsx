@@ -3,8 +3,19 @@ import useRepairJourney from '../hooks/useRepairJourney.js';
 import ContactLink from './ContactLink.jsx';
 import Icon from './Icon.jsx';
 
-export default function RepairProcess({ message, context }) {
+export default function RepairProcess({ message, context, compact = false }) {
   const { ref, active, enhanced } = useRepairJourney();
+  if (compact) return <section id="process" className="section container" aria-labelledby="process-title">
+    <div className="section-heading"><div><p className="eyebrow">Понятно на каждом этапе</p>
+      <h2 id="process-title">Как проходит ремонт</h2></div></div>
+    <ol className="process-grid">{repairJourney.map(step => <li key={step.id}>
+      <div className="process-top"><span>{step.number}</span><Icon name={step.icon} size={25} /></div>
+      <h3>{step.title}</h3><p>{step.text}</p>
+    </li>)}</ol>
+    <div className="story-contact"><div><strong>Начнём с вашей техники.</strong><p>Напишите о проблеме — поможем определить следующий шаг.</p></div>
+      <ContactLink className="text-link" message={message} context={context} location="repair_process">Обсудить мою проблему <Icon name="ArrowUpRight" size={18} /></ContactLink>
+    </div>
+  </section>;
   return <section ref={ref} id="process" className="section container repair-story" data-story-mode={enhanced ? 'scroll' : 'stacked'} data-active-step={active}
     aria-labelledby="process-title">
     <div className="section-heading" data-reveal><div><p className="eyebrow">Понятно на каждом этапе</p>

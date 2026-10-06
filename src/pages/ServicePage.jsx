@@ -31,7 +31,7 @@ export default function ServicePage({ page }) {
         <p>Не уверены, что нужно вашему устройству? Диагностика бесплатная — даже при отказе от ремонта.</p></aside>
     </section>
     <section className="container service-note"><Icon name="CircleHelp" size={27} /><div><h2>{page.noteTitle}</h2><p>{page.note}</p></div></section>
-    <RepairProcess />
+    <RepairProcess compact message={message} context={context} />
     <FAQ items={page.faq} title={'Вопросы: ' + page.breadcrumb.toLowerCase()} message={message} context={context} />
     <section className="section container related-services" aria-labelledby="related-title"><div className="section-heading"><div><p className="eyebrow">Может пригодиться</p><h2 id="related-title">Связанные услуги</h2></div></div>
       <div className="related-grid">{page.related.map(slug => { const related = servicePages.find(item => item.slug === slug); return <a href={related.path} key={slug}><span>{related.breadcrumb}</span><Icon name="ArrowUpRight" /></a>; })}</div>
