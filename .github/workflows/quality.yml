@@ -39,6 +39,10 @@ jobs:
         run: npm run qa:browser
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      - name: Scroll story, reduced motion and pointer QA
+        run: node scripts/qa-motion.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Lighthouse on production build
         if: success()
         run: npm run qa:lighthouse

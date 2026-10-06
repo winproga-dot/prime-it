@@ -5,9 +5,9 @@ import Icon from './Icon.jsx';
 export function priceLabel(service) {
   return service.price ? 'от ' + new Intl.NumberFormat('ru-RU').format(service.price) + ' ₸' : 'После диагностики';
 }
-export default function ServiceCard({ service }) {
+export default function ServiceCard({ service, revealOrder = 0 }) {
   const image = '/media/' + service.image + '-640.webp';
-  return <article id={'service-' + service.id} className="service-card">
+  return <article id={'service-' + service.id} className="service-card" data-reveal data-reveal-order={revealOrder}>
     <div className="service-image"><img src={image}
       srcSet={'/media/' + service.image + '-640.webp 640w, /media/' + service.image + '-960.webp 960w'} sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 400px"
       width="640" height="400" loading="lazy" decoding="async" alt={service.imageAlt || service.title} />

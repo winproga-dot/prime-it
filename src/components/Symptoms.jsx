@@ -8,7 +8,7 @@ const symptoms = [
 ];
 export default function Symptoms({ selected = '', onSelect }) {
   return <section className="section container" id="estimate" aria-labelledby="symptoms-title">
-    <div className="symptoms-panel">
+    <div className="symptoms-panel" data-reveal>
       <div className="section-heading"><div><p className="eyebrow">Начнём с вашей проблемы</p><h2 id="symptoms-title">Что случилось с устройством?</h2>
         <p>Не знаете причину поломки? Это нормально — диагностика бесплатная.</p></div>
         <div className="section-index" aria-hidden="true">01 / ПОМОЩЬ</div>

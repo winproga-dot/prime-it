@@ -4,9 +4,9 @@ import Icon from './Icon.jsx';
 
 export default function Reviews() {
   return <section className="section container" id="reviews" aria-labelledby="reviews-title">
-    <div className="section-heading"><div><p className="eyebrow">Обратная связь</p><h2 id="reviews-title">Отзывы клиентов PRIME IT</h2>
+    <div className="section-heading" data-reveal><div><p className="eyebrow">Обратная связь</p><h2 id="reviews-title">Отзывы клиентов PRIME IT</h2>
       <p>Реальные отзывы из 2GIS — с фотографиями профилей авторов и ссылками на оригиналы.</p></div><span className="source-badge">Источник: 2GIS</span></div>
-    {reviews.length ? <div className="reviews-grid">{reviews.map(review => <figure className="review-card" key={review.reviewId || review.sourceUrl + review.author}>
+    {reviews.length ? <div className="reviews-grid">{reviews.map((review, index) => <figure className="review-card" data-reveal data-reveal-order={index} key={review.reviewId || review.sourceUrl + review.author}>
       <figcaption className="review-person">
         {review.avatar ? <img className="review-avatar" src={review.avatar} width="160" height="160" alt={'Фото профиля ' + review.author + ' в 2GIS'} loading="lazy" decoding="async" />
           : <span className="review-avatar review-initials" aria-hidden="true">{review.author.split(' ').map(part => part[0]).slice(0,2).join('')}</span>}
