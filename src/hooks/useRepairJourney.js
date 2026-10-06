@@ -22,7 +22,7 @@ export default function useRepairJourney() {
         }
         const next = steps.findIndex(node => visible.has(node));
         if (next !== -1) setActive(next);
-      }, { rootMargin: '-' + Math.round(window.innerHeight * .32) + 'px 0px -' + Math.round(window.innerHeight * .46) + 'px 0px', threshold: 0 });
+      }, { rootMargin: '-' + Math.round(window.innerHeight * .45) + 'px 0px -' + Math.round(window.innerHeight * .45) + 'px 0px', threshold: 0 });
       steps.forEach(node => observer.observe(node));
     };
     configure();

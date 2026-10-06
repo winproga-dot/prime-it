@@ -35,12 +35,12 @@ jobs:
         run: npm run qa:static
       - name: Install Chrome and Safari engines
         run: npx playwright install --with-deps chromium webkit
-      - name: Browser, mobile and accessibility QA
-        run: npm run qa:browser
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
       - name: Scroll story, reduced motion and pointer QA
         run: node scripts/qa-motion.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Browser, mobile and accessibility QA
+        run: npm run qa:browser
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Lighthouse on production build
