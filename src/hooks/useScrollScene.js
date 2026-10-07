@@ -76,8 +76,10 @@ export default function useScrollScene() {
     const measure=()=>{
       resizeRaf=0;
       const styles=getComputedStyle(document.documentElement);
-      const header=parseFloat(styles.getPropertyValue('--header-height'))||82;
-      const bottom=desktop.matches?0:parseFloat(styles.getPropertyValue('--mobile-action-height'))||0;
+      // Measure the bars themselves: their shared CSS variables may be set by
+      // a later React effect, especially during the first WebKit layout.
+      const header=headerNode?Math.ceil(headerNode.getBoundingClientRect().height):parseFloat(styles.getPropertyValue('--header-height'))||82;
+      const bottom=desktop.matches?0:(barNode?Math.ceil(barNode.getBoundingClientRect().height):parseFloat(styles.getPropertyValue('--mobile-action-height'))||0);
       const available=window.innerHeight-header-bottom-12;
       const largeText=parseFloat(styles.fontSize)>22;
       const fits=desktop.matches?available>=Math.max(600,root.querySelector('.hero-copy').scrollHeight+48):available>=500;
@@ -106,6 +108,8 @@ export default function useScrollScene() {
     resizeObserver?.observe(root.querySelector('.hero-copy'));
     const headerNode=document.querySelector('.site-header');
     if(headerNode)resizeObserver?.observe(headerNode);
+    const barNode=document.querySelector('.mobile-action-bar');
+    if(barNode)resizeObserver?.observe(barNode);
     window.addEventListener('scroll',schedule,{passive:true});
     window.addEventListener('resize',scheduleMeasure,{passive:true});
     window.visualViewport?.addEventListener('resize',scheduleMeasure,{passive:true});
