@@ -1,24 +1,51 @@
-# PRIME IT: photographic motion redesign
+# Анимационный редизайн PRIME IT — 6–7 октября 2026
 
-The home page now uses a bespoke hardware composition and a three-stage repair story. Existing React/Vite static generation, the ten service URLs, real reviews, licensed photographs, prices and contact details remain the source of truth.
+Главная получила новую композицию первого экрана и историю ремонта с анимацией при прокрутке. Существующий React/Vite-проект остаётся основой: главная и десять страниц услуг генерируются в готовый HTML при сборке.
 
-## Design and interaction
+[Открыть предпросмотр](https://prime-it-git-prime-it-redesign-2026-winproga-dots-projects.vercel.app) · [Production QA](https://github.com/winproga-dot/prime-it/actions/runs/37551330901)
 
-- A framed real PC photograph, precise technical details, a finite light sweep and a small pointer-driven perspective effect on desktop.
-- Free diagnostics have their own readable lead. The diagnostic card is an actual WhatsApp link.
-- The repair journey follows the symptom selector: contact, free diagnostics, repair after approval.
-- On desktop, a sticky illustration follows the three text stages while scrolling both down and up.
-- Mobile, short viewports, reduced motion and no-JavaScript readers get ordinary illustrated cards with the complete text.
-- Service cards and verified reviews receive finite entrance animations; hover image movement is limited to fine pointers.
+## Дизайн и обращения
 
-## Implementation
+- Первый экран: настоящая фотография ПК в рамке, крупная типографика, конечный световой проход и небольшая глубина при движении мыши на компьютере.
+- Бесплатная диагностика выделена отдельным текстом. Карточка диагностики ведёт в WhatsApp; на desktop WhatsApp, звонок и маршрут помещаются рядом.
+- После выбора проблемы идут три этапа: обращение, бесплатная диагностика, ремонт после согласования.
+- На достаточно большом desktop изображение остаётся рядом с текстом и меняется при прокрутке вниз и вверх.
+- На телефоне, низком экране и при уменьшенной анимации это обычные иллюстрированные карточки. Все тексты и контактные ссылки доступны без JavaScript.
+- Услуги и реальные отзывы плавно появляются при прокрутке. Фотографии услуг слегка увеличиваются при наведении мышью.
+- На страницах услуг процесс ремонта компактный, а сообщение WhatsApp сохраняет название выбранной услуги.
 
-CSS, IntersectionObserver and the native Web Animations API. No animation package or framework dependency was added. Essential content stays in generated HTML. The largest text and hero image are never hidden behind an entrance animation. Video remains an explicit user action.
+Использованы существующие реальные фотографии техники и проверенные отзывы с фотографиями профилей 2GIS. Цены, условия гарантии, адрес Сатпаева, 105А и бесплатная диагностика соответствуют данным проекта.
 
-Pointer updates are scheduled through requestAnimationFrame; bounds are read on entry, not on every pointer move. Scroll triggers use viewport pixels. There is no intercepted scrolling, focus movement or simulated live diagnostic data.
+## Реализация
 
-## Verification
+CSS, IntersectionObserver и встроенный Web Animations API; новые анимационные зависимости не добавлены. Заголовок, контакты и основная фотография отображаются сразу. Видео запускается по нажатию.
 
-Production build, existing static/browser checks and a dedicated motion check run in GitHub Actions. The additional checks cover forward/backward stage selection, three desktop sizes, dynamic reduced-motion changes, short screens, pointer reset, keyboard access, symptom context and HTML without JavaScript. Screenshots are included in the production-quality artifact.
+Обновления глубины планируются через requestAnimationFrame. Границы изображения считываются при входе курсора. Прокрутка остаётся естественной; фокус не перемещается при смене этапа. Для WebKit предусмотрена остановка переходов скрытой иллюстрации и защита от запоздалых событий при изменении предпочтений движения.
 
-Results will be recorded after the production checks complete.
+Основные файлы: `src/motion.css`, `src/components/Hero.jsx`, `src/components/RepairProcess.jsx`, `src/data/repairJourney.js`, `src/hooks/useScrollReveal.js`, `src/hooks/usePointerDepth.js`, `src/hooks/useRepairJourney.js`.
+
+## Проверки
+
+Проверен исходный коммит `06e3497d8be00f34c5098f2333ce14a99296f35e`.
+
+- `npm install` и `npm run build` — успешно; аудит зависимостей не выявил уязвимостей.
+- Static QA: 11 страниц, уникальные title/description, FAQ schema соответствует отображаемым ответам.
+- Browser QA: 172 сценария Chromium/WebKit; размеры 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080, 2560×1440.
+- Увеличение текста до 200%, клавиатурное меню, короткий landscape, исторические ссылки, WhatsApp-контекст, видео и его повторная загрузка — успешно.
+- Motion QA: шесть desktop-сценариев, прокрутка в обе стороны, изменение reduced motion, низкие экраны, сброс эффекта мыши, mobile, отсутствие JavaScript.
+- Axe: 0 выявленных нарушений. Скриншоты и JSON доступны в артефакте `production-quality` указанного прогона.
+
+| Страница | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Главная | 98 | 100 | 100 | 100 | 2,3 с | 0 | 70 мс |
+| Чистка ноутбука | 100 | 100 | 100 | 100 | 1,7 с | 0 | 0 мс |
+
+Это лабораторные результаты production build. Браузерные проверки выполнялись на движках Chromium и WebKit, а не на физических телефонах. Полевой INP не измерялся.
+
+JS: 71,70 КБ gzip вместо 68,74 КБ до изменения; CSS: 12,31 КБ вместо 9,02 КБ. Новая визуальная часть добавила около 6,25 КБ сжатого кода. Фотографии и подготовленное видео используют существующие оптимизированные файлы.
+
+## Просмотр и публикация
+
+На компьютере наведите мышь на фотографию первого экрана и прокрутите раздел «Как проходит ремонт». На телефоне этапы отображаются последовательными карточками.
+
+Предпросмотр Vercel может требовать входа владельца. Для основного домена нужно восстановить оплату и DNS; порядок публикации и индексации описан в [deployment.md](deployment.md). Изменения находятся в [PR #1](https://github.com/winproga-dot/prime-it/pull/1).
