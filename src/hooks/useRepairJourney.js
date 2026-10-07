@@ -39,7 +39,11 @@ export default function useRepairJourney() {
     // WebKit can retain CSS transitions in descendants of a hidden stage.
     // Stop them after the stacked layout commits, including resize changes.
     const stage = ref.current?.querySelector('.story-stage');
-    for (const animation of stage?.getAnimations?.({ subtree: true }) || []) animation.cancel();
+    if (!stage) return;
+    for (const animation of document.getAnimations?.() || []) {
+      const target = animation.effect?.target;
+      if (target instanceof Element && stage.contains(target)) animation.cancel();
+    }
   }, [enhanced]);
   return { ref, active, enhanced };
 }
