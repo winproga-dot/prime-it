@@ -115,7 +115,7 @@ try {
     const frame=await sharp(await activePage.screenshot()).webp({quality:85}).toBuffer();
     await writeFile('.qa/scroll-scene-failure.webp',frame);
     await evidenceBlob('scroll-scene-failure',frame);
-    console.log('SCENE_FAILURE_LAYOUT',await activePage.evaluate(()=>({scrollY,viewport:[innerWidth,innerHeight],hero:document.getElementById('hero')?.outerHTML.slice(0,400),copy:document.querySelector('.hero-copy')?.getBoundingClientRect().toJSON(),scene:document.querySelector('.scroll-visual')?.getBoundingClientRect().toJSON()})));
+    console.log('SCENE_FAILURE_LAYOUT',await activePage.evaluate(()=>({scrollY,viewport:[innerWidth,innerHeight],hero:document.getElementById('hero')?.outerHTML.slice(0,400),copy:document.querySelector('.hero-copy')?.getBoundingClientRect().toJSON(),scene:document.querySelector('.scroll-visual')?.getBoundingClientRect().toJSON(),ancestors:Array.from(document.querySelectorAll('html,body,main,.hero-story,.hero-pin,.scroll-visual')).map(node=>{const css=getComputedStyle(node);return {tag:node.tagName,className:node.className,rect:node.getBoundingClientRect().toJSON(),position:css.position,top:css.top,overflow:css.overflow,pseudoHeight:getComputedStyle(node,'::after').height}})})));
   }
   throw error;
 } finally {await server.close();}

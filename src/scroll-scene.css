@@ -21,7 +21,7 @@
 .scene-topline{position:absolute;top:24px;left:26px;right:26px;z-index:2;display:flex;justify-content:space-between;gap:15px;font-size:.625rem;letter-spacing:.11em;color:#b2cbd6;line-height:1.5}
 .scene-counter{color:#82ecb9;white-space:nowrap}
 .device-viewport{position:absolute;inset:38px 0 147px;overflow:hidden;pointer-events:none}
-.device-scale{width:560px;height:560px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(var(--device-scale,.9))}
+.device-scale{width:560px;height:560px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(var(--device-scale,var(--static-device-scale,.9)))}
 .laptop-world{width:420px;height:270px;position:absolute;top:66%;left:50%;transform-style:preserve-3d;transform:translate3d(-50%,-44%,0) rotateX(56deg) rotateY(-7deg) rotateZ(-24deg)}
 .laptop-cover,.laptop-board,.laptop-deck{position:absolute;inset:0;border-radius:14px}
 .laptop-cover{background:linear-gradient(125deg,#506473,#1d2b35 60%,#647583);border:1px solid #86969f;box-shadow:0 5px 0 #10202b,0 6px 0 #7e8a93;transform:translateZ(0)}
@@ -133,13 +133,14 @@
 .scene-chapters p{font-size:.8125rem}
 .scene-bottomline{left:20px;bottom:23px}
 .scene-scroll-hint{font-size:.625rem}
-.device-scale{--device-scale:.72}
+.device-scale{--static-device-scale:.72}
 .hero-story[data-scene-mode="static"] .scroll-visual{margin-bottom:28px;min-height:600px;padding-top:380px}
 .hero-story[data-scene-mode="static"] .device-viewport{height:350px}
 .hero-story[data-scene-mode="static"] .scene-transcript{padding-inline:39px 20px;font-size:.8125rem}
 }
-@media(max-width:380px){.device-scale{--device-scale:.65}.component-labels{font-size:.5625rem}.component-labels>span{padding:5px}}
+@media(max-width:380px){.device-scale{--static-device-scale:.65}.component-labels{font-size:.5625rem}.component-labels>span{padding:5px}}
 @media(max-width:899px) and (max-height:620px){.hero-story[data-scene-mode="static"] .scroll-visual{min-height:520px;padding-top:320px}.hero-story[data-scene-mode="static"] .device-viewport{height:300px}}
 @media(prefers-reduced-motion:reduce){.hero-story .laptop-world,.hero-story [data-scene-part]{transition:none;animation:none}}
 @media(forced-colors:active){.hero--scroll .scroll-visual{border:1px solid CanvasText}.device-viewport{display:none}.hero-story .scroll-visual{padding-top:70px!important;min-height:300px!important}}
-\n@media(max-width:899px){.hero-story[data-scene-mode="scroll"] .hero-pin::after{content:"";display:block;height:var(--scroll-distance)}}\n
+
+@media(max-width:899px){.hero-story[data-scene-mode="scroll"] .hero-pin::after{content:"";display:block;height:var(--scroll-distance)}}
