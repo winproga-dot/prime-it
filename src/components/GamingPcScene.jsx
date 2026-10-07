@@ -44,7 +44,7 @@ function Board() {
 }
 export default function GamingPcScene() {
   return <div className="pc-viewport">
-    <svg className="pc-world" data-scene-part="world" viewBox="100 16 570 680" fill="none" aria-hidden="true">
+    <div className="pc-world" data-scene-part="world"><svg className="pc-art" viewBox="100 16 570 680" fill="none" aria-hidden="true">
       <defs>
         <linearGradient id="pc-steel" x1="160" y1="90" x2="601" y2="644" gradientUnits="userSpaceOnUse"><stop stopColor="#6b7f8d" /><stop offset=".22" stopColor="#263746" /><stop offset=".65" stopColor="#0d1923" /><stop offset="1" stopColor="#425969" /></linearGradient>
         <linearGradient id="pc-inner" x1="0" y1="0" x2="320" y2="460" gradientUnits="userSpaceOnUse"><stop stopColor="#233542" /><stop offset=".4" stopColor="#0b161e" /><stop offset="1" stopColor="#152634" /></linearGradient>
@@ -161,6 +161,6 @@ export default function GamingPcScene() {
         <path d="M484 184v450l130-66" stroke="#83dbe4" strokeWidth="1" opacity=".6" />
         <path d="M173 581 477 635" stroke="#6eedbf" strokeWidth="1.2" opacity=".65" />
       </g>
-    </svg>
+    </svg></div>
   </div>;
 }

@@ -84,7 +84,8 @@ try {
       const matrixValues=value=>value.slice(value.indexOf('(')+1,-1).split(',').map(Number);
       const firstMatrix=matrixValues(beginning),lastMatrix=matrixValues(poses.at(-1).transform);
       assert.equal(firstMatrix.length,lastMatrix.length);
-      assert(lastMatrix.every((value,i)=>Math.abs(value-firstMatrix[i])<.002),'Reversing restores the original geometry within subpixel precision');
+      assert(firstMatrix.every(Number.isFinite) && lastMatrix.every(Number.isFinite),'Camera produces real numeric transforms');
+      assert(lastMatrix.every((value,i)=>Math.abs(value-firstMatrix[i])<.002),'Reversing restores the original geometry within subpixel precision: '+JSON.stringify({engine:name,width,firstMatrix,lastMatrix}));
       assert.equal(await page.evaluate(()=>document.activeElement.tagName),focusBefore);
       await seek(page,.45);
       const gpuMoving=await page.locator('[data-scene-part="gpu"]').getAttribute('style');

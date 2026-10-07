@@ -20,6 +20,7 @@
 .pc-background{position:absolute;inset:0;pointer-events:none}
 .pc-viewport{position:absolute;inset:-24px max(16px,calc((100vw - 1520px)/2)) 137px calc(50% - 50px);pointer-events:none}
 .pc-world{position:absolute;left:50%;top:50%;width:100%;height:100%;max-width:1000px;max-height:1080px;overflow:visible;transform:translate3d(-50%,-50%,0) perspective(1400px) rotateY(5deg) rotateZ(1deg);transform-origin:center}
+.pc-art{display:block;width:100%;height:100%;overflow:visible}
 .pc-component,.pc-fan-rotor{transform-box:fill-box;transform-origin:center;transition:none}
 .pc-copy-mask{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#080f17 2%,#080f17f0 25%,#080f17b3 41%,#080f1700 60%),linear-gradient(0deg,#080f17 0%,#080f1700 27%)}
 .assembly-caption{position:absolute;z-index:2;left:calc(50% + 30px);right:var(--hero-gutter);bottom:24px;min-width:0}
