@@ -13,7 +13,8 @@ try {
   for (const [name, engine] of [['Chromium', chromium], ['WebKit', webkit]]) {
     const browser = await engine.launch();
     for (const [width, height] of [[1366,768], [1920,1080], [2560,1440]]) {
-      const page = await browser.newPage({ viewport: { width, height } });
+      const context = await browser.newContext({ viewport: { width, height } });
+      const page = await context.newPage();
       const errors = [];
       const videoRequests = [];
       page.on('pageerror', error => errors.push(error.message));
@@ -67,7 +68,7 @@ try {
       assert.equal(await page.locator('.story-stage').isVisible(), false, 'Short desktop screens receive the readable layout');
       assert.deepEqual(errors, []);
       results.push({engine:name,width,height,scrollForwardAndBack:true,reducedMotion:true,shortViewport:true,pass:true});
-      await page.close();
+      await context.close();
     }
     const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await mobile.goto(server.url, { waitUntil: 'networkidle' });
