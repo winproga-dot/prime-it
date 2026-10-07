@@ -2,7 +2,8 @@
 .hero-story--pc{--hero-gutter:max(40px,calc((100vw - 1320px)/2));position:relative;isolation:isolate;background:#080f17;border-bottom:1px solid #233542}
 .hero-pin.hero--pc{display:block;position:relative;min-height:780px;padding:48px 0;isolation:isolate}
 .hero-pin.hero--pc::before{content:none}
-.hero-story--pc[data-scene-mode="scroll"]{height:calc(var(--scene-height) + var(--scroll-distance))}
+/* Keep the final frame pinned across the section border and native scroll rounding. */
+.hero-story--pc[data-scene-mode="scroll"]{height:calc(var(--scene-height) + var(--scroll-distance) + 2px)}
 .hero-story--pc[data-scene-mode="scroll"] .hero-pin{position:sticky;top:var(--header-height,82px);height:var(--scene-height);min-height:0;padding:24px 0;display:flex;align-items:center}
 .hero--pc .hero-copy{position:relative;z-index:3;min-width:0;width:min(620px,calc((100% - var(--hero-gutter)*2 - 32px)*.47));margin-left:var(--hero-gutter)}
 .hero--pc .hero-copy>.eyebrow{font-size:.6875rem;letter-spacing:.08em}
