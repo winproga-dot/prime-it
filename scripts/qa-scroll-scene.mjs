@@ -23,7 +23,7 @@ async function seek(page,fraction) {
   const t=await timeline(page);
   await page.evaluate(({t,fraction})=>window.scrollTo({top:t.start+t.distance*fraction,behavior:'instant'}),{t,fraction});
   await page.waitForFunction(f=>Math.abs(Number(document.getElementById('hero').dataset.scrollProgress)-f)<.003,fraction);
-  return page.locator('[data-scene-part="deck"]').evaluate(node=>getComputedStyle(node).transform);
+  return page.locator('[data-scene-part="world"]').evaluate(node=>getComputedStyle(node).transform);
 }
 try {
   for(const [name,engine] of [['Chromium',chromium],['WebKit',webkit]]) {
@@ -41,8 +41,16 @@ try {
       for(const box of await page.locator('.hero-actions a').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()))) {
         assert(box.y>=header.height-1 && box.bottom<=height-10,'Contact visible before scrolling: '+name+' '+width+' '+JSON.stringify(box));
       }
+      for(const link of await page.locator('.hero-actions a').all()) {
+        assert(await link.evaluate(node=>{
+          const r=node.getBoundingClientRect();
+          return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));
+        }),'Background never blocks contact links');
+      }
       const focusBefore=await page.evaluate(()=>document.activeElement.tagName);
       const beginning=await seek(page,0);
+      assert.equal(await page.locator('[data-scene-part="gpu"]').getAttribute('data-assembled'),'false');
+      assert.equal(await page.locator('[data-scene-part="lights"]').evaluate(node=>getComputedStyle(node).opacity),'0');
       const initialVisual=await page.locator('.scroll-visual').boundingBox();
       const poses=[],frames=[];
       for(const fraction of [0,.15,.30,.45,.60,.80,1,.45,.15,0]) {
@@ -57,6 +65,12 @@ try {
           assert(visual.y+visual.height<=bar.y-2,'Scene clears mobile bar: '+name+' '+width+' '+JSON.stringify({visual,bar}));
         }
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+        if(fraction===1) {
+          assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),10,'Every component reaches its mounting position');
+          assert.equal(await page.locator('[data-scene-part="lights"]').evaluate(node=>getComputedStyle(node).opacity),'1','Lighting switches on after assembly');
+          assert.equal(await page.locator('#hero').getAttribute('data-scene-chapter'),'5');
+        }
+        if(fraction===0) assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),0,'Scrolling back restores the empty chassis');
         if(name==='Chromium' && [390,1366].includes(width) && [0,.45,1].includes(fraction) && frames.length<3) {
           const frame=await sharp(await page.screenshot()).webp({quality:85}).toBuffer();frames.push(frame);
           await writeFile('.qa/scroll-hero-'+width+'-'+fraction+'.webp',frame);
@@ -67,6 +81,10 @@ try {
       assert.notEqual(poses[2].transform,poses[3].transform,'Movement continues within a chapter');
       assert.equal(poses.at(-1).transform,beginning,'Reversing restores the original geometry');
       assert.equal(await page.evaluate(()=>document.activeElement.tagName),focusBefore);
+      await seek(page,.45);
+      const gpuMoving=await page.locator('[data-scene-part="gpu"]').getAttribute('style');
+      await seek(page,.55);
+      assert.notEqual(await page.locator('[data-scene-part="gpu"]').getAttribute('style'),gpuMoving,'Graphics card moves into the case continuously');
       await seek(page,.45);
       const stable=await page.locator('[data-scene-part="world"]').getAttribute('style');
       await page.waitForTimeout(250);
@@ -89,6 +107,7 @@ try {
       await page.emulateMedia({reducedMotion:'reduce'});
       await page.waitForFunction(()=>document.getElementById('hero').dataset.sceneMode==='static');
       assert.equal(await page.locator('.scene-transcript').evaluate(node=>getComputedStyle(node).position),'static');
+      assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),10,'Reduced motion shows a complete PC');
       const reducedPose=await page.locator('[data-scene-part="world"]').getAttribute('style');
       await page.locator('#hero').scrollIntoViewIfNeeded();
       await page.evaluate(()=>window.scrollBy(0,120));await page.waitForTimeout(100);
@@ -100,7 +119,7 @@ try {
       await page.waitForFunction(()=>document.getElementById('hero').dataset.sceneMode==='static');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       assert.deepEqual(errors,[]);
-      results.push({engine:name,width,height,continuous:true,reversible:true,pinned:true,contactsVisible:true,reducedMotion:true,pass:true});
+      results.push({engine:name,width,height,continuous:true,reversible:true,componentsAssemble:true,lighting:true,pinned:true,contactsVisible:true,reducedMotion:true,pass:true});
       const video=page.video();await context.close();activePage=null;
       if(recording && video)await video.saveAs('.qa/scroll-hero-demonstration.webm');
     }
@@ -113,7 +132,7 @@ try {
     await noJS.close();await browser.close();
   }
   await writeFile('.qa/scroll-scene-results.json',JSON.stringify(results,null,2));
-  console.log('SCROLL_SCENE_QA_PASS',JSON.stringify({scenarios:results.length,continuous:true,reverse:true,mobile:true,reducedMotion:true,noJavaScript:true,axeViolations:0}));
+  console.log('SCROLL_SCENE_QA_PASS',JSON.stringify({scenarios:results.length,continuous:true,reverse:true,components:10,lighting:true,mobile:true,reducedMotion:true,noJavaScript:true,axeViolations:0}));
 } catch(error) {
   if(activePage && !activePage.isClosed()) {
     const frame=await sharp(await activePage.screenshot()).webp({quality:85}).toBuffer();
