@@ -29,6 +29,8 @@ export default function useScrollScene() {
       const awake = smooth(.78, .96, p);
       const diagnosis = smooth(.19, .35, p) * (1 - smooth(.63, .76, p));
       parts.world.style.transform = 'translate3d(-50%,-44%,0) rotateX(' + mix(56, 46, open) + 'deg) rotateY(' + mix(-7, 9, p) + 'deg) rotateZ(' + mix(-24, -4, p) + 'deg) scale(' + (1 - explode * .12 + awake * .05) + ')';
+      parts.world.style.top = (60 + explode * 7) + '%';
+      parts.cover.style.opacity = String(1 - explode * .65);
       parts.lid.style.transform = 'translate3d(0,' + (-explode * 48) + 'px,' + (12 + explode * 86) + 'px) rotateX(' + (-105 + explode * 10) + 'deg)';
       parts.deck.style.transform = 'translate3d(' + (-explode * 35) + 'px,' + (-explode * 22) + 'px,' + (14 + explode * 126) + 'px)';
       parts.deck.style.opacity = String(1 - explode * .42);
@@ -77,7 +79,7 @@ export default function useScrollScene() {
       // Layout is read on resize/setup, never on each scroll event.
       const target = desktop.matches ? root : root.querySelector('.scene-anchor');
       start = target.getBoundingClientRect().top + window.scrollY - header;
-      root.style.setProperty('--device-scale', Math.min(visual.clientWidth / 500, Math.max(350, visual.clientHeight - 145) / 520, 1.25).toFixed(3));
+      root.style.setProperty('--device-scale', Math.min(visual.clientWidth / 500, Math.max(300, visual.clientHeight - 185) / 540, 1.25).toFixed(3));
       visible = true;
       paint(enabled ? (window.scrollY - start) / distance : 0, true);
       if (!enabled) {

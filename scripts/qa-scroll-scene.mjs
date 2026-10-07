@@ -43,11 +43,15 @@ try {
       }
       const focusBefore=await page.evaluate(()=>document.activeElement.tagName);
       const beginning=await seek(page,0);
+      const initialVisual=await page.locator('.scroll-visual').boundingBox();
       const poses=[],frames=[];
       for(const fraction of [0,.15,.30,.45,.60,.80,1,.45,.15,0]) {
         poses.push({fraction,transform:await seek(page,fraction)});
         const visual=await page.locator('.scroll-visual').boundingBox();
-        assert(visual.y>=header.height-1 && visual.y<=header.height+6,'Scene pinned: '+name+' '+width+' '+visual.y);
+        const pinned=width<900 ? visual : await page.locator('.hero-pin').boundingBox();
+        assert(pinned.y>=header.height-1 && pinned.y<=header.height+6,'Hero remains pinned: '+name+' '+width+' '+pinned.y);
+        assert(Math.abs(visual.y-initialVisual.y)<=6,'Illustration stays at a stable position while scrolling');
+        assert(visual.y+visual.height<=height-10,'Complete scene fits the viewport');
         if(width<600) {
           const bar=await page.locator('.mobile-action-bar').boundingBox();
           assert(visual.y+visual.height<=bar.y-2,'Scene clears mobile bar: '+name+' '+width+' '+JSON.stringify({visual,bar}));
