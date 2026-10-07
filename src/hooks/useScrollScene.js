@@ -1,4 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+
+// Preserve the complete server-rendered fallback, then set the scroll pose
+// before the client's first paint so an assembled PC never flashes away.
+const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const mix = (a, b, t) => a + (b - a) * t;
@@ -22,7 +26,7 @@ const chapterStarts = [0,.18,.38,.58,.78,.94];
 
 export default function useScrollScene() {
   const ref = useRef(null);
-  useEffect(() => {
+  useBeforePaint(() => {
     const root = ref.current;
     if (!root) return;
     const visual = root.querySelector('.scroll-visual');
@@ -45,7 +49,7 @@ export default function useScrollScene() {
         const remaining=1-t;
         const node=parts[step.name];
         node.style.transform='translate('+step.x*remaining+'px,'+step.y*remaining+'px) rotate('+step.angle*remaining+'deg) scale('+mix(.92,1,t)+')';
-        node.style.opacity=String(step.name==='chassis' ? mix(.32,1,t) : smooth(Math.max(0,step.from-.045),step.from+.08,p));
+        node.style.opacity=String(step.name==='chassis' ? mix(.68,1,t) : smooth(Math.max(0,step.from-.045),step.from+.08,p));
         node.dataset.assembled=t>.999 ? 'true':'false';
       }
       const light=smooth(.88,1,p);

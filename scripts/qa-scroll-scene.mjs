@@ -67,7 +67,7 @@ try {
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
         if(fraction===1) {
           assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),10,'Every component reaches its mounting position');
-          assert.equal(await page.locator('[data-scene-part="lights"]').evaluate(node=>getComputedStyle(node).opacity),'1','Lighting switches on after assembly');
+          assert(await page.locator('[data-scene-part="lights"]').evaluate(node=>Number(getComputedStyle(node).opacity)>.995),'Lighting switches on after assembly (browser scroll positions round to pixels)');
           assert.equal(await page.locator('#hero').getAttribute('data-scene-chapter'),'5');
         }
         if(fraction===0) assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),0,'Scrolling back restores the empty chassis');
