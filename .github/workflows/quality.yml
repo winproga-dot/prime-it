@@ -35,7 +35,11 @@ jobs:
         run: npm run qa:static
       - name: Install Chrome and Safari engines
         run: npx playwright install --with-deps chromium webkit
-      - name: Scroll story, reduced motion and pointer QA
+      - name: Continuous hero scroll, reverse and mobile QA
+        run: node scripts/qa-scroll-scene.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Repair story and reduced motion QA
         run: node scripts/qa-motion.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}

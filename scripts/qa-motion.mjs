@@ -42,24 +42,16 @@ try {
         const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length, 0, JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>node.failureSummary)}))));
         await page.goto(server.url, { waitUntil: 'networkidle' });
-        const rig = page.locator('.hero-rig');
-        const box = await rig.boundingBox();
-        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-        await page.mouse.move(box.x + box.width * .75, box.y + box.height * .35);
-        await page.waitForFunction(() => document.querySelector('.hero-rig').style.getPropertyValue('--depth-x') !== '');
-        await page.mouse.move(3, 3);
-        await page.waitForFunction(() => document.querySelector('.hero-rig').style.getPropertyValue('--depth-x') === '');
-        // Keyboard users can reach the newly actionable diagnosis card.
-        await page.locator('.diagnosis-card').focus();
-        assert(await page.locator('.diagnosis-card').evaluate(node=>node === document.activeElement));
-        assert(new URL(await page.locator('.diagnosis-card').getAttribute('href')).searchParams.get('text').includes('бесплатную диагностику'));
+        const booking=page.locator('.hero-actions a[href^="https://wa.me/"]');
+        await booking.focus();
+        assert(await booking.evaluate(node=>node===document.activeElement));
+        assert(new URL(await booking.getAttribute('href')).searchParams.get('text').includes('бесплатную диагностику'));
       }
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.waitForFunction(() => document.getElementById('process').dataset.storyMode === 'stacked');
       assert.equal(await page.locator('.story-stage').isVisible(), false);
       for (const step of await page.locator('[data-journey-step]').all()) assert(await step.isVisible(), 'Reduced motion preserves every step');
-      assert.equal(await page.locator('.hero-rig').evaluate(node => getComputedStyle(node).transform), 'none');
-      assert.equal(await page.locator('.hero-scan').isVisible(), false);
+      assert.equal(await page.locator('#hero').getAttribute('data-scene-mode'), 'static');
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const running = await page.evaluate(() => document.getAnimations().filter(animation=>animation.playState === 'running').map(animation=>({
         name:animation.animationName || animation.constructor.name,
@@ -110,5 +102,5 @@ try {
     await browser.close();
   }
   await writeFile('.qa/motion-results.json', JSON.stringify(results, null, 2));
-  console.log('MOTION_QA_PASS', JSON.stringify({desktopScenarios:results.length,engines:['Chromium','WebKit'],forwardAndBackward:true,reducedMotion:true,pointerDepth:true,mobileStacked:true,noJavaScript:true,symptomContext:true,axeViolations:0}));
+  console.log('MOTION_QA_PASS', JSON.stringify({desktopScenarios:results.length,engines:['Chromium','WebKit'],forwardAndBackward:true,reducedMotion:true,mobileStacked:true,noJavaScript:true,symptomContext:true,axeViolations:0}));
 } finally { await server.close(); }
