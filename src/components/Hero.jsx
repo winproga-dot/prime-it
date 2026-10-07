@@ -3,7 +3,6 @@ import VisitNotice from './VisitNotice.jsx';
 import Icon from './Icon.jsx';
 import { brand } from '../data/brand.js';
 import GamingPcScene from './GamingPcScene.jsx';
-import HeroVideo from './HeroVideo.jsx';
 import useScrollScene from '../hooks/useScrollScene.js';
 
 const chapters = [
@@ -47,7 +46,6 @@ export default function Hero({ message, context }) {
           </ol>
           <div className="scene-bottomline" aria-hidden="true"><span className="scene-scroll-hint"><Icon name="ChevronDown" size={16} /> Прокрутите — соберём компьютер</span><div className="scene-track"><i /></div></div>
         </div>
-        <HeroVideo />
       </div>
     </div>
   </section>;

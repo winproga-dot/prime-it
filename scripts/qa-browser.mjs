@@ -19,11 +19,15 @@ try {
       const context = await browser.newContext({viewport:{width,height}});
       const page = await context.newPage();
       const errors = [];
+      const legacyVideoRequests = [];
+      page.on('request',request=>{if(new URL(request.url()).pathname === '/media/hero.mp4')legacyVideoRequests.push(request.url());});
       page.on('pageerror',error=>errors.push(error.message));
       page.on('console',message=>{if(message.type() === 'error') errors.push(message.text());});
       page.on('response',response=>{if(response.url().startsWith(server.url) && response.status()>=400) errors.push(response.status() + ' ' + response.url());});
       await page.goto(server.url,{waitUntil:'networkidle'});
       assert.equal(await page.locator('h1').count(),1);
+      assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'The retired player and button are absent');
+      assert.deepEqual(legacyVideoRequests,[],'The old MP4 is never requested');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth > innerWidth),false,'Home overflow: ' + engineName + ' ' + width);
       const allWhatsApp = await page.locator('a[href^="https://wa.me/"]').evaluateAll(nodes=>nodes.map(node=>node.href));
       for(const href of allWhatsApp) {
@@ -152,41 +156,12 @@ try {
     await page.goto(server.url+'/#license-office-modal',{waitUntil:'networkidle'});
     await page.waitForFunction(()=>document.querySelector('.licenses-disclosure').open);
     assert(await page.locator('#license-office').isVisible());
-    await page.emulateMedia({reducedMotion:'reduce'});
     await page.setViewportSize({width:1366,height:768});
-    await page.goto(server.url,{waitUntil:'networkidle'});
-    assert.equal(await page.locator('video').count(),0);
-    assert.equal(await page.locator('.video-control').count(),1);
-    await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.goto(server.url,{waitUntil:'networkidle'});
-    await page.locator('.video-control').click();
-    await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.readyState>=2 && video.currentTime>0;});
-    assert.equal(await page.locator('video').getAttribute('controls'),'');
-    assert.equal(await page.locator('video').getAttribute('loop'),'');
-    assert.equal(await page.locator('.hero-media').getAttribute('data-video-state'),'playing');
-    await page.locator('.video-control').click();
-    assert.equal(await page.locator('video').count(),0);
-    // A missing/blocked video must show a recoverable state, not silently vanish.
-    await page.route('**/media/hero.mp4', route => route.fulfill({status:404,contentType:'text/plain',body:'QA missing video'}));
-    await page.locator('.video-control').click();
-    await page.waitForFunction(()=>document.querySelector('.hero-media').dataset.videoState==='error');
-    assert(await page.getByRole('button',{name:'Повторить загрузку видео'}).isVisible());
-    await page.unroute('**/media/hero.mp4');
-    await page.getByRole('button',{name:'Повторить загрузку видео'}).click();
-    await page.waitForFunction(()=>{const video=document.querySelector('video');return video && video.currentTime>0;});
-    await page.locator('.video-control').click();
-    // Closing a pending play request is intentional; a late AbortError must not reopen an error.
-    let heldRoute;
-    const requestBlocked = new Promise(resolve=>{heldRoute=resolve;});
-    await page.route('**/media/hero.mp4',route=>heldRoute(route));
-    await page.locator('.video-control').click();
-    const pendingRoute=await Promise.race([requestBlocked,new Promise((_,reject)=>setTimeout(()=>reject(new Error('Expected video request')),5000))]);
-    await page.locator('.video-control').click();
-    await pendingRoute.abort().catch(()=>{});
-    await page.unroute('**/media/hero.mp4');
-    await page.waitForTimeout(250);
-    assert.equal(await page.locator('video').count(),0);
-    assert.equal(await page.locator('.hero-media').getAttribute('data-video-state'),'idle','Closing video is not a loading failure');
+    for(const reducedMotion of ['reduce','no-preference']) {
+      await page.emulateMedia({reducedMotion});
+      await page.goto(server.url,{waitUntil:'networkidle'});
+      assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Desktop has no retired player, including reduced motion');
+    }
     const missing=await page.goto(server.url+'/missing-page/',{waitUntil:'networkidle'});
     assert.equal(missing.status(),404);assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'));
     await page.close();
@@ -244,5 +219,5 @@ try {
     await noJS.close();await browser.close();
   }
   await writeFile('.qa/browser-results.json',JSON.stringify(results,null,2));
-  console.log('BROWSER_QA_PASS',JSON.stringify({engines:['Chromium','WebKit'],viewports:sizes,checks:results.length,textResize:true,menuLandscape:true,mapLinks:true,serviceContext:true,deepLinks:true,noJavaScript:true,axeViolations:0}));
+  console.log('BROWSER_QA_PASS',JSON.stringify({engines:['Chromium','WebKit'],viewports:sizes,checks:results.length,textResize:true,menuLandscape:true,mapLinks:true,legacyVideoRemoved:true,serviceContext:true,deepLinks:true,noJavaScript:true,axeViolations:0}));
 } finally { await server.close(); }

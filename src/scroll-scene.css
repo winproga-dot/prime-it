@@ -33,26 +33,19 @@
 .scene-chapters span{display:block;color:#82e8b7;font-size:.625rem;letter-spacing:.11em;margin-bottom:7px}
 .scene-chapters strong{display:block;font-size:clamp(1.25rem,1.6vw,1.7rem);line-height:1.15;letter-spacing:-.035em;font-weight:650}
 .assembly-service-link{font-size:.8125rem;font-weight:550;color:#c4d7df;min-height:44px}
-.scene-bottomline{display:flex;align-items:center;gap:16px;margin-top:7px;padding-right:100px}
+.scene-bottomline{display:flex;align-items:center;gap:16px;margin-top:7px;padding-right:0}
 .scene-scroll-hint{display:flex;align-items:center;gap:7px;font-size:.625rem;color:#b4cbd7;white-space:nowrap}
 .scene-track{height:2px;flex:1;min-width:32px;background:#334b58;overflow:hidden}
 .scene-track i{display:block;height:100%;background:#79eab3;transform:scaleX(0);transform-origin:left}
 .scene-transcript{margin:0;padding:0;position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.hero--pc .hero-video-shell{position:static;width:auto;height:auto;aspect-ratio:auto;overflow:visible;border:0;border-radius:0;box-shadow:none;background:none}
-.hero--pc .hero-video-overlay{position:absolute;z-index:6;inset:18px var(--hero-gutter) 22px calc(50% + 30px);border:1px solid #415567;border-radius:22px;overflow:hidden;background:#080d13}
-.hero-video-shell .hero-video{inset:0;width:100%;height:100%;object-fit:contain}
-.hero--pc .hero-video-shell .video-control{z-index:8;right:var(--hero-gutter);bottom:20px;top:auto;background:#10232e;font-size:.6875rem}
-.hero--pc .hero-video-shell.is-playing .video-control{top:30px;right:calc(var(--hero-gutter) + 12px);bottom:auto;background:#162d27}
-.hero--pc .hero-video-shell .video-status{z-index:9;left:calc(50% + 48px);right:calc(var(--hero-gutter) + 18px)}
 .hero-story--pc[data-scene-mode="static"] .hero-pin{min-height:850px}
 .hero-story--pc[data-scene-mode="static"] .pc-viewport{bottom:250px}
-.hero-story--pc[data-scene-mode="static"] .assembly-caption{padding-bottom:50px}
+.hero-story--pc[data-scene-mode="static"] .assembly-caption{padding-bottom:0}
 .hero-story--pc[data-scene-mode="static"] .scene-counter{display:none}
 .hero-story--pc[data-scene-mode="static"] .scene-chapters,.hero-story--pc[data-scene-mode="static"] .scene-bottomline{display:none}
 .hero-story--pc[data-scene-mode="static"] .assembly-service-link{margin-block:9px}
 .hero-story--pc[data-scene-mode="static"] .scene-transcript{position:static;width:auto;height:auto;overflow:visible;clip-path:none;padding-left:20px;font-size:.8125rem;line-height:1.75;color:#bdced8}
 .hero-story--pc[data-scene-mode="static"] .scene-transcript li{padding-left:4px;margin-bottom:7px}
-.hero-story--pc[data-scene-mode="static"] .hero-video-shell .video-control{bottom:30px}
 @media(min-width:1201px){.hero--pc .hero-actions .hero-route{flex-basis:auto;padding-inline:2px;min-height:50px}}
 @media(min-width:1920px){.hero--pc .hero-copy{width:620px}.assembly-caption{left:calc(50% + 40px)}.pc-copy-mask{background:linear-gradient(90deg,#080f17 8%,#080f17ec 29%,#080f1790 43%,#080f1700 57%),linear-gradient(0deg,#080f17 0%,#080f1700 23%)}}
 @media(max-width:1200px) and (min-width:900px){
@@ -61,7 +54,7 @@
 .hero--pc .hero-copy{width:calc(50% - 52px)}
 .assembly-caption{left:calc(50% + 16px)}
 .pc-viewport{left:calc(50% - 24px)}
-.scene-scroll-hint{white-space:normal}.scene-bottomline{padding-right:85px}
+.scene-scroll-hint{white-space:normal}.scene-bottomline{padding-right:0}
 }
 @media(max-width:899px){
 .hero-story--pc{--hero-gutter:20px}

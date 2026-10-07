@@ -12,6 +12,7 @@ for (const route of routes) {
   const meta = pageMeta(route);
   assert.equal((html.match(/<h1\b/g) || []).length,1,route + ': one H1');
   assert(html.includes('data-prerendered="true"'),route + ': server HTML');
+  assert(!/<video\b|video-control|hero-video-shell|data-video-state/.test(html),route + ': retired video and its control removed');
   assert(html.includes('<title>' + meta.title + '</title>'),route + ': static title');
   assert(!titles.has(meta.title),route + ': unique title'); titles.add(meta.title);
   assert(!descriptions.has(meta.description),route + ': unique description'); descriptions.add(meta.description);
@@ -64,6 +65,5 @@ console.log('STATIC_QA_PASS',JSON.stringify({pages:routes.length,uniqueTitles:ti
 
 const creditsHtml = await readFile('dist/photo-credits/index.html','utf8');
 assert(creditsHtml.includes('noindex, follow') && creditsHtml.includes('creativecommons.org'),'Photo attribution is deployed');
-const videoFile = await readFile('dist/media/hero.mp4');
-assert.deepEqual(videoFile,await readFile('assets/prepared/hero.mp4'),'Same prepared video on every hosting provider');
-console.log('MEDIA_QA_PASS',JSON.stringify({preparedVideoBytes:videoFile.length,photoCredits:true}));
+assert(!(await readdir('dist/media')).includes('hero.mp4'),'Retired video is not deployed');
+console.log('MEDIA_QA_PASS',JSON.stringify({legacyVideoRemoved:true,photoCredits:true}));

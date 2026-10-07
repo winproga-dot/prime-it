@@ -20,7 +20,8 @@ try {
       page.on('pageerror',error=>errors.push(error.message));
       page.on('request',request=>{if(request.url().endsWith('/hero.mp4'))videoRequests.push(request.url());});
       await page.goto(server.url,{waitUntil:'networkidle'});
-      assert.deepEqual(videoRequests,[],'Hero never requests video automatically');
+      assert.deepEqual(videoRequests,[],'Retired MP4 is never requested');
+      assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Old video and its button are completely removed');
       assert.deepEqual(await page.locator('main > section[id]').evaluateAll(nodes=>nodes.map(node=>node.id)),expectedOrder,'Services, prices and reviews precede the compact process');
       assert.equal(await page.locator('#process .process-grid > li').count(),3,'Three repair steps are actually rendered');
       assert.equal(await page.locator('.story-stage').count(),0,'The page does not insert another long scroll story');

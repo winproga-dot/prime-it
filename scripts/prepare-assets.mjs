@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { mkdir, stat, writeFile, copyFile } from 'node:fs/promises';
+import { mkdir, stat, writeFile, rm } from 'node:fs/promises';
 import { servicePhotos } from '../src/data/media.js';
 
 await mkdir('public/media', { recursive: true });
@@ -23,15 +23,8 @@ await sharp('public/logo.jpg').resize(180,180).png().toFile('public/apple-touch-
 const overlay = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#080d13" opacity=".72"/><g font-family="DejaVu Sans,Arial,sans-serif" fill="#f5f7fa"><text x="65" y="80" font-size="31" font-weight="700">PRIME IT</text><text x="65" y="215" font-size="51" font-weight="700">Ремонт компьютеров</text><text x="65" y="283" font-size="51" font-weight="700">и ноутбуков в Алматы</text><rect x="65" y="342" rx="15" width="585" height="73" fill="#49e5a4"/><text x="91" y="389" fill="#09251b" font-size="30" font-weight="700">Бесплатная диагностика</text><text x="65" y="498" font-size="27">ул. Сатпаева, 105А</text><text x="65" y="548" font-size="24" fill="#b7c9d7">8 (707) 684-06-25 · Без выходных 10:00–20:00</text><text x="65" y="596" font-size="23" fill="#77efbc">Приём по предварительному звонку</text></g></svg>';
 await sharp('public/hero.webp').resize(1200,630,{fit:'cover'}).composite([{input:Buffer.from(overlay)}]).jpeg({quality:85,mozjpeg:true}).toFile('public/og-image.jpg');
 
-// A checked H.264/Main, yuv420p, faststart file is committed once.
-// Production builds must not change codec/size depending on host ffmpeg availability.
-await copyFile('assets/prepared/hero.mp4', 'public/media/hero.mp4');
-const videoReport = {
-  originalBytes:(await stat('assets/source/hero.mp4')).size,
-  optimizedBytes:(await stat('public/media/hero.mp4')).size,
-  compressed:true, prepared:true,
-};
-if (videoReport.optimizedBytes > 1024 * 1024) throw new Error('Prepared hero video exceeds 1 MB');
+// Remove the retired asset from persistent local builds as well as clean deployments.
+await rm('public/media/hero.mp4', { force:true });
 const escape = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const items = Object.entries(servicePhotos).map(([id,photo]) =>
   '<li><h2>' + escape(photo.alt) + '</h2><p>Автор: ' + escape(photo.author) + '</p><p><a href="' + escape(photo.sourceUrl) + '" target="_blank" rel="noopener noreferrer">Оригинал фотографии</a> · <a href="' + escape(photo.licenseUrl || photo.sourceUrl) + '" target="_blank" rel="noopener noreferrer">' + escape(photo.license) + '</a></p></li>'
@@ -41,9 +34,9 @@ await mkdir('public/photo-credits',{recursive:true});
 await writeFile('public/photo-credits/index.html',credits);
 await mkdir('.qa',{recursive:true});
 await writeFile('.qa/asset-report.json', JSON.stringify({
-  images:report,video:videoReport,hero:{
+  images:report,hero:{
     desktopBytes:(await stat('public/hero.webp')).size,
     mobileBytes:(await stat('public/media/hero-small.webp')).size,
   }
 },null,2));
-console.log('ASSET_REPORT', JSON.stringify({images:report,video:videoReport}));
+console.log('ASSET_REPORT', JSON.stringify({images:report,legacyVideoRemoved:true}));
