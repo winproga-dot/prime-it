@@ -18,7 +18,7 @@ export default function Hero({ message, context }) {
         <p className="hero-address"><Icon name="MapPin" size={18} /><span>{brand.street}<br /><span className="muted">{brand.hours}</span></span></p>
         <ContactActions message={message} context={context} location="hero" />
         <p className="hero-note"><Icon name="CheckCircle2" size={16} /> Диагностика бесплатна, даже если вы откажетесь от ремонта.</p>
-        <a href="#estimate" className="scene-skip text-link">Выбрать мою проблему <Icon name="ArrowDown" size={16} /></a>
+        <a href="#estimate" className="scene-skip text-link">Выбрать мою проблему <Icon name="ChevronDown" size={16} /></a>
       </div>
       <div className="scene-anchor" aria-hidden="true" />
       <div className="hero-visual scroll-visual">
@@ -34,7 +34,7 @@ export default function Hero({ message, context }) {
           <li>Бесплатно проведём диагностику и согласуем стоимость.</li>
           <li>После согласования выполним ремонт и проверим устройство.</li>
         </ol>
-        <div className="scene-bottomline" aria-hidden="true"><span className="scene-scroll-hint"><Icon name="ArrowDown" size={16} /> Прокрутите — заглянем внутрь</span><div className="scene-track"><i /></div></div>
+        <div className="scene-bottomline" aria-hidden="true"><span className="scene-scroll-hint"><Icon name="ChevronDown" size={16} /> Прокрутите — заглянем внутрь</span><div className="scene-track"><i /></div></div>
         <HeroVideo />
       </div>
     </div>

@@ -115,7 +115,7 @@
 @media(max-width:899px){
 .hero-pin.hero--scroll{display:block;padding-block:28px 0}
 .hero-story[data-scene-mode="scroll"]{height:auto}
-.hero-story[data-scene-mode="scroll"] .hero-pin{position:relative;top:auto;height:auto;padding-bottom:var(--scroll-distance)}
+.hero-story[data-scene-mode="scroll"] .hero-pin{position:relative;top:auto;height:auto;padding-bottom:0}
 .hero--scroll h1{font-size:clamp(2.1rem,7.9vw,3.4rem);max-width:650px}
 .hero--scroll h1 span{display:inline}
 .hero--scroll .hero-lead{font-size:1rem;margin-top:16px}
@@ -142,3 +142,4 @@
 @media(max-width:899px) and (max-height:620px){.hero-story[data-scene-mode="static"] .scroll-visual{min-height:520px;padding-top:320px}.hero-story[data-scene-mode="static"] .device-viewport{height:300px}}
 @media(prefers-reduced-motion:reduce){.hero-story .laptop-world,.hero-story [data-scene-part]{transition:none;animation:none}}
 @media(forced-colors:active){.hero--scroll .scroll-visual{border:1px solid CanvasText}.device-viewport{display:none}.hero-story .scroll-visual{padding-top:70px!important;min-height:300px!important}}
+\n@media(max-width:899px){.hero-story[data-scene-mode="scroll"] .hero-pin::after{content:"";display:block;height:var(--scroll-distance)}}\n
