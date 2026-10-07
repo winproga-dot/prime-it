@@ -16,6 +16,7 @@ export default function useRepairJourney() {
       const steps = [...root.querySelectorAll('[data-journey-step]')];
       const visible = new Set();
       observer = new IntersectionObserver(entries => {
+        if (!preference.matches) return;
         for (const entry of entries) {
           if (entry.isIntersecting) visible.add(entry.target);
           else visible.delete(entry.target);
