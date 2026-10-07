@@ -87,7 +87,7 @@ export default function useScrollScene() {
       cancelAnimationFrame(raf);raf=0;
       root.dataset.sceneMode=enabled?'scroll':'static';
       const sceneHeight=desktop.matches?available:Math.min(available,700);
-      distance=desktop.matches?clamp(window.innerHeight*2.3,1450,2800):Math.max(1000,sceneHeight*1.9);
+      distance=desktop.matches?clamp(window.innerHeight*1.45,1000,1900):Math.max(850,sceneHeight*1.25);
       root.style.setProperty('--scene-height',sceneHeight+'px');
       root.style.setProperty('--scroll-distance',enabled?distance+'px':'0px');
       const anchor=desktop.matches?root:root.querySelector('.scene-anchor');

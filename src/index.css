@@ -153,3 +153,15 @@ html{scroll-padding-top:calc(var(--header-height,calc(82px + env(safe-area-inset
   .header-nav{top:calc(var(--header-height,74px) - 4px);max-height:calc(100vh - var(--header-height,74px) - var(--mobile-action-height,0px) - 24px);max-height:calc(100dvh - var(--header-height,74px) - var(--mobile-action-height,0px) - 24px)}
 }
 @media(max-width:600px){.header-nav{top:calc(var(--header-height,66px) - 7px)}}
+
+
+/* Visit planning is part of the service, including the mobile/outcall workflow. */
+.visit-notice{display:flex;align-items:flex-start;gap:9px;margin-top:14px;font-size:.875rem;line-height:1.55;color:#c5d4df}
+.visit-notice>svg{color:var(--green);margin-top:3px}
+.visit-notice strong{display:block;color:#edf7fb;font-weight:650}
+.visit-notice .visit-detail{display:block;color:var(--muted)}
+.service-visit-note{max-width:580px;margin-top:20px}
+.location-visit-note{padding:15px 16px;border:1px solid #3d6454;background:#10251c;border-radius:12px;margin-top:20px}
+.location-dispatch{font-size:.875rem;color:var(--muted);margin-top:16px;line-height:1.7}
+.location-actions .button-primary{flex-basis:100%}
+@media(max-width:600px){.service-visit-note,.location-dispatch{font-size:.8125rem}.location-visit-note{font-size:.8125rem;padding:13px}.location-actions .button-secondary{flex:1 1 140px}}

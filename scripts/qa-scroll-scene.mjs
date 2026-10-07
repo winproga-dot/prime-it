@@ -69,6 +69,10 @@ try {
           assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),10,'Every component reaches its mounting position');
           assert(await page.locator('[data-scene-part="lights"]').evaluate(node=>Number(getComputedStyle(node).opacity)>.995),'Lighting switches on after assembly (browser scroll positions round to pixels)');
           assert.equal(await page.locator('#hero').getAttribute('data-scene-chapter'),'5');
+          assert.equal(await page.locator('linearGradient[id^="pc-rgb-sector-"]').count(),10,'Fan lighting uses the full RGB colour wheel');
+          const rgbStops=await page.locator('#pc-rgb stop').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('stop-color')));
+          for(const colour of ['#ff5577','#50e6b8'])assert(rgbStops.includes(colour),'Visible RGB palette contains red and green');
+          assert(rgbStops.includes('#9b73ff') && rgbStops.includes('#57dcec'),'Visible RGB palette also contains violet and cyan');
         }
         if(fraction===0) assert.equal(await page.locator('.pc-component[data-assembled="true"]').count(),0,'Scrolling back restores the empty chassis');
         if(name==='Chromium' && [390,1366].includes(width) && [0,.45,1].includes(fraction) && frames.length<3) {

@@ -8,6 +8,8 @@ export const brand = Object.freeze({
   whatsapp: '77076840625',
   email: 'prime.it.08@gmail.com',
   hours: 'Без выходных, 10:00–20:00',
+  visitNotice: 'Приём по предварительному звонку.',
+  visitDetails: 'Мастер может быть на выезде. Перед приездом согласуйте время по телефону.',
   url: 'https://www.prime-it.kz/',
   warranty: 'До 3 месяцев на выполненные работы. На запчасти — гарантия поставщика.',
   // Owner supplied /geo/70000001078609004; public card checked on 2026-10-01.

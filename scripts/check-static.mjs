@@ -22,6 +22,10 @@ for (const route of routes) {
   const schema = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
   const business = schema['@graph'].find(item => item['@type'] === 'LocalBusiness');
   assert.equal(business.telephone,brand.phoneTel);
+  assert(business.description.includes('Приём по предварительному звонку'),route + ': appointment in LocalBusiness');
+  assert(html.includes(brand.visitNotice),route + ': appointment included in crawlable HTML');
+  assert(meta.description.includes('Приём по'),route + ': appointment in metadata');
+  assert(!html.includes('просто привезите') && !html.includes('Приезжайте — разберёмся'),route + ': no walk-in promises');
   assert.equal(business.address.streetAddress,brand.street);
   assert.equal(business.openingHoursSpecification[0].dayOfWeek.length,7);
   assert(!('geo' in business) && !('aggregateRating' in business),route + ': no invented location or rating');

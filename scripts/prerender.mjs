@@ -20,7 +20,7 @@ function head(path) {
     '<meta property="og:image" content="' + meta.image + '" />',
     '<meta property="og:image:width" content="1200" />',
     '<meta property="og:image:height" content="630" />',
-    '<meta property="og:image:alt" content="PRIME IT: ремонт компьютеров и ноутбуков в Алматы, Сатпаева, 105А" />',
+    '<meta property="og:image:alt" content="PRIME IT: ремонт в Алматы, бесплатная диагностика, Сатпаева, 105А. Приём по предварительному звонку" />',
     '<meta name="twitter:card" content="summary_large_image" />',
     '<meta name="twitter:title" content="' + escape(meta.title) + '" />',
     '<meta name="twitter:description" content="' + escape(meta.description) + '" />',

@@ -35,7 +35,7 @@ export default function Header({ home = false, localSections = false, message, c
     <div className="container header-inner">
       <a className="brand" href="/" aria-label="PRIME IT — главная">
         <img src="/logo.jpg" width="40" height="40" alt="" decoding="async" />
-        <span><strong>PRIME<span className="brand-accent"> IT</span></strong><small>Компьютерный сервис · Алматы</small></span>
+        <span><strong>PRIME<span className="brand-accent"> IT</span></strong><small>Ремонт и выезд · Алматы</small></span>
       </a>
       <nav ref={navRef} className={'header-nav ' + (open ? 'is-open' : '')} id="primary-navigation" aria-label="Основная навигация">
         {nav.map(([id,label]) => <a key={id} href={href(id)} onClick={() => setOpen(false)}>{label}</a>)}

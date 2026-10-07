@@ -98,3 +98,5 @@
 @media(max-width:899px) and (max-height:620px){.hero-story--pc[data-scene-mode="static"] .scroll-visual{min-height:590px;padding-top:350px}.hero-story--pc[data-scene-mode="static"] .pc-viewport{height:340px}}
 @media(prefers-reduced-motion:reduce){.hero-story--pc [data-scene-part],.hero-story--pc [data-fan-rotor]{transition:none;animation:none}}
 @media(forced-colors:active){.pc-background,.pc-copy-mask{display:none}.hero-story--pc .scroll-visual{border-block:1px solid CanvasText}.hero-story--pc[data-scene-mode="static"] .scroll-visual{padding-top:30px;min-height:300px}}
+
+.hero--pc .hero-note.visit-notice{font-size:.8125rem;line-height:1.55}

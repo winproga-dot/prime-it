@@ -3,6 +3,7 @@ import { services, servicePages } from '../data/services.js';
 import { messages } from '../utils/whatsapp.js';
 import { priceLabel } from '../components/ServiceCard.jsx';
 import ContactActions from '../components/ContactActions.jsx';
+import VisitNotice from '../components/VisitNotice.jsx';
 import FAQ from '../components/FAQ.jsx';
 import Location from '../components/Location.jsx';
 import RepairProcess from '../components/RepairProcess.jsx';
@@ -18,6 +19,7 @@ export default function ServicePage({ page }) {
       <div><p className="eyebrow"><span className="status-dot" /> PRIME IT · Бесплатная диагностика</p>
         <h1 id="service-heading">{page.h1}</h1><p className="service-intro">{page.intro}</p>
         <div className="service-hero-price"><strong>{priceLabel(service)}</strong><span>{service.priceNote || (service.price ? 'Точную стоимость согласуем после проверки.' : 'Стоимость ремонта согласуем после бесплатной диагностики.')}</span></div>
+        <VisitNotice className="service-visit-note" />
         <ContactActions message={message} context={context} location="service_hero" />
         <p className="service-hero-contact"><Icon name="MapPin" size={17} /> {brand.address} · {brand.hours}</p>
       </div>

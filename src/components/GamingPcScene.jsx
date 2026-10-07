@@ -1,5 +1,12 @@
 // Original, layered hardware illustration. No product specifications or
 // workshop photographs are implied by the demonstration computer.
+const rgbColours = ["#ff5577","#ff9d52","#f6df6b","#8bea72","#50e6b8","#57dcec","#648bff","#9b73ff","#e471ff","#ff66bd","#ff5577"];
+const rgbPoint = angle => [Math.cos(angle * Math.PI / 180).toFixed(5), Math.sin(angle * Math.PI / 180).toFixed(5)];
+const rgbSectors = rgbColours.slice(0,-1).map((colour,index) => ({
+  colour, next: rgbColours[index + 1],
+  start: rgbPoint(-90 + index * 36), end: rgbPoint(-90 + (index + 1) * 36),
+}));
+
 function Fan({ x=0, y=0, r=43 }) {
   return <g transform={'translate('+x+' '+y+')'}>
     <rect x={-r-6} y={-r-6} width={(r+6)*2} height={(r+6)*2} rx="8" fill="#101a24" stroke="#3e505e" />
@@ -14,10 +21,15 @@ function Fan({ x=0, y=0, r=43 }) {
   </g>;
 }
 function FanLight({ x=0,y=0,r=43 }) {
+  const radius=r-2;
   return <g transform={'translate('+x+' '+y+')'}>
-    <circle r={r-2} fill="none" stroke="#5ce4be" strokeWidth="9" opacity=".16" />
-    <circle r={r-2} fill="none" stroke="url(#pc-rgb)" strokeWidth="4" />
-    <circle r={r-7} fill="none" stroke="#bbfff0" strokeWidth=".8" opacity=".7" />
+    <circle r={radius} fill="none" stroke="#a6b9f4" strokeWidth="9" opacity=".13" />
+    <g transform={'scale('+radius+')'}>
+      {rgbSectors.map((sector,index)=><path key={index}
+        d={'M'+sector.start.join(' ')+'A1 1 0 0 1 '+sector.end.join(' ')}
+        fill="none" stroke={'url(#pc-rgb-sector-'+index+')'} strokeWidth={4/radius} />)}
+    </g>
+    <circle r={r-7} fill="none" stroke="#e1f6ff" strokeWidth=".8" opacity=".55" />
   </g>;
 }
 function Board() {
@@ -57,7 +69,13 @@ export default function GamingPcScene() {
         <linearGradient id="pc-blade-metal" x2="1" y2=".7"><stop stopColor="#536e7d" /><stop offset="1" stopColor="#182b38" /></linearGradient>
         <radialGradient id="pc-hub-metal"><stop stopColor="#7b99a8" /><stop offset=".5" stopColor="#324b5b" /><stop offset="1" stopColor="#172e3f" /></radialGradient>
         <linearGradient id="pc-chip-metal" x2="1" y2="1"><stop stopColor="#d6e4e8" /><stop offset=".5" stopColor="#718e9f" /><stop offset="1" stopColor="#bcced4" /></linearGradient>
-        <linearGradient id="pc-rgb" x1="-.4" y1="0" x2="1" y2="1"><stop stopColor="#d1fff1" /><stop offset=".3" stopColor="#65e8b1" /><stop offset=".7" stopColor="#66cce3" /><stop offset="1" stopColor="#d6fbff" /></linearGradient>
+        <linearGradient id="pc-rgb" x1="0" y1="0" x2="1" y2="1">
+          {['#ff5577','#e471ff','#9b73ff','#57dcec','#50e6b8','#f6df6b','#ff9d52'].map((colour,index)=><stop key={colour} offset={index/6} stopColor={colour} />)}
+        </linearGradient>
+        {rgbSectors.map((sector,index)=><linearGradient key={index} id={'pc-rgb-sector-'+index} gradientUnits="userSpaceOnUse"
+          x1={sector.start[0]} y1={sector.start[1]} x2={sector.end[0]} y2={sector.end[1]}>
+          <stop stopColor={sector.colour} /><stop offset="1" stopColor={sector.next} />
+        </linearGradient>)}
         <linearGradient id="pc-glass" x1="0" y1="0" x2="320" y2="440" gradientUnits="userSpaceOnUse"><stop stopColor="#a2cadd" stopOpacity=".09" /><stop offset=".4" stopColor="#8dbdcc" stopOpacity=".025" /><stop offset="1" stopColor="#1b3848" stopOpacity=".18" /></linearGradient>
         <radialGradient id="pc-floor"><stop stopColor="#000" stopOpacity=".8" /><stop offset="1" stopColor="#000" stopOpacity="0" /></radialGradient>
         <radialGradient id="pc-aura"><stop stopColor="#44d7ac" stopOpacity=".2" /><stop offset=".55" stopColor="#3d9cbf" stopOpacity=".09" /><stop offset="1" stopColor="#0a141d" stopOpacity="0" /></radialGradient>

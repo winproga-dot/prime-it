@@ -19,9 +19,10 @@ export default function Home({ symptom, onSymptomSelect, message, context }) {
     <Hero message={message} context={context} />
     <TrustBar />
     <Symptoms selected={symptom} onSelect={onSymptomSelect} />
-    <RepairProcess message={message} context={context} />
-    <Services /><Pricing /><Reviews /><Licenses />
+    <Services /><Pricing /><Reviews />
+    <RepairProcess compact message={message} context={context} />
     <FAQ items={faq} message={message} context={context} />
     <Location message={message} context={context} />
+    <Licenses />
   </main>;
 }

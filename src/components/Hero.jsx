@@ -1,4 +1,5 @@
 import ContactActions from './ContactActions.jsx';
+import VisitNotice from './VisitNotice.jsx';
 import Icon from './Icon.jsx';
 import { brand } from '../data/brand.js';
 import GamingPcScene from './GamingPcScene.jsx';
@@ -19,14 +20,14 @@ export default function Hero({ message, context }) {
   return <section ref={sceneRef} id="hero" className="hero-story hero-story--pc" data-scene-mode="static" aria-labelledby="hero-title">
     <div className="hero-pin hero hero--scroll hero--pc">
       <div className="hero-copy">
-        <p className="eyebrow"><span className="status-dot" /> PRIME IT · Сервисный центр в Алматы</p>
+        <p className="eyebrow"><span className="status-dot" /> PRIME IT · Сервис с выездом в Алматы</p>
         <h1 id="hero-title">Ремонт компьютеров<br className="desktop-break" /> и ноутбуков <span>в Алматы</span></h1>
         <p className="hero-lead">Сначала найдём причину.<br /><strong>Диагностика — бесплатно.</strong></p>
         <p className="hero-benefits"><span className="hero-benefit-item">Гарантия на работы</span> <span className="benefit-separator">•</span> <span className="hero-benefit-item">Ремонт от 1 часа</span></p>
         <p className="hero-description">Стоимость согласуем с вами до начала ремонта.</p>
         <p className="hero-address"><Icon name="MapPin" size={18} /><span>{brand.street}<br /><span className="muted">{brand.hours}</span></span></p>
+        <VisitNotice className="hero-note hero-appointment" />
         <ContactActions message={message} context={context} location="hero" />
-        <p className="hero-note"><Icon name="CheckCircle2" size={16} /> Диагностика бесплатна, даже если вы откажетесь от ремонта.</p>
         <a href="#estimate" className="scene-skip text-link">Выбрать мою проблему <Icon name="ChevronDown" size={16} /></a>
       </div>
       <div className="scene-anchor" aria-hidden="true" />
