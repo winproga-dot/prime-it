@@ -9,12 +9,16 @@ export default function useScrollReveal(rootRef) {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
     const animations = new Set();
     let observer;
+    let generation = 0;
     const setup = () => {
+      const session = ++generation;
       observer?.disconnect();
       for (const animation of animations) animation.cancel();
       animations.clear();
       if (preference.matches) return;
       observer = new IntersectionObserver(entries => {
+        // Disconnect cannot withdraw an already queued delivery in every engine.
+        if (preference.matches || session !== generation) return;
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           observer.unobserve(entry.target);
@@ -33,6 +37,7 @@ export default function useScrollReveal(rootRef) {
     setup();
     preference.addEventListener('change', setup);
     return () => {
+      ++generation;
       observer?.disconnect();
       preference.removeEventListener('change', setup);
       for (const animation of animations) animation.cancel();

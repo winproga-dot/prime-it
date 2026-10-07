@@ -60,7 +60,13 @@ try {
       for (const step of await page.locator('[data-journey-step]').all()) assert(await step.isVisible(), 'Reduced motion preserves every step');
       assert.equal(await page.locator('.hero-rig').evaluate(node => getComputedStyle(node).transform), 'none');
       assert.equal(await page.locator('.hero-scan').isVisible(), false);
-      assert.equal(await page.evaluate(() => document.getAnimations().filter(animation=>animation.playState === 'running').length), 0, 'Reduced motion cancels active animations');
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      const running = await page.evaluate(() => document.getAnimations().filter(animation=>animation.playState === 'running').map(animation=>({
+        name:animation.animationName || animation.constructor.name,
+        target:animation.effect?.target?.className,
+        duration:animation.effect?.getTiming().duration,
+      })));
+      assert.deepEqual(running, [], 'Reduced motion cancels active animations: ' + JSON.stringify({name,width,running}));
       await page.emulateMedia({ reducedMotion: 'no-preference' });
       await page.waitForFunction(() => document.getElementById('process').dataset.storyMode === 'scroll');
       await page.setViewportSize({ width, height: 520 });
