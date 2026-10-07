@@ -1,10 +1,10 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import Landing from './App.jsx'
-import './index.css'
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <Landing />
-  </React.StrictMode>
-)
+import React from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
+import './motion.css';
+import './scroll-scene.css';
+const root = document.getElementById('root');
+const app = <App pathname={window.location.pathname} />;
+if (root.dataset.prerendered === 'true') hydrateRoot(root, app);
+else createRoot(root).render(app);
