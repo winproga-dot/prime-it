@@ -18,7 +18,7 @@ try {
       const errors=[],videoRequests=[];
       page.on('pageerror',error=>errors.push(error.message));
       page.on('request',request=>{if(request.url().endsWith('/hero.mp4'))videoRequests.push(request.url());});
-      await page.goto(server.url,{waitUntil:'networkidle'});
+      await page.goto(server.url,{waitUntil:'load'});await page.waitForTimeout(300);
       assert.deepEqual(videoRequests,[],'Retired MP4 is never requested');
       assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Old video and its button are completely removed');
       assert.deepEqual(await page.locator('main > section[id]').evaluateAll(nodes=>nodes.map(node=>node.id)),expectedOrder,'Services, prices and reviews precede the compact process');
