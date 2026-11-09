@@ -1,0 +1,51 @@
+name: PRIME IT production quality
+on:
+  push:
+    branches: [prime-it-redesign-2026, main]
+    paths-ignore: ['**/*.md']
+  pull_request:
+    paths-ignore: ['**/*.md']
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm ci
+      - name: Inspect dependency security
+        run: |
+          node scripts/dependency-report.mjs
+          npm audit --omit=dev --audit-level=moderate
+          npm audit --audit-level=high || echo '::warning::dev-only dependency advisories'
+      - name: Production build and static generation
+        run: npm run build
+      - name: Check crawlable HTML, metadata and content
+        run: npm run qa:static
+      - name: Install Chrome and Safari engines
+        run: npx playwright install --with-deps chromium webkit
+      - name: Continuous hero scroll, reverse and mobile QA
+        run: node scripts/qa-scroll-scene.mjs
+      - name: Repair story and reduced motion QA
+        run: node scripts/qa-motion.mjs
+      - name: Browser, mobile and accessibility QA
+        run: npm run qa:browser
+      - name: Lighthouse on production build
+        if: success()
+        run: npm run qa:lighthouse
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: production-quality
+          path: |
+            dist/
+            .qa/
+          include-hidden-files: true
