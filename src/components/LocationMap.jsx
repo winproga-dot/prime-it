@@ -1,14 +1,14 @@
-import { brand } from '../data/brand.js';
 import ContactLink from './ContactLink.jsx';
 import Icon from './Icon.jsx';
+// 2GIS подключён только как источник отзывов и доверия — без карты и маршрута:
+// PRIME IT работает выездом.
 export default function LocationMap() {
   return <div className="location-map">
-    <div className="map-heading"><Icon name="MapPin" size={23} /><div><h3>Карта и маршрут</h3><p>{brand.street}</p></div></div>
-    <div className="map-preview"><div className="map-provider"><Icon name="MapPin" size={36} /><span>2GIS</span></div>
-      <strong>{brand.address}</strong><p>Приём по предварительному звонку. После согласования времени откройте карту и постройте маршрут до сервиса.</p>
-      <ContactLink type="route" href={brand.twoGisUrl} className="button button-secondary" location="business_card">Открыть карту в 2GIS</ContactLink>
+    <div className="map-heading"><Icon name="ShieldCheck" size={23} /><div><h3>PRIME IT в 2GIS</h3><p>Карточка компании и отзывы клиентов</p></div></div>
+    <div className="map-preview"><div className="map-provider"><Icon name="MessageCircle" size={36} /><span>2GIS</span></div>
+      <strong>Отзывы реальных клиентов</strong><p>Почитайте, что пишут о нашей работе, и оставьте свой отзыв после ремонта.</p>
+      <ContactLink type="reviews" className="button button-secondary" location="business_card">Открыть отзывы в 2GIS</ContactLink>
     </div>
-    <ContactLink type="route" className="text-link" location="map">Построить маршрут до PRIME IT</ContactLink>
-    <p className="map-attribution">Карта откроется в новом окне.</p>
+    <p className="map-attribution">Откроется в новом окне.</p>
   </div>;
 }

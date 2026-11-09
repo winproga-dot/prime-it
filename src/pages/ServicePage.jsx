@@ -21,7 +21,7 @@ export default function ServicePage({ page }) {
         <div className="service-hero-price"><strong>{priceLabel(service)}</strong><span>{service.priceNote || (service.price ? 'Точную стоимость согласуем после проверки.' : 'Стоимость ремонта согласуем после бесплатной диагностики.')}</span></div>
         <VisitNotice className="service-visit-note" />
         <ContactActions message={message} context={context} location="service_hero" />
-        <p className="service-hero-contact"><Icon name="MapPin" size={17} /> {brand.address} · {brand.hours}</p>
+        <p className="service-hero-contact"><Icon name="MapPin" size={17} /> {brand.serviceArea} · {brand.hours}</p>
       </div>
       <img className="service-page-image" src={'/media/' + image + '-960.webp'}
         srcSet={'/media/' + image + '-640.webp 640w, /media/' + image + '-960.webp 960w'} sizes="(max-width: 900px) 100vw, 500px"

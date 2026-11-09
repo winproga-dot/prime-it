@@ -10,9 +10,9 @@
 8. Verify WhatsApp app opening on physical Android/iOS and desktop, and calls on a phone. Browser QA verifies standard wa.me encoding and tel links; OS handoff requires real devices.
 
 ## Business listings
-- Update/verify Google Business Profile: PRIME IT, Алматы, ул. Сатпаева, 105А, +77076840625, daily 10:00–20:00.
-- Keep the owner-provided [2GIS card](https://2gis.kz/almaty/firm/70000001078609004) consistent with the site. Address and phone matched during the 2026-10-01 check. The listing currently shows 07:00–22:00 by prior phone call; change it to the actual daily 10:00–20:00 and check the business description.
-- Confirm that the 2GIS destination link opens the entrance you use on real mobile devices. The site uses the route URL exposed by the checked card, not an address search.
+- Google Business Profile: тип «компания, которая обслуживает клиентов на их территории» — адрес скрыть, зона обслуживания: Алматы; телефон +77076840625; без выходных 07:00–22:00.
+- Keep the owner-provided [2GIS card](https://2gis.kz/almaty/firm/70000001078609004) consistent with the site. Address and phone matched during the 2026-10-01 check. Часы 07:00–22:00 совпадают с сайтом; в описании карточки укажите «выездной сервисный центр».
+- 2GIS используется только для отзывов и доверия: на сайте нет карты и маршрута, PRIME IT — выездной сервисный центр.
 - Keep the three real review excerpts and source links current. Public review/profile records currently verify their author photos, dates and individual ratings. Only publish these fields when independently verified; company-reply dates are not review dates. Never substitute stock/generated faces for review authors.
 - Do not add geographic coordinates or aggregate ratings until independently confirmed from the current listing.
 
@@ -43,4 +43,4 @@ CI tests the production output in Chromium and WebKit at 360×800, 390×844, 412
 3. **Google Analytics 4** (по желанию): analytics.google.com → Admin → Create property → Web stream → скопировать Measurement ID `G-…`.
 4. Vercel → Settings → Environment Variables (Production): `VITE_YANDEX_METRIKA_ID=<номер>`, `VITE_GA4_ID=G-…` → Redeploy.
 5. После этого на сайте появится баннер согласия на cookie; счётчики загружаются только после «Принять».
-6. В Метрике создать цели типа «JavaScript-событие» с идентификаторами: `whatsapp_click`, `phone_click`, `route_click`, `service_click`, `symptom_selected`, `review_2gis_click`.
+6. В Метрике создать цели типа «JavaScript-событие» с идентификаторами: `whatsapp_click`, `phone_click`, `service_click`, `symptom_selected`, `review_2gis_click`.

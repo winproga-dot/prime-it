@@ -3,8 +3,8 @@ import { servicePages, pageForPath } from '../data/services.js';
 import { faq } from '../data/faq.js';
 import { legalPages, legalPageForPath } from '../data/legal.js';
 export const homeMeta = {
-  title: 'Ремонт компьютеров и ноутбуков в Алматы | PRIME IT',
-  description: 'Ремонт компьютеров и ноутбуков в Алматы, в сервисе и с выездом. Бесплатная диагностика. PRIME IT — Сатпаева, 105А. Приём по предварительному звонку.',
+  title: 'Выездной ремонт компьютеров и ноутбуков в Алматы | PRIME IT',
+  description: 'Выездной сервисный центр PRIME IT: ремонт компьютеров и ноутбуков в Алматы, мастер приедет домой или в офис. Бесплатная диагностика, без выходных.',
 };
 export function pageMeta(path) {
   const page = pageForPath(path);

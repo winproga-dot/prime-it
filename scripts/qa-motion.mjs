@@ -24,7 +24,7 @@ try {
       assert.deepEqual(await page.locator('main > section[id]').evaluateAll(nodes=>nodes.map(node=>node.id)),expectedOrder,'Services, prices and reviews precede the compact process');
       assert.equal(await page.locator('#process .process-grid > li').count(),3,'Three repair steps are actually rendered');
       assert.equal(await page.locator('.story-stage').count(),0,'The page does not insert another long scroll story');
-      assert((await page.locator('.hero-appointment').innerText()).includes('предварительному звонку'));
+      assert((await page.locator('.hero-appointment').innerText()).includes('мастер приедет'));
       const header=await page.locator('.site-header').boundingBox();
       const noticeBox=await page.locator('.hero-appointment').boundingBox();
       const notice={...noticeBox,bottom:noticeBox.y+noticeBox.height};
@@ -37,7 +37,7 @@ try {
       }
       assert.equal(await page.locator('#contact .location-actions a').first().getAttribute('href'),'tel:+77076840625','Calling precedes the route in contacts');
       const firstStep=await page.locator('#process .process-grid > li').first().innerText();
-      assert(firstStep.includes('По звонку') && firstStep.includes('выезда'),'Process explains both planned visit and outcall');
+      assert(firstStep.includes('По звонку') && firstStep.includes('выезда'),'Process explains how to book an outcall');
       const focusBefore=await page.evaluate(()=>document.activeElement.tagName);
       await page.locator('#process').scrollIntoViewIfNeeded();
       assert.equal(await page.evaluate(()=>document.activeElement.tagName),focusBefore,'Scrolling never moves keyboard focus');
@@ -76,7 +76,7 @@ try {
       for(const step of await page.locator('#process .process-grid > li').all()){
         assert(await step.isVisible());assert((await step.innerText()).length>100);
       }
-      assert((await page.locator('.hero-appointment').innerText()).includes('предварительному звонку'));
+      assert((await page.locator('.hero-appointment').innerText()).includes('мастер приедет'));
       assert(await page.locator('#process a[href^="https://wa.me/"]').isVisible());
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       await context.close();

@@ -69,11 +69,10 @@ try {
       assert(events.some(event=>event.event === 'whatsapp_click'));
       if(engineName === 'chromium' && width === 390) {
         await page.locator('.hero-actions a[href^="tel:"]').click();
-        await page.locator('.hero-route').click();
         await page.getByRole('link',{name:'Смотреть все отзывы в 2GIS',exact:true}).click();
         await page.locator('#service-clean .service-actions a[href^="https://wa.me/"]').click();
         const contactEvents = await page.evaluate(()=>window.qaEvents);
-        for(const event of ['phone_click','route_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
+        for(const event of ['phone_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
       }
       await page.locator('.faq-item').first().locator('summary').click();
       assert(await page.locator('.faq-item').first().locator('p').isVisible());
@@ -202,8 +201,9 @@ try {
     await mapPage.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await mapPage.locator('iframe').count(),0,'No unreliable third-party widget at page load');
     assert.deepEqual(mapRequests,[],'Map links do not load external scripts');
-    const mapLink=mapPage.getByRole('link',{name:'Открыть карту в 2GIS',exact:true});
-    assert.equal(await mapLink.getAttribute('href'),'https://2gis.kz/almaty/firm/70000001078609004','Owner-provided business card');
+    const mapLink=mapPage.getByRole('link',{name:'Открыть отзывы в 2GIS',exact:true});
+    assert.equal(await mapLink.getAttribute('href'),'https://2gis.kz/almaty/firm/70000001078609004/tab/reviews','2GIS reviews for trust');
+    assert.equal(await mapPage.locator('a[href*="/directions/"]').count(),0,'Outcall service: no route links');
     assert.equal(await mapLink.getAttribute('target'),'_blank');
     await mapPage.close();
     const noJS=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});

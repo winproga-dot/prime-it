@@ -19,7 +19,7 @@ export default function Reviews() {
       <blockquote>{review.excerpt}</blockquote>
       <ContactLink type="reviews" href={review.sourceUrl} showIcon={false} className="review-source-link" location="review_source">Оригинал в 2GIS <Icon name="ArrowUpRight" size={15} /></ContactLink>
     </figure>)}</div>
-      : <div className="reviews-source"><div className="reviews-icon"><Icon name="MessageCircle" size={34} /></div><div><h3>Посмотрите отзывы перед визитом</h3>
+      : <div className="reviews-source"><div className="reviews-icon"><Icon name="MessageCircle" size={34} /></div><div><h3>Посмотрите отзывы о PRIME IT</h3>
         <p>Откройте PRIME IT в 2GIS: там можно прочитать отзывы и узнать о впечатлениях клиентов.</p></div><ContactLink type="reviews" className="button button-secondary" location="reviews" /></div>}
     {reviews.length > 0 && <ContactLink type="reviews" className="text-link" location="reviews" />}
     <div className="reviews-followup"><span>Остались вопросы о вашей технике?</span><ContactLink className="text-link" location="after_reviews">Обсудить проблему</ContactLink></div>
