@@ -25,13 +25,13 @@ try {
       const start = await state();
       assert.equal(start.frame, 0, name + ': first frame at top');
       const distance = await page.evaluate(() => {
-        const desktop = matchMedia('(min-width: 900px)').matches;
+        const desktop = matchMedia('(min-width: 900px) and (min-height: 500px)').matches;
         const area = document.querySelector(desktop ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
         const pin = document.querySelector(desktop ? '.hv-pin' : '.hv-media');
         return area.offsetHeight - pin.offsetHeight;
       });
       assert(distance > 200 && distance < 1.3 * (options.viewport?.height || 900), name + ': short scroll distance ' + distance);
-      const middleTop = await page.evaluate(d => { const desktop = matchMedia('(min-width: 900px)').matches; const area = document.querySelector(desktop ? '[data-scrub-desktop]' : '[data-scrub-mobile]'); const pin = document.querySelector(desktop ? '.hv-pin' : '.hv-media'); return area.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(pin).top) + d / 2; }, distance);
+      const middleTop = await page.evaluate(d => { const desktop = matchMedia('(min-width: 900px) and (min-height: 500px)').matches; const area = document.querySelector(desktop ? '[data-scrub-desktop]' : '[data-scrub-mobile]'); const pin = document.querySelector(desktop ? '.hv-pin' : '.hv-media'); return area.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(pin).top) + d / 2; }, distance);
       await page.evaluate(y => scrollTo(0, y), middleTop); await page.waitForTimeout(300); await settle();
       const middle = await state();
       assert(middle.frame > 40 && middle.frame < 80, name + ': middle frame ' + middle.frame);

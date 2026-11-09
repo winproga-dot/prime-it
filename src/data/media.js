@@ -67,11 +67,11 @@ export const servicePhotos = {
   },
   "build": {
     "file": "assets/photos/build.webp",
-    "alt": "Комплектующие собранного игрового компьютера",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Das_Innenleben_eines_Gaming-PCs_aus_2021_20211126_HOF08240_RAW-Export_20220714004132.png",
-    "author": "PantheraLeo1359531",
-    "license": "CC BY 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by/4.0"
+    "alt": "Игровой компьютер PRIME IT с RGB-подсветкой и водяным охлаждением",
+    "sourceUrl": "https://www.prime-it.kz/",
+    "author": "PRIME IT",
+    "license": "Собственный материал PRIME IT",
+    "licenseUrl": "https://www.prime-it.kz/"
   },
   "soft": {
     "file": "assets/photos/soft.webp",

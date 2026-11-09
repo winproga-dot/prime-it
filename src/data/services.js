@@ -97,7 +97,7 @@ export const services = [
     "price": 16000,
     "path": "/sborka-kompyutera-almaty/",
     "image": "build",
-    "imageAlt": "Комплектующие собранного игрового компьютера"
+    "imageAlt": "Игровой компьютер PRIME IT с RGB-подсветкой и водяным охлаждением"
   },
   {
     "id": "soft",

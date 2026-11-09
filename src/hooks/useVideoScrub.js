@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 // настройки «уменьшить анимацию»: картинка меняется только когда человек сам
 // прокручивает страницу. Длина прокрутки — около одного экрана.
 export const FRAME_COUNT = 121;
+export const PIN_QUERY = '(min-width: 900px) and (min-height: 500px)';
 export const frameUrl = (set, index) => '/hero-frames/' + set + '/' + String(index + 1).padStart(3, '0') + '.webp';
 export const chapters = [
   { at: 0, label: 'Корпус', title: 'Начинаем с основы' },
@@ -29,8 +30,10 @@ export default function useVideoScrub() {
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
-    const track = () => root.querySelector(window.matchMedia('(min-width: 900px)').matches ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
-    const sticky = () => root.querySelector(window.matchMedia('(min-width: 900px)').matches ? '.hv-pin' : '.hv-media');
+    // Режим «закреплён весь первый экран» — только если он помещается по высоте.
+    const pinned = () => window.matchMedia(PIN_QUERY).matches;
+    const track = () => root.querySelector(pinned() ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
+    const sticky = () => root.querySelector(pinned() ? '.hv-pin' : '.hv-media');
     const canvas = root.querySelector('canvas');
     const context = canvas.getContext('2d');
     const bar = root.querySelector('.hv-progress i');
