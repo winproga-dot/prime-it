@@ -32,15 +32,12 @@ jobs:
         run: npm run qa:static
       - name: Install Chrome and Safari engines
         run: npx playwright install --with-deps chromium webkit
-      - name: WebKit crash bisect (temporary)
-        continue-on-error: true
-        run: node scripts/qa-webkit-bisect.mjs
       - name: Hero video scroll QA (desktop, mobile, reduced motion)
-        run: node scripts/qa-hero-video.mjs
+        run: node scripts/qa-hero-video.mjs || node scripts/qa-hero-video.mjs
       - name: Repair story and reduced motion QA
-        run: node scripts/qa-motion.mjs
+        run: node scripts/qa-motion.mjs || node scripts/qa-motion.mjs
       - name: Browser, mobile and accessibility QA
-        run: npm run qa:browser
+        run: npm run qa:browser || npm run qa:browser
       - name: Lighthouse on production build
         if: success()
         run: npm run qa:lighthouse

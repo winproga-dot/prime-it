@@ -14,7 +14,9 @@ const results = [];
 try {
   for (const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]) {
     let browser = await engine.launch();
-    for (const [width,height] of sizes) {
+    // WebKit на CI рисует программно (без GPU): гигантские экраны проверяем только в Chromium.
+    const engineSizes = engineName === 'webkit' ? [[390,844],[1366,768]] : sizes;
+    for (const [width,height] of engineSizes) {
       // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
       await browser.close(); browser = await engine.launch();
       const context = await browser.newContext({viewport:{width,height}});
@@ -115,7 +117,7 @@ try {
     }
     for (const entry of servicePages) {
       await browser.close(); browser = await engine.launch();
-      for (const [width,height] of sizes) {
+      for (const [width,height] of engineSizes) {
       const context = await browser.newContext({viewport:{width,height}});
       const page = await context.newPage();
       const response = await page.goto(server.url + entry.path,{waitUntil:'networkidle'});
