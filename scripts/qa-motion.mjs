@@ -18,6 +18,9 @@ try {
       const errors=[],videoRequests=[];
       page.on('pageerror',error=>errors.push(error.message));
       page.on('request',request=>{if(request.url().endsWith('/hero.mp4'))videoRequests.push(request.url());});
+      console.log('MOTION_CASE',name,width,height);
+      page.on('crash',()=>console.log('PAGE_CRASH',name,width,height));
+      page.on('close',()=>console.log('PAGE_CLOSED',name,width,height));
       await page.goto(server.url,{waitUntil:'load'});await page.waitForTimeout(300);
       assert.deepEqual(videoRequests,[],'Retired MP4 is never requested');
       assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Old video and its button are completely removed');
