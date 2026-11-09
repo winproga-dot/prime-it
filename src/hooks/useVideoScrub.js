@@ -128,8 +128,13 @@ export default function useVideoScrub() {
       const worker = async () => {
         while (!disposed && cursor < order.length) {
           const index = order[cursor++];
-          const image = new Image(); image.decoding = 'async'; image.src = frameUrl(set, index);
-          try { await image.decode(); } catch { /* пропущенный кадр заменит соседний */ }
+          const image = new Image(); image.decoding = 'async';
+          // onload + таймаут: зависший кадр не блокирует остальные (его заменит соседний).
+          await new Promise(resolve => {
+            const timer = setTimeout(resolve, 8000);
+            image.onload = image.onerror = () => { clearTimeout(timer); resolve(); };
+            image.src = frameUrl(set, index);
+          });
           frames[index] = image;
           if (Math.abs(index - Math.round(current * (FRAME_COUNT - 1))) < 3 || index === 0) { drawn = -1; draw(); }
         }

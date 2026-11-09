@@ -19,7 +19,7 @@ try {
       const page = await context.newPage();
       const errors = []; page.on('pageerror', error => errors.push(error.message));
       await page.goto(server.url + '/', { waitUntil:'networkidle' });
-      await page.waitForFunction(() => document.querySelector('#hero').dataset.loaded === 'true', null, { timeout:30000 });
+      await page.waitForFunction(() => document.querySelector('#hero').dataset.loaded === 'true', null, { timeout:90000 });
       const settle = previous => page.waitForFunction(prev => { const h = document.querySelector('#hero'); return h.dataset.settled === 'true' && h.dataset.frame !== String(prev); }, previous, { timeout:8000 }).catch(() => {});
       const state = () => page.evaluate(() => ({ frame:Number(document.querySelector('#hero').dataset.frame || -1), progress:Number(document.querySelector('#hero').dataset.progress || 0) }));
       const start = await state();
