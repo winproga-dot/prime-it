@@ -19,7 +19,7 @@ export default function Hero({ message, context }) {
     <div className="hv-media-track">
       <figure className="hv-media container" data-reveal>
         <div className="hv-frame">
-          <img className="hv-poster" src={frameUrl('d', 0)} srcSet={frameUrl('m', 0) + ' 768w, ' + frameUrl('d', 0) + ' 1280w'}
+          <img className="hv-poster" src={frameUrl('d', 0)} srcSet={frameUrl('m', 0) + ' 640w, ' + frameUrl('d', 0) + ' 1280w'}
             sizes="(max-width: 899px) 100vw, 1200px" width="1280" height="720" alt="Сборка игрового компьютера в PRIME IT" fetchpriority="high" decoding="async" />
           <canvas aria-hidden="true" />
           <div className="hv-shade" aria-hidden="true" />

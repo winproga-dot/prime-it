@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 // от прокрутки. Работает одинаково в Chrome, Safari и Firefox и не зависит от
 // настройки «уменьшить анимацию»: картинка меняется только когда человек сам
 // прокручивает страницу. Длина прокрутки — около одного экрана.
-export const FRAME_COUNT = 121;
+// 81 кадр (каждый 3-й кадр видео): плавно и в ~3 раза меньше памяти, важно для iPhone.
+export const FRAME_COUNT = 81;
 export const PIN_QUERY = '(min-width: 900px) and (min-height: 500px)';
 export const frameUrl = (set, index) => '/hero-frames/' + set + '/' + String(index + 1).padStart(3, '0') + '.webp';
 export const chapters = [

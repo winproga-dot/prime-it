@@ -30,10 +30,10 @@ try {
       const middleTop = rangeStart + distance / 2;
       await page.evaluate(y => scrollTo(0, y), middleTop); await settle(start.frame);
       const middle = await state();
-      assert(middle.frame > 40 && middle.frame < 80, name + ': middle frame ' + middle.frame);
+      assert(middle.frame > 26 && middle.frame < 54, name + ': middle frame ' + middle.frame);
       await page.evaluate(y => scrollTo(0, y), rangeEnd + 20); await settle(middle.frame);
       const end = await state();
-      assert(end.frame >= 118, name + ': last frame ' + end.frame);
+      assert(end.frame >= 78, name + ': last frame ' + end.frame);
       await page.evaluate(() => scrollTo(0, 0)); await settle(end.frame);
       assert.equal((await state()).frame, 0, name + ': reversible');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name + ': no horizontal overflow');
