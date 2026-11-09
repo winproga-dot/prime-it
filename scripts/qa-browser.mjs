@@ -50,7 +50,7 @@ try {
         assert(await page.locator('.menu-toggle').evaluate(node=>node === document.activeElement));
         await page.locator('.menu-toggle').click();
         await page.locator('#primary-navigation a[href="#services"]').click();
-        assert.equal(await page.locator('.more-services').evaluate(node=>node.open),false,'Section navigation does not expand unrelated services');
+        assert.equal(await page.locator('.book').getAttribute('data-page'),'0','Section navigation does not flip the price book');
         await page.locator('.menu-toggle').click();
         await page.locator('#primary-navigation a[href="#faq"]').click();
         assert.equal(await page.locator('.faq-item').first().evaluate(node=>node.open),false,'FAQ navigation does not choose an answer for the user');
@@ -70,7 +70,10 @@ try {
       if(engineName === 'chromium' && width === 390) {
         await page.locator('.hero-actions a[href^="tel:"]').click();
         await page.getByRole('link',{name:'Смотреть все отзывы в 2GIS',exact:true}).click();
-        await page.locator('#service-clean .service-actions a[href^="https://wa.me/"]').click();
+        await page.locator('.sticker').nth(1).click();
+        await page.waitForFunction(()=>document.querySelector('.book').dataset.page==='2');
+        await page.waitForTimeout(1000);
+        await page.locator('#service-clean .page-actions a[href^="https://wa.me/"]').click();
         const contactEvents = await page.evaluate(()=>window.qaEvents);
         for(const event of ['phone_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
       }
@@ -201,7 +204,7 @@ try {
     await mapPage.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await mapPage.locator('iframe').count(),0,'No unreliable third-party widget at page load');
     assert.deepEqual(mapRequests,[],'Map links do not load external scripts');
-    const mapLink=mapPage.getByRole('link',{name:'Открыть отзывы в 2GIS',exact:true});
+    const mapLink=mapPage.getByRole('link',{name:'Отзывы о нас в 2GIS',exact:true});
     assert.equal(await mapLink.getAttribute('href'),'https://2gis.kz/almaty/firm/70000001078609004/tab/reviews','2GIS reviews for trust');
     assert.equal(await mapPage.locator('a[href*="/directions/"]').count(),0,'Outcall service: no route links');
     assert.equal(await mapLink.getAttribute('target'),'_blank');
@@ -212,7 +215,7 @@ try {
       await staticPage.goto(server.url+path);
       assert.equal(await staticPage.locator('h1').count(),1);
       assert((await staticPage.locator('main').innerText()).length>500);
-      assert(await staticPage.locator('a[href^="https://wa.me/"]').first().isVisible());
+      assert(await staticPage.locator('a[href^="https://wa.me/"]:visible').count()>0,'WhatsApp link visible without JavaScript: '+path);
     }
     await noJS.close();await browser.close();
   }

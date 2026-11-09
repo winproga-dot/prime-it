@@ -42,6 +42,22 @@ export default function PriceBook() {
     return target === state.page ? state : { page: target, from: state.page };
   }), []);
 
+  // Старые ссылки вида /#service-clean, /#service-clean-calc, /?service=clean открывают нужную страницу журнала.
+  useEffect(() => {
+    const open = () => {
+      let id = '';
+      try { id = decodeURIComponent(window.location.hash.slice(1)); } catch { /* ignore */ }
+      const params = new URLSearchParams(window.location.search);
+      if (!id && (params.get('service') || params.get('s'))) id = 'service-' + (params.get('service') || params.get('s'));
+      const match = id.replace(/-calc$/, '').match(/^service-(.+)$/);
+      const index = match ? services.findIndex(service => service.id === match[1]) : -1;
+      if (index >= 0) go(index + 1);
+    };
+    open();
+    window.addEventListener('hashchange', open);
+    return () => window.removeEventListener('hashchange', open);
+  }, [go]);
+
   useEffect(() => {
     const book = bookRef.current;
     const onKey = event => {
@@ -82,7 +98,7 @@ export default function PriceBook() {
           return <div key={k} className={'leaf' + (flipped ? ' is-flipped' : '')}
             style={{ zIndex: flipped ? k + 1 : count + 2 - k, transitionDelay: (moving ? order * 70 : 0) + 'ms' }}
             onClick={event => { if (!event.target.closest('a,button')) go(flipped ? k : k + 1); }}>
-            <div className="leaf-front" aria-hidden={k !== page}>
+            <div className="leaf-front" inert={k !== page ? '' : undefined}>
               {k === 0 ? <div className="book-cover">
                 <span className="mono">PRIME IT®</span>
                 <strong>Прайс<br />{new Date().getFullYear()}</strong>

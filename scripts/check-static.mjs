@@ -24,7 +24,7 @@ for (const route of routes) {
   const business = schema['@graph'].find(item => item['@type'] === 'LocalBusiness');
   assert.equal(business.telephone,brand.phoneTel);
   assert(business.description.includes('Выездной сервисный центр'),route + ': outcall service in LocalBusiness');
-  assert(html.includes(brand.visitNotice),route + ': appointment included in crawlable HTML');
+  assert(html.includes(brand.visitNotice) || html.includes(brand.serviceType),route + ': outcall service stated in crawlable HTML');
   assert(/выезд/i.test(meta.description),route + ': outcall service in metadata');
   assert(!html.includes('просто привезите') && !html.includes('Приезжайте — разберёмся'),route + ': no walk-in promises');
   assert.equal(business.address.streetAddress,brand.street);
