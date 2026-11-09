@@ -32,8 +32,8 @@ export default function useVideoScrub() {
     if (!root) return;
     // Режим «закреплён весь первый экран» — только если он помещается по высоте.
     const pinned = () => window.matchMedia(PIN_QUERY).matches;
-    const track = () => root.querySelector(pinned() ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
-    const sticky = () => root.querySelector(pinned() ? '.hv-pin' : '.hv-media');
+    const track = () => root.querySelector('[data-scrub-desktop]');
+    const sticky = () => root.querySelector('.hv-pin');
     const canvas = root.querySelector('canvas');
     const context = canvas.getContext('2d');
     const bar = root.querySelector('.hv-progress i');
@@ -82,12 +82,30 @@ export default function useVideoScrub() {
       root.dataset.progress = current.toFixed(3);
       root.dataset.settled = String(current === target);
     };
+    // Диапазон прокрутки, на котором проигрывается видео.
+    // ПК: весь первый экран закреплён, видео идёт ~1 экран.
+    // Телефон: без закрепления — видео проигрывается, пока карточка проезжает
+    // от низа экрана до шапки, и страница не становится длиннее.
+    const range = () => {
+      const docTop = node => node.getBoundingClientRect().top + window.scrollY;
+      if (pinned()) {
+        const area = track(), pin = sticky();
+        const start = docTop(area) - (parseFloat(getComputedStyle(pin).top) || 0);
+        return [start, start + Math.max(1, area.offsetHeight - pin.offsetHeight)];
+      }
+      const frame = root.querySelector('.hv-frame');
+      const styles = getComputedStyle(document.documentElement);
+      const header = parseFloat(styles.getPropertyValue('--header-height')) || 60;
+      const bar = parseFloat(styles.getPropertyValue('--mobile-action-height')) || 0;
+      const top = docTop(frame), height = frame.offsetHeight;
+      const start = Math.max(0, top + height - (window.innerHeight - bar));
+      const end = Math.max(start + height, top - header - 8);
+      return [start, end];
+    };
     const measure = () => {
-      const area = track(); const pin = sticky();
-      if (!area || !pin) return 0;
-      const top = parseFloat(getComputedStyle(pin).top) || 0;
-      const distance = area.offsetHeight - pin.offsetHeight;
-      return distance > 0 ? clamp((top - area.getBoundingClientRect().top) / distance) : 0;
+      const [start, end] = range();
+      root.dataset.rangeStart = String(Math.round(start)); root.dataset.rangeEnd = String(Math.round(end));
+      return clamp((window.scrollY - start) / (end - start));
     };
     // Сглаживание по времени (≈90 мс), а не по кадрам: одинаково на 60/120 Гц
     // и в браузерах, которые реже вызывают requestAnimationFrame.

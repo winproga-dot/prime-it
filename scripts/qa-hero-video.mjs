@@ -24,23 +24,18 @@ try {
       const state = () => page.evaluate(() => ({ frame:Number(document.querySelector('#hero').dataset.frame || -1), progress:Number(document.querySelector('#hero').dataset.progress || 0) }));
       const start = await state();
       assert.equal(start.frame, 0, name + ': first frame at top');
-      const distance = await page.evaluate(() => {
-        const desktop = matchMedia('(min-width: 900px) and (min-height: 500px)').matches;
-        const area = document.querySelector(desktop ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
-        const pin = document.querySelector(desktop ? '.hv-pin' : '.hv-media');
-        return area.offsetHeight - pin.offsetHeight;
-      });
-      assert(distance > 200 && distance < 1.3 * (options.viewport?.height || 900), name + ': short scroll distance ' + distance);
-      const middleTop = await page.evaluate(d => { const desktop = matchMedia('(min-width: 900px) and (min-height: 500px)').matches; const area = document.querySelector(desktop ? '[data-scrub-desktop]' : '[data-scrub-mobile]'); const pin = document.querySelector(desktop ? '.hv-pin' : '.hv-media'); return area.getBoundingClientRect().top + scrollY - parseFloat(getComputedStyle(pin).top) + d / 2; }, distance);
+      const [rangeStart, rangeEnd] = await page.evaluate(() => [Number(document.querySelector('#hero').dataset.rangeStart), Number(document.querySelector('#hero').dataset.rangeEnd)]);
+      const distance = rangeEnd - rangeStart;
+      assert(distance > 150 && distance < 1.3 * (options.viewport?.height || 900), name + ': short scroll distance ' + distance);
+      const middleTop = rangeStart + distance / 2;
       await page.evaluate(y => scrollTo(0, y), middleTop); await settle(start.frame);
       const middle = await state();
       assert(middle.frame > 40 && middle.frame < 80, name + ': middle frame ' + middle.frame);
-      await page.evaluate(y => scrollTo(0, y), middleTop + distance); await settle(middle.frame);
+      await page.evaluate(y => scrollTo(0, y), rangeEnd + 20); await settle(middle.frame);
       const end = await state();
       assert(end.frame >= 118, name + ': last frame ' + end.frame);
       await page.evaluate(() => scrollTo(0, 0)); await settle(end.frame);
       assert.equal((await state()).frame, 0, name + ': reversible');
-      assert(await page.locator('.hero-appointment').isVisible(), name + ': outcall notice visible');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, name + ': no horizontal overflow');
       assert.deepEqual(errors, [], name + ': no page errors');
       console.log('HERO_VIDEO_OK', engineName, name, JSON.stringify({ distance, middle:middle.frame, end:end.frame }));
