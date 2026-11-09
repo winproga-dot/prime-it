@@ -39,7 +39,7 @@ export default function useVideoScrub() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     const set = window.matchMedia('(min-width: 900px)').matches && !navigator.connection?.saveData ? 'd' : 'm';
     const frames = new Array(FRAME_COUNT);
-    let target = 0, current = 0, raf = 0, drawn = -1, chapter = -1, visible = true, disposed = false;
+    let target = 0, current = 0, raf = 0, lastTime = 0, drawn = -1, chapter = -1, visible = true, disposed = false;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -77,6 +77,7 @@ export default function useVideoScrub() {
         counter.textContent = String(next + 1).padStart(2, '0') + ' / ' + String(chapters.length).padStart(2, '0');
       }
       root.dataset.progress = current.toFixed(3);
+      root.dataset.settled = String(current === target);
     };
     const measure = () => {
       const area = track(); const pin = sticky();
@@ -85,12 +86,16 @@ export default function useVideoScrub() {
       const distance = area.offsetHeight - pin.offsetHeight;
       return distance > 0 ? clamp((top - area.getBoundingClientRect().top) / distance) : 0;
     };
-    const tick = () => {
+    // Сглаживание по времени (≈90 мс), а не по кадрам: одинаково на 60/120 Гц
+    // и в браузерах, которые реже вызывают requestAnimationFrame.
+    const tick = time => {
       raf = 0;
+      const dt = lastTime ? Math.min(250, time - lastTime) : 16;
+      lastTime = time;
       const delta = target - current;
-      current = reduce.matches || Math.abs(delta) < .0008 ? target : current + delta * .22;
+      current = reduce.matches || Math.abs(delta) < .0008 ? target : current + delta * (1 - Math.exp(-dt / 90));
       draw();
-      if (current !== target) raf = requestAnimationFrame(tick);
+      if (current !== target) raf = requestAnimationFrame(tick); else lastTime = 0;
     };
     const onScroll = () => { if (!visible) return; target = measure(); if (!raf) raf = requestAnimationFrame(tick); };
 
