@@ -1,10 +1,11 @@
+import SplitWords from './SplitWords.jsx';
 import { reviews } from '../data/reviews.js';
 import ContactLink from './ContactLink.jsx';
 import Icon from './Icon.jsx';
 
 export default function Reviews() {
   return <section className="section container" id="reviews" aria-labelledby="reviews-title">
-    <div className="section-heading" data-reveal><div><p className="eyebrow">Обратная связь</p><h2 id="reviews-title">Отзывы клиентов PRIME IT</h2>
+    <div className="section-heading" data-reveal><div><p className="eyebrow">Обратная связь</p><SplitWords as="h2" id="reviews-title" text="Нам доверяют технику." />
       <p>Реальные отзывы клиентов из 2GIS — со ссылками на оригиналы.</p></div><span className="source-badge">Источник: 2GIS</span></div>
     {reviews.length ? <div className="reviews-grid">{reviews.map((review, index) => <figure className="review-card" data-reveal data-reveal-order={index} key={review.reviewId || review.sourceUrl + review.author}>
       <figcaption className="review-person">

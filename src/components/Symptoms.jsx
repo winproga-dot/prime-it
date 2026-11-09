@@ -1,3 +1,4 @@
+import SplitWords from './SplitWords.jsx';
 import { useEffect, useState } from 'react';
 import { track } from '../utils/analytics.js';
 import { messages } from '../utils/whatsapp.js';
@@ -29,7 +30,7 @@ export default function Symptoms({ selected = '', onSelect }) {
   const hint = selected && hints[selected];
   return <section className="section container" id="estimate" aria-labelledby="symptoms-title">
     <div className="symptoms-panel" data-reveal>
-      <div className="section-heading"><div><p className="eyebrow">Начнём с вашей проблемы</p><h2 id="symptoms-title">Что случилось с устройством?</h2>
+      <div className="section-heading"><div><p className="eyebrow">Начнём с вашей проблемы</p><SplitWords as="h2" id="symptoms-title" text="Что случилось с устройством?" />
         <p>Выберите симптом — подскажем вероятную причину и цену.</p></div>
       </div>
       <div className="symptom-grid" role="group" aria-label="Выберите проблему устройства">

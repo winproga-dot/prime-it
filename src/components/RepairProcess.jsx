@@ -1,3 +1,4 @@
+import SplitWords from './SplitWords.jsx';
 import { repairJourney } from '../data/repairJourney.js';
 import useRepairJourney from '../hooks/useRepairJourney.js';
 import ContactLink from './ContactLink.jsx';
@@ -7,7 +8,7 @@ export default function RepairProcess({ message, context, compact = false }) {
   const { ref, active, enhanced } = useRepairJourney();
   if (compact) return <section id="process" className="section container" aria-labelledby="process-title">
     <div className="section-heading" data-reveal><div><p className="eyebrow">Понятно на каждом этапе</p>
-      <h2 id="process-title">Как проходит ремонт</h2></div></div>
+      <SplitWords as="h2" id="process-title" text="Как проходит ремонт" /></div></div>
     <ol className="process-grid">{repairJourney.map((step, index) => <li key={step.id} data-reveal data-reveal-order={index}>
       <div className="process-top"><span>{step.number}</span><Icon name={step.icon} size={25} /></div>
       <h3>{step.title}</h3><p>{step.text}</p>

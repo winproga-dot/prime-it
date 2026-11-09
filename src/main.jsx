@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { initAnalytics } from './utils/analytics.js';
-import './mobbin.css';
+import './worklouder.css';
 const root = document.getElementById('root');
 const app = <App pathname={window.location.pathname} />;
 if (root.dataset.prerendered === 'true') hydrateRoot(root, app);

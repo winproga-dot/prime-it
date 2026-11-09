@@ -1,13 +1,11 @@
 import { services } from '../data/services.js';
 import ServiceCard from './ServiceCard.jsx';
-import Icon from './Icon.jsx';
-export default function Services() {
-  return <section className="section container" id="services" aria-labelledby="services-title">
-    <div className="section-heading" data-reveal><div><p className="eyebrow">От неисправности до решения</p><h2 id="services-title">Поможем вашей технике</h2>
-      <p>Основные услуги и цены. Сначала проверим устройство, затем согласуем работы.</p></div><span className="section-index" aria-hidden="true">02 / УСЛУГИ</span></div>
-    <div className="services-grid">{services.slice(0,6).map((service, index) => <ServiceCard service={service} revealOrder={index % 3} key={service.id} />)}</div>
-    <details className="more-services"><summary><span><strong>Ещё услуги сервиса</strong><small>SSD и память, петли, сборка ПК, программы и другое</small></span><Icon name="ChevronDown" /></summary>
-      <div className="services-grid">{services.slice(6).map(service => <ServiceCard service={service} key={service.id} />)}</div>
-    </details>
+import SplitWords from './SplitWords.jsx';
+// Полный список услуг с ценами. На главной идёт после витрины и заменяет отдельный блок цен.
+export default function Services({ id = 'services', title = 'Все услуги и цены' }) {
+  return <section className="section container" id={id} aria-labelledby={id + '-title'}>
+    <div className="section-heading"><div><p className="eyebrow">Прайс</p><SplitWords as="h2" id={id + '-title'} text={title} />
+      <p>Цены «от» за работу. Детали — по согласованию. Диагностика — бесплатно.</p></div></div>
+    <div className="services-grid services-list">{services.map((service, index) => <ServiceCard service={service} revealOrder={index % 3} key={service.id} />)}</div>
   </section>;
 }
