@@ -101,31 +101,34 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 .hero-v .hero-appointment{margin-top:10px;justify-content:flex-end;font-size:.8125rem;color:var(--muted)}
 .hero-v .hero-appointment svg{color:var(--accent)}
 .hero-v .hero-appointment .visit-detail{display:inline}
-/* Видео (прокрутка колесом) */
-.hv-media-track{margin-top:clamp(32px,6vh,64px)}
-.hv-media{margin:0 auto;display:block}
-.hv-frame{position:relative;aspect-ratio:16/9;width:100%;margin-inline:auto;border-radius:36px;overflow:hidden;background:#0b0f14;border:1px solid var(--line)}
+/* Видео (прокрутка колесом): без рамки — края кадра растворяются в чёрном фоне,
+   компьютер стоит прямо на странице. Тени ролика затемнены при подготовке кадров. */
+.hv-media-track{margin-top:clamp(16px,4vh,48px)}
+.hv-media{position:relative;margin:0 auto;display:block}
+.hv-frame{position:relative;aspect-ratio:16/9;width:100%;margin-inline:auto;background:#000;
+  -webkit-mask-image:radial-gradient(ellipse 62% 64% at 50% 48%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 62% 64% at 50% 48%,#000 58%,transparent 100%)}
 .hv-frame img,.hv-frame canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .hv-frame canvas{opacity:0;transition:opacity .25s}
 .hero-v.is-live .hv-frame canvas{opacity:1}
-.hv-shade{position:absolute;inset:auto 0 0;height:50%;background:linear-gradient(to top,#000000cc,transparent);pointer-events:none}
-.hv-caption{position:absolute;left:28px;right:28px;bottom:24px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.hv-caption{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:-8px;padding-inline:4px}
 .hv-chapters{position:relative;flex:1;min-height:60px}
 .hv-chapters p{position:absolute;left:0;bottom:0;display:grid;gap:6px;opacity:0;transform:translateY(20px);filter:blur(8px);transition:opacity .6s cubic-bezier(.19,1,.22,1),transform .6s cubic-bezier(.19,1,.22,1),filter .6s}
 .hv-chapters p.is-active{opacity:1;transform:none;filter:none}
 .hv-chapters .mono{color:var(--accent)}
 .hv-chapters strong{font-size:clamp(1.2rem,2.4vw,2.25rem);font-weight:600;letter-spacing:-.03em;color:#fff;line-height:1}
-.hv-counter{color:#fff;padding:6px 12px;border-radius:var(--pill);background:#ffffff1f;backdrop-filter:blur(8px)}
-.hv-progress{position:absolute;left:0;right:0;bottom:0;height:4px;background:#ffffff1f}
+.hv-counter{color:var(--muted)}
+.hv-progress{height:2px;margin-top:14px;background:#ffffff14;border-radius:2px;overflow:hidden}
 .hv-progress i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
-.hv-media figcaption{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px auto 0}
+.hv-media figcaption{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:12px auto 0}
 .hv-media figcaption>span,.hv-media figcaption a{display:inline-flex;align-items:center;gap:6px}
 .hv-media figcaption a{color:var(--text)}
 @media(min-width:900px) and (min-height:500px){
-  .hero-v{--hv-frame-h:min(calc(min(1200px,100vw - 64px) * 9 / 16),calc(100svh - var(--header-height,68px) - 110px))}
-  .hv-media-track{height:calc(var(--hv-frame-h) + 44px + 100vh)}
-  .hv-media{position:sticky;top:calc(var(--header-height,68px) + (100svh - var(--header-height,68px) - var(--hv-frame-h) - 44px) / 2);width:calc(var(--hv-frame-h) * 16 / 9);max-width:calc(100vw - 64px)}
+  .hero-v{--hv-frame-h:min(calc(min(1400px,100vw) * 9 / 16),calc(100svh - var(--header-height,68px) - 150px))}
+  .hv-media-track{height:calc(var(--hv-frame-h) + 120px + 100vh)}
+  .hv-media{position:sticky;top:calc(var(--header-height,68px) + (100svh - var(--header-height,68px) - var(--hv-frame-h) - 120px) / 2);width:calc(var(--hv-frame-h) * 16 / 9);max-width:100vw}
   .hv-frame{height:var(--hv-frame-h)}
+  .hv-caption{margin-top:-64px;position:relative;z-index:1;padding-inline:clamp(16px,6%,96px)}
+  .hv-progress,.hv-media figcaption{margin-inline:clamp(16px,6%,96px)}
 }
 /* Бегущие ленты */
 .marquee{overflow:hidden;padding-block:18px;margin-block:clamp(32px,6vw,64px) 0}
@@ -416,9 +419,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
   .hero-v .hero-actions .button{flex:1 1 100%}
   .hero-v .hero-appointment{justify-content:flex-start}
   .hv-media-track{margin-top:24px}
-  .hv-frame{border-radius:22px}
+  .hv-frame{-webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 60%,transparent 100%)}
   .hv-media figcaption{display:none}
-  .hv-caption{left:14px;right:14px;bottom:12px}
+  .hv-caption{margin-top:0}
   .hv-chapters{min-height:44px}
   .hv-chapters strong{font-size:1.2rem}
   .marquee{padding-block:12px}

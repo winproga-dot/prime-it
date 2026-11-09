@@ -22,13 +22,12 @@ export default function Hero({ message, context }) {
           <img className="hv-poster" src={frameUrl('d', 0)} srcSet={frameUrl('m', 0) + ' 640w, ' + frameUrl('d', 0) + ' 1280w'}
             sizes="(max-width: 899px) 100vw, 1200px" width="1280" height="720" alt="Сборка игрового компьютера в PRIME IT" fetchpriority="high" decoding="async" />
           <canvas aria-hidden="true" />
-          <div className="hv-shade" aria-hidden="true" />
-          <div className="hv-caption" aria-hidden="true">
-            <div className="hv-chapters">{chapters.map((item, i) => <p key={item.label} data-chapter={i} className={i === 0 ? 'is-active' : ''}><span className="mono">{String(i + 1).padStart(2, '0')} / {item.label}</span><strong>{item.title}</strong></p>)}</div>
-            <span className="hv-counter mono">{String(1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}</span>
-          </div>
-          <div className="hv-progress" aria-hidden="true"><i /></div>
         </div>
+        <div className="hv-caption" aria-hidden="true">
+          <div className="hv-chapters">{chapters.map((item, i) => <p key={item.label} data-chapter={i} className={i === 0 ? 'is-active' : ''}><span className="mono">{String(i + 1).padStart(2, '0')} / {item.label}</span><strong>{item.title}</strong></p>)}</div>
+          <span className="hv-counter mono">{String(1).padStart(2, '0')} / {String(chapters.length).padStart(2, '0')}</span>
+        </div>
+        <div className="hv-progress" aria-hidden="true"><i /></div>
         <figcaption className="mono"><span><Icon name="ChevronDown" size={15} /> Прокрутите — соберём компьютер</span>
           <a href="/sborka-kompyutera-almaty/">Сборка ПК <Icon name="ArrowUpRight" size={15} /></a></figcaption>
       </figure>
