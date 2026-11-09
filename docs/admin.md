@@ -25,8 +25,8 @@
 
 ## Настройка в Vercel (один раз)
 Project `prime-it-1` → Settings:
-1. **Storage → Create → Blob** → подключить к проекту (Production + Preview). Переменная
-   `BLOB_READ_WRITE_TOKEN` добавится сама.
+1. **Storage → Create → Blob** (Access: **Public**) → подключить к проекту (Production + Preview).
+   Переменная `BLOB_STORE_ID` (или `BLOB_READ_WRITE_TOKEN` у старых хранилищ) добавится сама.
 2. **Settings → Git → Deploy Hooks** → имя `admin`, ветка `main` → Create → скопировать адрес.
 3. **Settings → Environment Variables** (Production):
    - `ADMIN_PASSWORD` — пароль админки (не короче 10 символов, лучше 16+);

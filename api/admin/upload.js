@@ -24,5 +24,6 @@ export async function POST(request) {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const type = detect(bytes);
   if (!type) return json({ error: 'Нужен JPEG, PNG или WebP' }, 415);
-  return json({ ok: true, url: await store.saveImage(bytes, type[0], type[1]) });
+  try { return json({ ok: true, url: await store.saveImage(bytes, type[0], type[1]) }); }
+  catch (error) { console.error('UPLOAD_FAILED', error); return json({ error: 'Не удалось сохранить файл: ' + error.message }, 502); }
 }

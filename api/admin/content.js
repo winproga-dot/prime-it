@@ -9,7 +9,8 @@ export async function GET(request) {
   if (denied) return denied;
   const store = getStore();
   if (!store) return json({ error: 'Хранилище не подключено' }, 503);
-  return json({ content: await store.readContent(), storage: store.kind });
+  try { return json({ content: await store.readContent(), storage: store.kind }); }
+  catch (error) { console.error('CONTENT_READ_FAILED', error); return json({ error: 'Хранилище недоступно: ' + error.message }, 502); }
 }
 
 export async function PUT(request) {
@@ -22,7 +23,8 @@ export async function PUT(request) {
   try { body = await request.json(); } catch { return json({ error: 'Неверный формат данных' }, 400); }
   const { content, errors } = validateContent(body?.content);
   if (errors.length) return json({ error: 'Проверьте поля', errors }, 422);
-  await store.saveContent(content);
+  try { await store.saveContent(content); }
+  catch (error) { console.error('CONTENT_SAVE_FAILED', error); return json({ error: 'Не удалось сохранить в хранилище: ' + error.message }, 502); }
   const publish = await triggerPublish();
   return json({ ok: true, content, publish });
 }

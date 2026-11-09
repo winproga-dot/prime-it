@@ -1,5 +1,5 @@
-// Хранилище правок. На Vercel — Vercel Blob (переменная BLOB_READ_WRITE_TOKEN
-// появляется автоматически после подключения Blob-хранилища к проекту).
+// Хранилище правок. На Vercel — Vercel Blob: после подключения хранилища к проекту
+// появляется BLOB_STORE_ID (вход через OIDC) или BLOB_READ_WRITE_TOKEN (старые хранилища).
 // Для локальной разработки и автотестов — папка CONTENT_STORE_DIR.
 // Каждое сохранение — новый неизменяемый файл (история версий), читается последний.
 import { mkdir, readdir, readFile, writeFile, unlink } from 'node:fs/promises';
@@ -77,7 +77,8 @@ function fileStore(root) {
 }
 
 export function getStore() {
-  if (process.env.BLOB_READ_WRITE_TOKEN) return blobStore();
+  // Новые хранилища Vercel Blob подключаются без ключа: BLOB_STORE_ID + OIDC-токен Vercel.
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) return blobStore();
   if (process.env.CONTENT_STORE_DIR) return fileStore(process.env.CONTENT_STORE_DIR);
   return null;
 }
