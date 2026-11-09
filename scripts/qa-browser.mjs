@@ -83,6 +83,8 @@ try {
         await page.goto(server.url,{waitUntil:'networkidle'});
         const screenshot = await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
         await writeFile('.qa/home-' + width + '.webp',screenshot);
+        // Контраст проверяем после появления текста (анимации входа), бесконечные ленты не ждём.
+        await page.waitForFunction(()=>document.getAnimations().every(a=>a.playState!=='running' || a.effect?.getTiming().iterations===Infinity),null,{timeout:10000});
         const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         await writeFile('.qa/axe-home-' + width + '.json',JSON.stringify(axe,null,2));
         if(width === 1366) {
