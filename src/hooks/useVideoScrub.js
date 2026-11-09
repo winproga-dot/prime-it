@@ -4,7 +4,8 @@ import { useEffect, useRef } from 'react';
 // от прокрутки. Работает одинаково в Chrome, Safari и Firefox и не зависит от
 // настройки «уменьшить анимацию»: картинка меняется только когда человек сам
 // прокручивает страницу. Длина прокрутки — около одного экрана.
-export const FRAME_COUNT = 121;
+// 81 кадр (каждый 3-й кадр видео): плавно и в ~3 раза меньше памяти, важно для iPhone.
+export const FRAME_COUNT = 81;
 export const PIN_QUERY = '(min-width: 900px) and (min-height: 500px)';
 export const frameUrl = (set, index) => '/hero-frames/' + set + '/' + String(index + 1).padStart(3, '0') + '.webp';
 export const chapters = [
@@ -32,8 +33,8 @@ export default function useVideoScrub() {
     if (!root) return;
     // Режим «закреплён весь первый экран» — только если он помещается по высоте.
     const pinned = () => window.matchMedia(PIN_QUERY).matches;
-    const track = () => root.querySelector(pinned() ? '[data-scrub-desktop]' : '[data-scrub-mobile]');
-    const sticky = () => root.querySelector(pinned() ? '.hv-pin' : '.hv-media');
+    const track = () => root.querySelector('.hv-media-track');
+    const sticky = () => root.querySelector('.hv-media');
     const canvas = root.querySelector('canvas');
     const context = canvas.getContext('2d');
     const bar = root.querySelector('.hv-progress i');
@@ -82,12 +83,30 @@ export default function useVideoScrub() {
       root.dataset.progress = current.toFixed(3);
       root.dataset.settled = String(current === target);
     };
+    // Диапазон прокрутки, на котором проигрывается видео.
+    // ПК: весь первый экран закреплён, видео идёт ~1 экран.
+    // Телефон: без закрепления — видео проигрывается, пока карточка проезжает
+    // от низа экрана до шапки, и страница не становится длиннее.
+    const range = () => {
+      const docTop = node => node.getBoundingClientRect().top + window.scrollY;
+      if (pinned()) {
+        const area = track(), pin = sticky();
+        const start = docTop(area) - (parseFloat(getComputedStyle(pin).top) || 0);
+        return [start, start + Math.max(1, area.offsetHeight - pin.offsetHeight)];
+      }
+      const frame = root.querySelector('.hv-frame');
+      const styles = getComputedStyle(document.documentElement);
+      const header = parseFloat(styles.getPropertyValue('--header-height')) || 60;
+      const bar = parseFloat(styles.getPropertyValue('--mobile-action-height')) || 0;
+      const top = docTop(frame), height = frame.offsetHeight;
+      const start = Math.max(0, top + height - (window.innerHeight - bar));
+      const end = Math.max(start + height, top - header - 8);
+      return [start, end];
+    };
     const measure = () => {
-      const area = track(); const pin = sticky();
-      if (!area || !pin) return 0;
-      const top = parseFloat(getComputedStyle(pin).top) || 0;
-      const distance = area.offsetHeight - pin.offsetHeight;
-      return distance > 0 ? clamp((top - area.getBoundingClientRect().top) / distance) : 0;
+      const [start, end] = range();
+      root.dataset.rangeStart = String(Math.round(start)); root.dataset.rangeEnd = String(Math.round(end));
+      return clamp((window.scrollY - start) / (end - start));
     };
     // Сглаживание по времени (≈90 мс), а не по кадрам: одинаково на 60/120 Гц
     // и в браузерах, которые реже вызывают requestAnimationFrame.
@@ -110,8 +129,13 @@ export default function useVideoScrub() {
       const worker = async () => {
         while (!disposed && cursor < order.length) {
           const index = order[cursor++];
-          const image = new Image(); image.decoding = 'async'; image.src = frameUrl(set, index);
-          try { await image.decode(); } catch { /* пропущенный кадр заменит соседний */ }
+          const image = new Image(); image.decoding = 'async';
+          // onload + таймаут: зависший кадр не блокирует остальные (его заменит соседний).
+          await new Promise(resolve => {
+            const timer = setTimeout(resolve, 8000);
+            image.onload = image.onerror = () => { clearTimeout(timer); resolve(); };
+            image.src = frameUrl(set, index);
+          });
           frames[index] = image;
           if (Math.abs(index - Math.round(current * (FRAME_COUNT - 1))) < 3 || index === 0) { drawn = -1; draw(); }
         }

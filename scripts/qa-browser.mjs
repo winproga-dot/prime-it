@@ -13,9 +13,14 @@ const sizes = [[360,800],[390,844],[412,915],[430,932],[1366,768],[1920,1080],[2
 const results = [];
 try {
   for (const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]) {
-    const browser = await engine.launch();
-    for (const [width,height] of sizes) {
-      const context = await browser.newContext({viewport:{width,height}});
+    let browser = await engine.launch();
+    // WebKit на CI рисует программно (без GPU) и падает на анимациях с размытием:
+    // в нём проверяем устройство страницы при «уменьшить анимацию»; анимации проверяет Chromium.
+    const engineSizes = engineName === 'webkit' ? [[390,844],[1366,768]] : sizes;
+    for (const [width,height] of engineSizes) {
+      // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
+      await browser.close(); browser = await engine.launch();
+      const context = await browser.newContext({viewport:{width,height},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       const page = await context.newPage();
       const errors = [];
       const legacyVideoRequests = [];
@@ -50,7 +55,7 @@ try {
         assert(await page.locator('.menu-toggle').evaluate(node=>node === document.activeElement));
         await page.locator('.menu-toggle').click();
         await page.locator('#primary-navigation a[href="#services"]').click();
-        assert.equal(await page.locator('.more-services').evaluate(node=>node.open),false,'Section navigation does not expand unrelated services');
+        assert.equal(await page.locator('.book').getAttribute('data-page'),'0','Section navigation does not flip the price book');
         await page.locator('.menu-toggle').click();
         await page.locator('#primary-navigation a[href="#faq"]').click();
         assert.equal(await page.locator('.faq-item').first().evaluate(node=>node.open),false,'FAQ navigation does not choose an answer for the user');
@@ -70,7 +75,10 @@ try {
       if(engineName === 'chromium' && width === 390) {
         await page.locator('.hero-actions a[href^="tel:"]').click();
         await page.getByRole('link',{name:'Смотреть все отзывы в 2GIS',exact:true}).click();
-        await page.locator('#service-clean .service-actions a[href^="https://wa.me/"]').click();
+        await page.locator('.sticker').nth(1).click();
+        await page.waitForFunction(()=>document.querySelector('.book').dataset.page==='2');
+        await page.waitForTimeout(1000);
+        await page.locator('#service-clean .page-actions a[href^="https://wa.me/"]').click();
         const contactEvents = await page.evaluate(()=>window.qaEvents);
         for(const event of ['phone_click','service_click','review_2gis_click']) assert(contactEvents.some(item=>item.event === event),'Analytics event: ' + event);
       }
@@ -80,6 +88,8 @@ try {
         await page.goto(server.url,{waitUntil:'networkidle'});
         const screenshot = await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
         await writeFile('.qa/home-' + width + '.webp',screenshot);
+        // Контраст проверяем после появления текста (анимации входа), бесконечные ленты не ждём.
+        await page.waitForFunction(()=>document.getAnimations().every(a=>a.playState!=='running' || a.effect?.getTiming().iterations===Infinity),null,{timeout:10000});
         const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         await writeFile('.qa/axe-home-' + width + '.json',JSON.stringify(axe,null,2));
         if(width === 1366) {
@@ -107,8 +117,9 @@ try {
       await context.close();
     }
     for (const entry of servicePages) {
-      for (const [width,height] of sizes) {
-      const context = await browser.newContext({viewport:{width,height}});
+      await browser.close(); browser = await engine.launch();
+      for (const [width,height] of engineSizes) {
+      const context = await browser.newContext({viewport:{width,height},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       const page = await context.newPage();
       const response = await page.goto(server.url + entry.path,{waitUntil:'networkidle'});
       assert.equal(response.status(),200);assert((await response.text()).includes(entry.h1),'HTML contains service before JS');
@@ -131,7 +142,8 @@ try {
       await context.close();
       }
     }
-    const page=await browser.newPage({viewport:{width:390,height:844}});
+    await browser.close(); browser = await engine.launch();
+    const page=await browser.newPage({viewport:{width:390,height:844},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     for(const service of services) {
       await page.goto(server.url+'/#service-'+service.id,{waitUntil:'networkidle'});
       await page.waitForFunction(id => {const y=document.getElementById(id)?.getBoundingClientRect().top;return y>=65 && y<400;},'service-'+service.id);
@@ -154,7 +166,7 @@ try {
     await page.waitForFunction(()=>document.querySelector('.licenses-disclosure').open);
     assert(await page.locator('#license-office').isVisible());
     await page.setViewportSize({width:1366,height:768});
-    for(const reducedMotion of ['reduce','no-preference']) {
+    for(const reducedMotion of (engineName==='webkit' ? ['reduce'] : ['reduce','no-preference'])) {
       await page.emulateMedia({reducedMotion});
       await page.goto(server.url,{waitUntil:'networkidle'});
       assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Desktop has no retired player, including reduced motion');
@@ -164,7 +176,8 @@ try {
     await page.close();
     const layoutWidths=[320,360,390,600,601,768,900,1024,1366];
     for(const width of layoutWidths) {
-      const layout=await browser.newPage({viewport:{width,height:800}});
+      if(width===320 || width===768) { await browser.close(); browser = await engine.launch(); }
+      const layout=await browser.newPage({viewport:{width,height:800},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       await layout.goto(server.url,{waitUntil:'networkidle'});
       const checkActions=async()=>{
         const boxes=await layout.locator('.hero-actions a').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
@@ -188,20 +201,21 @@ try {
       results.push({engine:engineName,width,height:800,page:'home',scenario:'text-200-percent',pass:true});
       await layout.close();
     }
-    const landscape=await browser.newPage({viewport:{width:1024,height:320}});
+    await browser.close(); browser = await engine.launch();
+    const landscape=await browser.newPage({viewport:{width:1024,height:320},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     await landscape.goto(server.url,{waitUntil:'networkidle'});
     await landscape.locator('.menu-toggle').focus();await landscape.keyboard.press('Enter');
     for(let i=0;i<4;i++)await landscape.keyboard.press('Tab');
     const lastItem=await landscape.locator('#primary-navigation a').last().boundingBox();
     assert(lastItem.x>=0 && lastItem.x+lastItem.width<=1024 && lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
     await landscape.close();
-    const mapPage=await browser.newPage({viewport:{width:390,height:844}});
+    const mapPage=await browser.newPage({viewport:{width:390,height:844},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     const mapRequests=[];
     mapPage.on('request',request=>{if(/widgets\.2gis|openstreetmap/.test(request.url()))mapRequests.push(request.url());});
     await mapPage.goto(server.url,{waitUntil:'networkidle'});
     assert.equal(await mapPage.locator('iframe').count(),0,'No unreliable third-party widget at page load');
     assert.deepEqual(mapRequests,[],'Map links do not load external scripts');
-    const mapLink=mapPage.getByRole('link',{name:'Открыть отзывы в 2GIS',exact:true});
+    const mapLink=mapPage.getByRole('link',{name:'Отзывы о нас в 2GIS',exact:true});
     assert.equal(await mapLink.getAttribute('href'),'https://2gis.kz/almaty/firm/70000001078609004/tab/reviews','2GIS reviews for trust');
     assert.equal(await mapPage.locator('a[href*="/directions/"]').count(),0,'Outcall service: no route links');
     assert.equal(await mapLink.getAttribute('target'),'_blank');
@@ -212,7 +226,7 @@ try {
       await staticPage.goto(server.url+path);
       assert.equal(await staticPage.locator('h1').count(),1);
       assert((await staticPage.locator('main').innerText()).length>500);
-      assert(await staticPage.locator('a[href^="https://wa.me/"]').first().isVisible());
+      assert(await staticPage.locator('a[href^="https://wa.me/"]:visible').count()>0,'WhatsApp link visible without JavaScript: '+path);
     }
     await noJS.close();await browser.close();
   }

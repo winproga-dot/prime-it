@@ -10,5 +10,5 @@ export default function Footer() {
     <p className="footer-legal">{brand.legalName} · {brand.taxIdLabel} {brand.taxId} · Юр. адрес: {brand.address} · {brand.phoneDisplay} · {brand.email}<br />
       {legalPages.map(page => <span key={page.path}><a href={page.path}>{page.breadcrumb}</a>{' · '}</span>)}
       {consentRequired ? <button type="button" onClick={openConsentSettings}>Настройки cookie</button> : <span>Сайт не использует рекламные cookie</span>}</p>
-  </div></footer>;
+  </div><p className="footer-wordmark" aria-hidden="true">PRIME IT®</p></footer>;
 }

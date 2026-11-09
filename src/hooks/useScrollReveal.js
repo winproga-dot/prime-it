@@ -22,17 +22,29 @@ export default function useScrollReveal(rootRef) {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           observer.unobserve(entry.target);
-          const delay = Math.min(Number(entry.target.dataset.revealOrder || 0) * 65, 195);
+          if (entry.target.hasAttribute('data-split')) {
+            // Пословно: 40px вверх и размытие 10px, шаг 45 мс (как у Work Louder).
+            entry.target.querySelectorAll('.w').forEach((word, i) => {
+              const a = word.animate([
+                { opacity: 0, transform: 'translate3d(0, 40px, 0)', filter: 'blur(10px)' },
+                { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0px)' },
+              ], { duration: 900, delay: i * 45, easing: 'cubic-bezier(.19,1,.22,1)', fill: 'backwards' });
+              animations.add(a); const done = () => animations.delete(a); a.finished.then(done, done);
+            });
+            continue;
+          }
+          // Как у Mobbin: подъём на 16px с размытием 4px, 1 с, easeOutExpo.
+          const delay = Math.min(Number(entry.target.dataset.revealOrder || 0) * 80, 240);
           const animation = entry.target.animate([
-            { opacity: 0, transform: 'translate3d(0, 18px, 0)' },
-            { opacity: 1, transform: 'translate3d(0, 0, 0)' },
-          ], { duration: 560, delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+            { opacity: 0, transform: 'translate3d(0, 16px, 0)', filter: 'blur(4px)' },
+            { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0px)' },
+          ], { duration: 1000, delay, easing: 'cubic-bezier(.19,1,.22,1)', fill: 'backwards' });
           animations.add(animation);
           const remove = () => animations.delete(animation);
           animation.finished.then(remove, remove);
         }
       }, { threshold: .08 });
-      root.querySelectorAll('[data-reveal]').forEach(node => observer.observe(node));
+      root.querySelectorAll('[data-reveal],[data-split]').forEach(node => observer.observe(node));
     };
     setup();
     preference.addEventListener('change', setup);

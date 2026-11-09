@@ -15,16 +15,16 @@
     "qa:lighthouse": "node scripts/lighthouse.mjs"
   },
   "dependencies": {
+    "lucide-react": "^0.453.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.453.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "vite": "^7.1.7",
-    "@vitejs/plugin-react": "^5.0.4",
-    "sharp": "^0.35.5",
-    "playwright": "^1.55.1",
     "@axe-core/playwright": "^4.10.2",
-    "lighthouse": "^13.5.0"
+    "@vitejs/plugin-react": "^5.0.4",
+    "lighthouse": "^13.5.0",
+    "playwright": "^1.55.1",
+    "sharp": "^0.35.5",
+    "vite": "^7.1.7"
   }
 }
