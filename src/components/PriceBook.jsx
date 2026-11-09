@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { services } from '../data/services.js';
+import { services as baseServices } from '../data/services.js';
+import { getContent, getServices, imageUrl } from '../data/content.js';
 import { messages } from '../utils/whatsapp.js';
 import { priceLabel } from './ServiceCard.jsx';
 import ContactLink from './ContactLink.jsx';
@@ -13,14 +14,14 @@ import SplitWords from './SplitWords.jsx';
 //
 // Листы: front(L0) — обложка, back(Lk) — фото услуги k, front(Lk) (k ≥ 1) — детали услуги k-1.
 // Когда перевёрнуто f листов: слева back(L f-1) = фото услуги f-1, справа front(L f) = её детали.
-const count = services.length;
+const count = baseServices.length;
 const short = { repair: 'Ремонт', clean: 'Чистка', winms: 'Windows', data: 'Данные', gpu_service: 'Видеокарты', parts: 'Матрица',
   hinge: 'Петли', speedup: 'SSD и ОЗУ', build: 'Сборка ПК', soft: 'Программы', misc: 'Другое', battery: 'Батарея', sale: 'Подбор ПК' };
 
 function Details({ service, index }) {
   return <div className="page-details" id={'service-' + service.id}>
     <span className="mono page-num">{String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}</span>
-    <img className="page-thumb" src={'/media/' + service.image + '-640.webp'} width="640" height="400" alt="" loading="lazy" decoding="async" />
+    <img className="page-thumb" src={imageUrl(service.image, 640)} width="640" height="400" alt="" loading="lazy" decoding="async" />
     <h3>{service.path ? <a href={service.path}>{service.title}</a> : service.title}</h3>
     <p>{service.description}</p>
     <strong className="page-price">{priceLabel(service)}</strong>
@@ -33,6 +34,8 @@ function Details({ service, index }) {
 }
 
 export default function PriceBook() {
+  const services = getServices();
+  const pricing = getContent().pricing;
   // page: 0 — обложка, 1..count — услуги; from — откуда листали (для поочерёдного переворота листов)
   const [{ page, from }, setState] = useState({ page: 0, from: 0 });
   const bookRef = useRef(null);
@@ -50,7 +53,7 @@ export default function PriceBook() {
       const params = new URLSearchParams(window.location.search);
       if (!id && (params.get('service') || params.get('s'))) id = 'service-' + (params.get('service') || params.get('s'));
       const match = id.replace(/-calc$/, '').match(/^service-(.+)$/);
-      const index = match ? services.findIndex(service => service.id === match[1]) : -1;
+      const index = match ? baseServices.findIndex(service => service.id === match[1]) : -1;
       if (index >= 0) go(index + 1);
     };
     open();
@@ -78,8 +81,8 @@ export default function PriceBook() {
   };
 
   return <section className="section container price-book" id="pricing" aria-labelledby="pricing-title">
-    <div className="section-heading"><div><p className="eyebrow">Прайс</p><SplitWords as="h2" id="pricing-title" text="Все услуги и цены" />
-      <p>Ведите мышью по стикерам — журнал листается. Цены «от» за работу, диагностика — бесплатно.</p></div></div>
+    <div className="section-heading"><div><p className="eyebrow">Прайс</p><SplitWords as="h2" id="pricing-title" text={pricing.title} />
+      <p>{pricing.subtitle}</p></div></div>
 
     <div className="book-wrap">
       <button type="button" className="book-arrow book-arrow--prev" onClick={() => go(page - 1)} disabled={page === 0} aria-label="Предыдущая страница"><Icon name="ArrowRight" size={20} /></button>
@@ -106,7 +109,7 @@ export default function PriceBook() {
               </div> : <Details service={services[k - 1]} index={k - 1} />}
             </div>
             <div className="leaf-back" aria-hidden="true">
-              {k < count ? <img src={'/media/' + services[k].image + '-960.webp'} width="960" height="600" alt="" loading="lazy" decoding="async" />
+              {k < count ? <img src={imageUrl(services[k].image)} width="960" height="600" alt="" loading="lazy" decoding="async" />
                 : <div className="book-cover book-cover--back"><strong>Мастер приедет сам.</strong></div>}
               {k < count && <span className="mono leaf-tag">{short[services[k].id]}</span>}
             </div>

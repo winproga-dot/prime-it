@@ -1,3 +1,4 @@
+import { getContent } from '../data/content.js';
 import SplitWords from './SplitWords.jsx';
 import { brand } from '../data/brand.js';
 import { messages } from '../utils/whatsapp.js';
@@ -9,7 +10,7 @@ export default function Location({ message = messages.contact, context }) {
     <div className="location-panel" data-reveal>
       <div className="location-copy">
         <p className="eyebrow"><span className="status-dot" /> {brand.serviceType}</p>
-        <SplitWords as="h2" id="location-title" text={['Сломался компьютер? ', { text: 'Мастер приедет сам.', className: 'accent' }]} />
+        <SplitWords as="h2" id="location-title" text={[getContent().cta.title, { text: getContent().cta.accent, className: 'accent' }]} />
         <p className="location-lead">{brand.serviceArea}. {brand.hours}. Диагностика — бесплатно.</p>
         <div className="location-actions">
           <ContactLink type="phone" className="button button-primary" location="location" context={context}>Позвонить {brand.phoneDisplay}</ContactLink>

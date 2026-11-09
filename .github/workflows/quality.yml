@@ -38,6 +38,8 @@ jobs:
         run: node scripts/qa-motion.mjs || node scripts/qa-motion.mjs
       - name: Browser, mobile and accessibility QA
         run: npm run qa:browser || npm run qa:browser
+      - name: Admin panel scenario (login, edit, publish, logout, protection)
+        run: npm run qa:admin
       - name: Lighthouse on production build
         if: success()
         run: npm run qa:lighthouse

@@ -9,3 +9,5 @@ public/apple-touch-icon.png
 .qa/
 .audit/
 .DS_Store
+src/data/content.generated.json
+.admin-store/

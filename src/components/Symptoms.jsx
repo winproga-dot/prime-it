@@ -1,3 +1,4 @@
+import { getContent } from '../data/content.js';
 import SplitWords from './SplitWords.jsx';
 import { useEffect, useState } from 'react';
 import { track } from '../utils/analytics.js';
@@ -30,8 +31,8 @@ export default function Symptoms({ selected = '', onSelect }) {
   const hint = selected && hints[selected];
   return <section className="section container" id="estimate" aria-labelledby="symptoms-title">
     <div className="symptoms-panel" data-reveal>
-      <div className="section-heading"><div><p className="eyebrow">Начнём с вашей проблемы</p><SplitWords as="h2" id="symptoms-title" text="Что случилось с устройством?" />
-        <p>Выберите симптом — подскажем вероятную причину и цену.</p></div>
+      <div className="section-heading"><div><p className="eyebrow">Начнём с вашей проблемы</p><SplitWords as="h2" id="symptoms-title" text={getContent().symptoms.title} />
+        <p>{getContent().symptoms.subtitle}</p></div>
       </div>
       <div className="symptom-grid" role="group" aria-label="Выберите проблему устройства">
         {symptoms.map(([icon,label]) => <button key={label} className={'symptom-button ' + (selected === label ? 'selected' : '')}
