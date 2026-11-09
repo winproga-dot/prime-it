@@ -4,7 +4,6 @@ import AxeBuilder from '@axe-core/playwright';
 import sharp from 'sharp';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { startServer } from './serve-build.mjs';
-import { evidenceBlob } from './evidence.mjs';
 import { servicePages, services } from '../src/data/services.js';
 import { licenses } from '../src/data/licenses.js';
 import { greeting } from '../src/utils/whatsapp.js';
@@ -82,27 +81,26 @@ try {
         await page.goto(server.url,{waitUntil:'networkidle'});
         const screenshot = await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
         await writeFile('.qa/home-' + width + '.webp',screenshot);
-        await evidenceBlob('home-' + width,screenshot);
         const axe = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         await writeFile('.qa/axe-home-' + width + '.json',JSON.stringify(axe,null,2));
         if(width === 1366) {
           await page.locator('#services').scrollIntoViewIfNeeded();
           const servicesImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
-          await writeFile('.qa/services-desktop.webp',servicesImage);await evidenceBlob('services-desktop',servicesImage);
+          await writeFile('.qa/services-desktop.webp',servicesImage);
         }
         if(width === 390) {
           await page.locator('#estimate').scrollIntoViewIfNeeded();
           const symptomImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
-          await writeFile('.qa/symptoms-mobile.webp',symptomImage);await evidenceBlob('symptoms-mobile',symptomImage);
+          await writeFile('.qa/symptoms-mobile.webp',symptomImage);
           await page.locator('#contact').scrollIntoViewIfNeeded();
           const contactImage=await sharp(await page.screenshot({fullPage:false})).webp({quality:78}).toBuffer();
-          await writeFile('.qa/location-mobile.webp',contactImage);await evidenceBlob('location-mobile',contactImage);
+          await writeFile('.qa/location-mobile.webp',contactImage);
         }
         await page.locator('#reviews').scrollIntoViewIfNeeded();
         await page.waitForFunction(()=>Array.from(document.querySelectorAll('.review-avatar')).every(image=>image.tagName !== 'IMG' || image.complete && image.naturalWidth>0));
         assert.equal(await page.locator('.review-avatar').count(),3);
         const reviewsImage=await sharp(await page.locator('#reviews').screenshot({style:'.site-header,.mobile-action-bar,.skip-link{visibility:hidden!important}'})).webp({quality:78}).toBuffer();
-        await writeFile('.qa/reviews-' + width + '.webp',reviewsImage);await evidenceBlob('reviews-' + width,reviewsImage);
+        await writeFile('.qa/reviews-' + width + '.webp',reviewsImage);
         assert.equal(axe.violations.length,0,'Accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,impact:item.impact,nodes:item.nodes.map(node=>({target:node.target,summary:node.failureSummary}))}))));
       }
       assert.deepEqual(errors,[],'Browser errors: ' + engineName + ' ' + width);
@@ -128,7 +126,7 @@ try {
         const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length,0,'Service accessibility: ' + JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(node=>node.failureSummary)}))));
         const screenshot=await sharp(await page.screenshot({fullPage:true})).resize(390).webp({quality:70}).toBuffer();
-        await writeFile('.qa/service-mobile.webp',screenshot);await evidenceBlob('service-mobile',screenshot);
+        await writeFile('.qa/service-mobile.webp',screenshot);
       }
       results.push({engine:engineName,width,height,page:entry.path,pass:true});
       await context.close();

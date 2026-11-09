@@ -4,7 +4,6 @@ import AxeBuilder from '@axe-core/playwright';
 import sharp from 'sharp';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { startServer } from './serve-build.mjs';
-import { evidenceBlob } from './evidence.mjs';
 
 const server=await startServer();
 await mkdir('.qa',{recursive:true});
@@ -54,7 +53,6 @@ try {
         await page.waitForTimeout(300);
         const screenshot=await sharp(await page.screenshot()).webp({quality:82}).toBuffer();
         await writeFile('.qa/process-compact-'+width+'.webp',screenshot);
-        await evidenceBlob('process-compact-'+width,screenshot);
         const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length,0,JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(n=>n.failureSummary)}))));
       }

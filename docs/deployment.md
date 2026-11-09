@@ -31,3 +31,16 @@ These measures make the site understandable and crawlable; rankings depend on se
 
 ## QA scope
 CI tests the production output in Chromium and WebKit at 360×800, 390×844, 412×915, 430×932, 1366×768, 1920×1080 and 2560×1440; checks all service URLs, semantic headings, contact URLs, historic service/license anchors, reduced motion, keyboard menu controls and rendered content with JavaScript disabled. Automated axe checks complement visual review. Lighthouse is a lab measurement, not field INP or a guarantee of scores after deployment.
+
+## Vercel (production)
+1. Project → Settings → Git: Production Branch = `main`.
+2. Build settings берутся из `vercel.json` (Vite, `npm ci`, `npm run build`, `dist`). Node.js 22+.
+3. Domains: добавить `www.prime-it.kz` (основной) и `prime-it.kz` (редирект на www).
+
+## Аналитика
+1. **Vercel Web Analytics** (без cookie): Project → Analytics → Enable. Скрипт уже подключён (`/_vercel/insights/script.js`), данные появятся после следующего деплоя.
+2. **Яндекс Метрика**: metrika.yandex.ru → Добавить счётчик → сайт `www.prime-it.kz`, включить Вебвизор. Скопировать номер счётчика.
+3. **Google Analytics 4** (по желанию): analytics.google.com → Admin → Create property → Web stream → скопировать Measurement ID `G-…`.
+4. Vercel → Settings → Environment Variables (Production): `VITE_YANDEX_METRIKA_ID=<номер>`, `VITE_GA4_ID=G-…` → Redeploy.
+5. После этого на сайте появится баннер согласия на cookie; счётчики загружаются только после «Принять».
+6. В Метрике создать цели типа «JavaScript-событие» с идентификаторами: `whatsapp_click`, `phone_click`, `route_click`, `service_click`, `symptom_selected`, `review_2gis_click`.

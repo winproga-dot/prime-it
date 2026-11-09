@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { render, pageMeta, structuredData, routes } from '../.ssr/entry-server.js';
+import { render, pageMeta, structuredData, routes, legalRoutes } from '../.ssr/entry-server.js';
 const template = await readFile('dist/index.html','utf8');
 const escape = value => String(value).replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
 function head(path) {
@@ -28,7 +28,7 @@ function head(path) {
     '<script type="application/ld+json">' + schema + '</script>',
   ].join('\n    ');
 }
-for (const path of [...routes, '/404.html']) {
+for (const path of [...routes, ...legalRoutes, '/404.html']) {
   const html = template.replace(/<!--SEO_HEAD_START-->[\s\S]*?<!--SEO_HEAD_END-->/,head(path))
     .replace('<div id="root"></div>', '<div id="root" data-prerendered="true">' + render(path) + '</div>');
   if (html === template || !html.includes('data-prerendered="true"') || html.includes('SEO_HEAD_START')) throw new Error('HTML template replacement failed: ' + path);

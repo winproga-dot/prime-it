@@ -1,5 +1,10 @@
 export const brand = Object.freeze({
   name: 'PRIME IT',
+  // Реквизиты продавца (Закон РК «О защите прав потребителей», ст. 7 и 24).
+  // У ИП идентификатор — ИИН; БИН выдаётся юрлицам. Проверьте по свидетельству/уведомлению.
+  legalName: 'ИП PRIME IT',
+  taxIdLabel: 'ИИН',
+  taxId: '980718300908',
   city: 'Алматы',
   street: 'ул. Сатпаева, 105А',
   address: 'Алматы, ул. Сатпаева, 105А',
@@ -7,7 +12,9 @@ export const brand = Object.freeze({
   phoneTel: '+77076840625',
   whatsapp: '77076840625',
   email: 'prime.it.08@gmail.com',
-  hours: 'Без выходных, 10:00–20:00',
+  hours: 'Без выходных, 07:00–22:00',
+  opens: '07:00',
+  closes: '22:00',
   visitNotice: 'Приём по предварительному звонку.',
   visitDetails: 'Мастер может быть на выезде. Перед приездом согласуйте время по телефону.',
   url: 'https://www.prime-it.kz/',

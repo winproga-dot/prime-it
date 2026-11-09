@@ -1,6 +1,7 @@
 import { brand } from '../data/brand.js';
 import { servicePages, pageForPath } from '../data/services.js';
 import { faq } from '../data/faq.js';
+import { legalPages, legalPageForPath } from '../data/legal.js';
 export const homeMeta = {
   title: 'Ремонт компьютеров и ноутбуков в Алматы | PRIME IT',
   description: 'Ремонт компьютеров и ноутбуков в Алматы, в сервисе и с выездом. Бесплатная диагностика. PRIME IT — Сатпаева, 105А. Приём по предварительному звонку.',
@@ -8,6 +9,8 @@ export const homeMeta = {
 export function pageMeta(path) {
   const page = pageForPath(path);
   if (path === '/') return { ...homeMeta, canonical: brand.url, index: true, image: brand.url + 'og-image.jpg' };
+  const legal = legalPageForPath(path);
+  if (legal) return { title: legal.title, description: legal.description, canonical: new URL(legal.path, brand.url).href, index: false, image: brand.url + 'og-image.jpg' };
   if (page) return { title: page.title, description: page.description, canonical: new URL(page.path, brand.url).href, index: true, image: brand.url + 'og-image.jpg' };
   return { title: 'Страница не найдена | PRIME IT', description: 'Перейдите на главную страницу PRIME IT — компьютерного сервиса в Алматы.', index: false, image: brand.url + 'og-image.jpg' };
 }
@@ -22,7 +25,8 @@ export function structuredData(path) {
     address: { '@type': 'PostalAddress', streetAddress: brand.street, addressLocality: brand.city, addressCountry: 'KZ' },
     areaServed: { '@type': 'City', name: brand.city },
     openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => 'https://schema.org/' + day), opens:'10:00', closes:'20:00' }],
+      dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => 'https://schema.org/' + day), opens:brand.opens, closes:brand.closes }],
+    legalName: brand.legalName,
     ...(brand.twoGisUrl ? { sameAs: [brand.twoGisUrl] } : {}),
   };
   const displayedFaq = path === '/' ? faq : page?.faq;
@@ -38,3 +42,5 @@ export function structuredData(path) {
   return { '@context':'https://schema.org', '@graph':graph };
 }
 export const routes = ['/', ...servicePages.map(page => page.path)];
+// Правовые страницы пререндерятся, но не попадают в sitemap (noindex, follow).
+export const legalRoutes = legalPages.map(page => page.path);

@@ -4,7 +4,6 @@ import AxeBuilder from '@axe-core/playwright';
 import sharp from 'sharp';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { startServer } from './serve-build.mjs';
-import { evidenceBlob } from './evidence.mjs';
 
 const server=await startServer();
 await mkdir('.qa',{recursive:true});
@@ -78,7 +77,6 @@ try {
         if(name==='Chromium' && [390,1366].includes(width) && [0,.45,1].includes(fraction) && frames.length<3) {
           const frame=await sharp(await page.screenshot()).webp({quality:85}).toBuffer();frames.push(frame);
           await writeFile('.qa/scroll-hero-'+width+'-'+fraction+'.webp',frame);
-          await evidenceBlob('scroll-hero-'+width+'-'+fraction,frame);
         }
       }
       assert.notEqual(poses[1].transform,poses[2].transform,'Intermediate scrolling changes geometry');
@@ -103,7 +101,6 @@ try {
         const inputs=await Promise.all(frames.map(async(input,i)=>({input:await sharp(input).resize(width,height).toBuffer(),left:i*width,top:0})));
         const composite=await sharp({create:{width:width*3,height,channels:3,background:'#080d13'}}).composite(inputs).webp({quality:80}).toBuffer();
         await writeFile('.qa/scroll-sequence-'+width+'.webp',composite);
-        await evidenceBlob('scroll-sequence-'+width,composite);
         const axe=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();
         assert.equal(axe.violations.length,0,JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(n=>n.failureSummary)}))));
       }
@@ -147,7 +144,6 @@ try {
   if(activePage && !activePage.isClosed()) {
     const frame=await sharp(await activePage.screenshot()).webp({quality:85}).toBuffer();
     await writeFile('.qa/scroll-scene-failure.webp',frame);
-    await evidenceBlob('scroll-scene-failure',frame);
     console.log('SCENE_FAILURE_LAYOUT',await activePage.evaluate(()=>({scrollY,viewport:[innerWidth,innerHeight],hero:document.getElementById('hero')?.outerHTML.slice(0,400),copy:document.querySelector('.hero-copy')?.getBoundingClientRect().toJSON(),scene:document.querySelector('.scroll-visual')?.getBoundingClientRect().toJSON(),ancestors:Array.from(document.querySelectorAll('html,body,main,.hero-story,.hero-pin,.scroll-visual')).map(node=>{const css=getComputedStyle(node);return {tag:node.tagName,className:node.className,rect:node.getBoundingClientRect().toJSON(),position:css.position,top:css.top,overflow:css.overflow,pseudoHeight:getComputedStyle(node,'::after').height}})})));
   }
   throw error;
