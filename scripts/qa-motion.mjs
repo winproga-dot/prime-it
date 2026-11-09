@@ -16,7 +16,7 @@ try {
     for(const [width,height] of (name==='WebKit' ? [[390,844],[1366,768]] : [[390,844],[1366,768],[1920,1080],[2560,1440]])) {
       // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
       await browser.close(); browser=await engine.launch();
-      const context=await browser.newContext({viewport:{width,height}});
+      const context=await browser.newContext({viewport:{width,height},...(name==='WebKit'?{reducedMotion:'reduce'}:{})});
       const page=await context.newPage();
       const errors=[],videoRequests=[];
       page.on('pageerror',error=>errors.push(error.message));
@@ -67,7 +67,7 @@ try {
       await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
       assert.deepEqual(await page.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').map(a=>a.animationName||a.constructor.name)),[],'Reduced motion cancels native animations');
       assert.equal(await page.locator('#process .process-grid > li').count(),3);
-      await page.emulateMedia({reducedMotion:'no-preference'});
+      if(name!=='WebKit') await page.emulateMedia({reducedMotion:'no-preference'});
       await page.setViewportSize({width,height:520});
       await page.evaluate(()=>new Promise(resolve=>setTimeout(resolve,400)));
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);

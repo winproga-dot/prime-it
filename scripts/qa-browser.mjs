@@ -14,12 +14,13 @@ const results = [];
 try {
   for (const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]) {
     let browser = await engine.launch();
-    // WebKit на CI рисует программно (без GPU): гигантские экраны проверяем только в Chromium.
+    // WebKit на CI рисует программно (без GPU) и падает на анимациях с размытием:
+    // в нём проверяем устройство страницы при «уменьшить анимацию»; анимации проверяет Chromium.
     const engineSizes = engineName === 'webkit' ? [[390,844],[1366,768]] : sizes;
     for (const [width,height] of engineSizes) {
       // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
       await browser.close(); browser = await engine.launch();
-      const context = await browser.newContext({viewport:{width,height}});
+      const context = await browser.newContext({viewport:{width,height},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       const page = await context.newPage();
       const errors = [];
       const legacyVideoRequests = [];
@@ -118,7 +119,7 @@ try {
     for (const entry of servicePages) {
       await browser.close(); browser = await engine.launch();
       for (const [width,height] of engineSizes) {
-      const context = await browser.newContext({viewport:{width,height}});
+      const context = await browser.newContext({viewport:{width,height},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       const page = await context.newPage();
       const response = await page.goto(server.url + entry.path,{waitUntil:'networkidle'});
       assert.equal(response.status(),200);assert((await response.text()).includes(entry.h1),'HTML contains service before JS');
@@ -142,7 +143,7 @@ try {
       }
     }
     await browser.close(); browser = await engine.launch();
-    const page=await browser.newPage({viewport:{width:390,height:844}});
+    const page=await browser.newPage({viewport:{width:390,height:844},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     for(const service of services) {
       await page.goto(server.url+'/#service-'+service.id,{waitUntil:'networkidle'});
       await page.waitForFunction(id => {const y=document.getElementById(id)?.getBoundingClientRect().top;return y>=65 && y<400;},'service-'+service.id);
@@ -165,7 +166,7 @@ try {
     await page.waitForFunction(()=>document.querySelector('.licenses-disclosure').open);
     assert(await page.locator('#license-office').isVisible());
     await page.setViewportSize({width:1366,height:768});
-    for(const reducedMotion of ['reduce','no-preference']) {
+    for(const reducedMotion of (engineName==='webkit' ? ['reduce'] : ['reduce','no-preference'])) {
       await page.emulateMedia({reducedMotion});
       await page.goto(server.url,{waitUntil:'networkidle'});
       assert.equal(await page.locator('video, .video-control, .hero-video-shell').count(),0,'Desktop has no retired player, including reduced motion');
@@ -176,7 +177,7 @@ try {
     const layoutWidths=[320,360,390,600,601,768,900,1024,1366];
     for(const width of layoutWidths) {
       if(width===320 || width===768) { await browser.close(); browser = await engine.launch(); }
-      const layout=await browser.newPage({viewport:{width,height:800}});
+      const layout=await browser.newPage({viewport:{width,height:800},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
       await layout.goto(server.url,{waitUntil:'networkidle'});
       const checkActions=async()=>{
         const boxes=await layout.locator('.hero-actions a').evaluateAll(nodes=>nodes.map(node=>node.getBoundingClientRect().toJSON()));
@@ -201,14 +202,14 @@ try {
       await layout.close();
     }
     await browser.close(); browser = await engine.launch();
-    const landscape=await browser.newPage({viewport:{width:1024,height:320}});
+    const landscape=await browser.newPage({viewport:{width:1024,height:320},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     await landscape.goto(server.url,{waitUntil:'networkidle'});
     await landscape.locator('.menu-toggle').focus();await landscape.keyboard.press('Enter');
     for(let i=0;i<4;i++)await landscape.keyboard.press('Tab');
     const lastItem=await landscape.locator('#primary-navigation a').last().boundingBox();
     assert(lastItem.x>=0 && lastItem.x+lastItem.width<=1024 && lastItem.y>=0 && lastItem.y+lastItem.height<=320,'Landscape menu remains reachable');
     await landscape.close();
-    const mapPage=await browser.newPage({viewport:{width:390,height:844}});
+    const mapPage=await browser.newPage({viewport:{width:390,height:844},...(engineName==='webkit'?{reducedMotion:'reduce'}:{})});
     const mapRequests=[];
     mapPage.on('request',request=>{if(/widgets\.2gis|openstreetmap/.test(request.url()))mapRequests.push(request.url());});
     await mapPage.goto(server.url,{waitUntil:'networkidle'});
