@@ -5,7 +5,7 @@ import { messages } from '../utils/whatsapp.js';
 import Icon from './Icon.jsx';
 export default function Pricing() {
   return <section className="section container" id="pricing" aria-labelledby="pricing-title">
-    <div className="pricing-panel"><div className="pricing-copy"><p className="eyebrow">Понятная стоимость</p><h2 id="pricing-title">Сначала диагностика.<br />Потом ваше решение.</h2>
+    <div className="pricing-panel" data-reveal><div className="pricing-copy"><p className="eyebrow">Понятная стоимость</p><h2 id="pricing-title">Сначала диагностика.<br />Потом ваше решение.</h2>
       <p>Диагностика полностью бесплатная. Стоимость ремонта сообщим заранее — вы решаете, приступать ли к работе.</p>
       <ContactLink className="text-link" location="pricing">Уточнить стоимость <Icon name="ArrowUpRight" size={17} /></ContactLink>
     </div><div className="price-list">

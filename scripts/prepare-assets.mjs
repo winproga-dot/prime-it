@@ -17,6 +17,10 @@ for (const [id, photo] of Object.entries(servicePhotos)) {
   }
   report.push({ id, originalBytes:before, source:photo.sourceUrl, outputs });
 }
+// Квадратные «иконки» услуг для заголовка (как иконки приложений у Mobbin).
+for (const id of ['repair','gpu_service','build','clean','parts','data','speedup','winms']) {
+  await sharp(servicePhotos[id].file).rotate().resize(160,160,{fit:'cover'}).webp({quality:78}).toFile('public/media/' + id + '-icon.webp');
+}
 await sharp(servicePhotos.build.file).resize(1280,854,{fit:'cover'}).webp({quality:74,effort:5}).toFile('public/hero.webp');
 await sharp(servicePhotos.build.file).resize(640,427,{fit:'cover'}).webp({quality:72,effort:5}).toFile('public/media/hero-small.webp');
 await sharp('public/favicon-512.png').resize(180,180).flatten({background:'#ffffff'}).png().toFile('public/apple-touch-icon.png');

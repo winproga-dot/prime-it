@@ -32,8 +32,8 @@ export default function useVideoScrub() {
     if (!root) return;
     // Режим «закреплён весь первый экран» — только если он помещается по высоте.
     const pinned = () => window.matchMedia(PIN_QUERY).matches;
-    const track = () => root.querySelector('[data-scrub-desktop]');
-    const sticky = () => root.querySelector('.hv-pin');
+    const track = () => root.querySelector('.hv-media-track');
+    const sticky = () => root.querySelector('.hv-media');
     const canvas = root.querySelector('canvas');
     const context = canvas.getContext('2d');
     const bar = root.querySelector('.hv-progress i');

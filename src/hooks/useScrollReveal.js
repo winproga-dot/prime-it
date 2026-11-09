@@ -22,11 +22,12 @@ export default function useScrollReveal(rootRef) {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           observer.unobserve(entry.target);
-          const delay = Math.min(Number(entry.target.dataset.revealOrder || 0) * 65, 195);
+          // Как у Mobbin: подъём на 16px с размытием 4px, 1 с, easeOutExpo.
+          const delay = Math.min(Number(entry.target.dataset.revealOrder || 0) * 80, 240);
           const animation = entry.target.animate([
-            { opacity: 0, transform: 'translate3d(0, 18px, 0)' },
-            { opacity: 1, transform: 'translate3d(0, 0, 0)' },
-          ], { duration: 560, delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+            { opacity: 0, transform: 'translate3d(0, 16px, 0)', filter: 'blur(4px)' },
+            { opacity: 1, transform: 'translate3d(0, 0, 0)', filter: 'blur(0px)' },
+          ], { duration: 1000, delay, easing: 'cubic-bezier(.19,1,.22,1)', fill: 'backwards' });
           animations.add(animation);
           const remove = () => animations.delete(animation);
           animation.finished.then(remove, remove);

@@ -7,7 +7,7 @@ const items = [
 ];
 export default function TrustBar() {
   return <section className="container trust-bar" aria-label="Преимущества PRIME IT" id="benefits">
-    {items.map(item => <div className="trust-item" key={item.title}><Icon name={item.icon} size={24} />
+    {items.map(item => <div className="trust-item" key={item.title} data-reveal><Icon name={item.icon} size={24} />
       <div><strong>{item.title}</strong><p>{item.text}</p></div></div>)}
   </section>;
 }
