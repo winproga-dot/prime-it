@@ -11,8 +11,10 @@ const results=[];
 const expectedOrder=['hero','estimate','services','pricing','licenses','reviews','process','faq','contact'];
 try {
   for(const [name,engine] of [['Chromium',chromium],['WebKit',webkit]]) {
-    const browser=await engine.launch();
+    let browser=await engine.launch();
     for(const [width,height] of [[390,844],[1366,768],[1920,1080],[2560,1440]]) {
+      // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
+      await browser.close(); browser=await engine.launch();
       const context=await browser.newContext({viewport:{width,height}});
       const page=await context.newPage();
       const errors=[],videoRequests=[];

@@ -13,8 +13,10 @@ const sizes = [[360,800],[390,844],[412,915],[430,932],[1366,768],[1920,1080],[2
 const results = [];
 try {
   for (const [engineName,engine] of [['chromium',chromium],['webkit',webkit]]) {
-    const browser = await engine.launch();
+    let browser = await engine.launch();
     for (const [width,height] of sizes) {
+      // WebKit на CI копит память между страницами — свежий процесс на каждый размер.
+      await browser.close(); browser = await engine.launch();
       const context = await browser.newContext({viewport:{width,height}});
       const page = await context.newPage();
       const errors = [];
@@ -112,6 +114,7 @@ try {
       await context.close();
     }
     for (const entry of servicePages) {
+      await browser.close(); browser = await engine.launch();
       for (const [width,height] of sizes) {
       const context = await browser.newContext({viewport:{width,height}});
       const page = await context.newPage();
@@ -136,6 +139,7 @@ try {
       await context.close();
       }
     }
+    await browser.close(); browser = await engine.launch();
     const page=await browser.newPage({viewport:{width:390,height:844}});
     for(const service of services) {
       await page.goto(server.url+'/#service-'+service.id,{waitUntil:'networkidle'});
@@ -169,6 +173,7 @@ try {
     await page.close();
     const layoutWidths=[320,360,390,600,601,768,900,1024,1366];
     for(const width of layoutWidths) {
+      if(width===320 || width===768) { await browser.close(); browser = await engine.launch(); }
       const layout=await browser.newPage({viewport:{width,height:800}});
       await layout.goto(server.url,{waitUntil:'networkidle'});
       const checkActions=async()=>{
@@ -193,6 +198,7 @@ try {
       results.push({engine:engineName,width,height:800,page:'home',scenario:'text-200-percent',pass:true});
       await layout.close();
     }
+    await browser.close(); browser = await engine.launch();
     const landscape=await browser.newPage({viewport:{width:1024,height:320}});
     await landscape.goto(server.url,{waitUntil:'networkidle'});
     await landscape.locator('.menu-toggle').focus();await landscape.keyboard.press('Enter');
