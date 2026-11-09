@@ -1,0 +1,27 @@
+:root{--bg:#0b0b0b;--panel:#151515;--line:#2a2a2a;--text:#f2f2f2;--muted:#9a9a9a;--accent:#eeff00;font-family:Inter,'Segoe UI',Arial,sans-serif;color:var(--text);background:var(--bg)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:999px;padding:12px 22px;background:var(--accent);color:#000;font-weight:600}
+button:disabled{opacity:.6;cursor:wait}
+button.ghost,button.link{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.link{border:0;padding:6px 0;color:var(--muted);text-decoration:underline}
+input,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#000;color:var(--text)}
+input:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.center{text-align:center;margin-top:30vh;color:var(--muted)}
+.login{max-width:360px;margin:18vh auto;padding:28px;border-radius:20px;background:var(--panel);display:grid;gap:16px}
+.login h1{font-size:1.25rem;margin:0}.login label{display:grid;gap:8px;color:var(--muted)}
+.error{color:#ff7a59}.error p{margin:0}.ok{color:var(--accent);margin:0}
+.editor{max-width:980px;margin:0 auto;padding:0 20px 120px}
+.editor header{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.editor header div{display:flex;align-items:center;gap:14px}.editor header a{color:var(--muted)}
+.editor nav{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.editor nav button{background:var(--panel);color:var(--text);padding:8px 14px;font-weight:500}
+.editor nav button.active{background:var(--accent);color:#000}
+.editor section{display:grid;gap:14px}
+.field{display:grid;gap:6px}.field>span{font-size:.875rem;color:var(--muted)}
+.image-field{display:flex;gap:14px;align-items:center}
+.image-field img{width:160px;height:100px;object-fit:cover;border-radius:10px;background:#000}
+.image-field>div{display:grid;gap:6px}.image-field small{color:var(--muted)}
+.file{display:inline-block;padding:9px 16px;border-radius:999px;border:1px solid var(--line);cursor:pointer}
+.file input{display:none}
+.editor footer{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 20px;background:#000e;border-top:1px solid var(--line)}

@@ -1,3 +1,4 @@
+import { getContent } from '../data/content.js';
 import ContactActions from './ContactActions.jsx';
 import Icon from './Icon.jsx';
 import SplitWords from './SplitWords.jsx';
@@ -6,12 +7,13 @@ import useVideoScrub, { chapters, frameUrl } from '../hooks/useVideoScrub.js';
 
 export default function Hero({ message, context }) {
   const ref = useVideoScrub();
+  const hero = getContent().hero;
   return <section ref={ref} id="hero" className="hero-v" aria-labelledby="hero-title">
     <div className="hv-copy container">
-      <p className="mono hero-label load-in">PRIME IT® / {brand.serviceType} / Алматы</p>
-      <SplitWords as="h1" id="hero-title" load delay={120} text={['Выездной ремонт ', { text: 'компьютеров и ноутбуков', className: 'accent' }, ' в Алматы']} />
+      <p className="mono hero-label load-in">{hero.label}</p>
+      <SplitWords as="h1" id="hero-title" load delay={120} text={[hero.titleStart, { text: hero.titleAccent, className: 'accent' }, hero.titleEnd]} />
       <div className="hv-bottom load-in" style={{ '--d': '700ms' }}>
-        <p className="hv-lead"><strong>Диагностика — бесплатно.</strong> Мастер приедет домой или в офис, найдёт причину и назовёт цену до начала работ.</p>
+        <p className="hv-lead"><strong>{hero.leadAccent}</strong> {hero.lead}</p>
         <div><ContactActions message={message} context={context} location="hero" />
           <p className="visit-notice hero-appointment"><Icon name="Clock3" size={15} /><span><strong>{brand.hours}.</strong> <span className="visit-detail">Гарантия до 3 месяцев.</span></span></p></div>
       </div>

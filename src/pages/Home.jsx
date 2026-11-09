@@ -1,3 +1,4 @@
+import { getContent } from '../data/content.js';
 import { useRef } from 'react';
 import Hero from '../components/Hero.jsx';
 import Marquee from '../components/Marquee.jsx';
@@ -20,7 +21,7 @@ export default function Home({ symptom, onSymptomSelect, message, context }) {
   useScrollReveal(rootRef);
   return <main id="main" ref={rootRef} className="home-page">
     <Hero message={message} context={context} />
-    <Marquee items={['Диагностика бесплатно', 'Выезд по Алматы', 'Гарантия до 3 месяцев', 'Без выходных 07:00–22:00', 'Ремонт от 1 часа']} label="Преимущества PRIME IT" />
+    <Marquee items={getContent().marquee.items.filter(Boolean)} label="Преимущества PRIME IT" />
     <Symptoms selected={symptom} onSelect={onSymptomSelect} />
     <Showcase />
     <PriceBook />
