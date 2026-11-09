@@ -3,7 +3,7 @@ import Hero from '../components/Hero.jsx';
 import Marquee from '../components/Marquee.jsx';
 import Symptoms from '../components/Symptoms.jsx';
 import Showcase from '../components/Showcase.jsx';
-import Services from '../components/Services.jsx';
+import PriceBook from '../components/PriceBook.jsx';
 import RepairProcess from '../components/RepairProcess.jsx';
 import Reviews from '../components/Reviews.jsx';
 import Licenses from '../components/Licenses.jsx';
@@ -23,7 +23,7 @@ export default function Home({ symptom, onSymptomSelect, message, context }) {
     <Marquee items={['Диагностика бесплатно', 'Выезд по Алматы', 'Гарантия до 3 месяцев', 'Без выходных 07:00–22:00', 'Ремонт от 1 часа']} label="Преимущества PRIME IT" />
     <Symptoms selected={symptom} onSelect={onSymptomSelect} />
     <Showcase />
-    <Services id="pricing" title="Все услуги и цены" />
+    <PriceBook />
     <Licenses />
     <Reviews />
     <RepairProcess compact message={message} context={context} />
