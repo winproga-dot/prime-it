@@ -8,7 +8,7 @@ import { startServer } from './serve-build.mjs';
 const server=await startServer();
 await mkdir('.qa',{recursive:true});
 const results=[];
-const expectedOrder=['hero','benefits','estimate','services','pricing','reviews','process','faq','contact','licenses'];
+const expectedOrder=['hero','benefits','estimate','services','pricing','licenses','reviews','process','faq','contact'];
 try {
   for(const [name,engine] of [['Chromium',chromium],['WebKit',webkit]]) {
     const browser=await engine.launch();
@@ -57,13 +57,13 @@ try {
         assert.equal(axe.violations.length,0,JSON.stringify(axe.violations.map(item=>({id:item.id,nodes:item.nodes.map(n=>n.failureSummary)}))));
       }
       await page.emulateMedia({reducedMotion:'reduce'});
-      await page.waitForFunction(()=>document.getElementById('hero').dataset.sceneMode==='static');
+      await page.evaluate(()=>new Promise(resolve=>setTimeout(resolve,400)));
       await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
       assert.deepEqual(await page.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').map(a=>a.animationName||a.constructor.name)),[],'Reduced motion cancels native animations');
       assert.equal(await page.locator('#process .process-grid > li').count(),3);
       await page.emulateMedia({reducedMotion:'no-preference'});
       await page.setViewportSize({width,height:520});
-      await page.waitForFunction(()=>document.getElementById('hero').dataset.sceneMode==='static');
+      await page.evaluate(()=>new Promise(resolve=>setTimeout(resolve,400)));
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
       assert.deepEqual(errors,[]);
       results.push({engine:name,width,height,order:true,compactSteps:true,appointment:true,phoneBeforeRoute:true,symptomContext:true,reducedMotion:true,pass:true});

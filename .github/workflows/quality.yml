@@ -32,8 +32,8 @@ jobs:
         run: npm run qa:static
       - name: Install Chrome and Safari engines
         run: npx playwright install --with-deps chromium webkit
-      - name: Continuous hero scroll, reverse and mobile QA
-        run: node scripts/qa-scroll-scene.mjs
+      - name: Hero video scroll QA (desktop, mobile, reduced motion)
+        run: node scripts/qa-hero-video.mjs
       - name: Repair story and reduced motion QA
         run: node scripts/qa-motion.mjs
       - name: Browser, mobile and accessibility QA

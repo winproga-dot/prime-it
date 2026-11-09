@@ -1,0 +1,51 @@
+/* Hero с видео, которое прокручивается колесом */
+.hero-v{position:relative;background:radial-gradient(120% 80% at 75% 20%,#12324a33,transparent 60%)}
+.hv-pin{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,4vw,64px);align-items:center;padding-block:clamp(24px,4vh,48px)}
+.hv-copy h1{font-size:clamp(2.3rem,3.6vw,3.6rem);max-width:16ch}
+.hv-copy h1 span{color:var(--cyan)}
+.hv-lead{margin-top:18px;font-size:1.0625rem;line-height:1.7;color:#c9d4de;max-width:46ch}
+.hv-lead strong{color:var(--green);font-weight:650}
+.hv-facts{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-wrap:wrap;gap:10px}
+.hv-facts li{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border:1px solid var(--line);border-radius:999px;background:#ffffff06;font-size:.875rem;color:#dfe7ee}
+.hv-facts svg{color:var(--cyan)}
+.hero-v .hero-appointment{margin-top:18px;font-size:.875rem}
+.hero-v .hero-actions{margin-top:20px;display:flex;flex-wrap:wrap;gap:12px}
+.hv-skip{margin-top:6px;font-size:.875rem;color:#c9d4de}
+.hv-media{margin:0}
+.hv-frame{position:relative;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid #2b3a48;background:#0b1118;box-shadow:0 30px 80px #0009,0 0 0 1px #ffffff08 inset}
+.hv-frame img,.hv-frame canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hv-frame canvas{opacity:0;transition:opacity .25s}
+.hero-v.is-live .hv-frame canvas{opacity:1}
+.hv-shade{position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(to top,#060a0fdd,transparent);pointer-events:none}
+.hv-caption{position:absolute;left:22px;right:22px;bottom:22px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px}
+.hv-chapters{position:relative;flex:1;min-height:52px}
+.hv-chapters p{position:absolute;left:0;bottom:0;display:grid;gap:4px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
+.hv-chapters p.is-active{opacity:1;transform:none}
+.hv-chapters span{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);font-weight:650}
+.hv-chapters strong{font-size:clamp(1rem,1.6vw,1.375rem);font-weight:650;color:#fff}
+.hv-counter{font-size:.75rem;letter-spacing:.12em;color:#b7c6d3;font-variant-numeric:tabular-nums}
+.hv-progress{position:absolute;left:0;right:0;bottom:0;height:3px;background:#ffffff14}
+.hv-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));transform-origin:left;transform:scaleX(0)}
+.hv-media figcaption{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:.8125rem;color:var(--muted)}
+.hv-media figcaption>span{display:inline-flex;align-items:center;gap:6px}
+.hv-media figcaption .text-link{font-size:.8125rem}
+/* Десктоп: весь первый экран закреплён, видео проигрывается за ~1 экран прокрутки */
+@media(min-width:900px){
+  .hv-track{height:calc(100svh - var(--header-height,72px) + 100vh)}
+  .hv-pin{position:sticky;top:var(--header-height,72px);min-height:calc(100svh - var(--header-height,72px))}
+}
+/* Мобильные: текст сверху, затем закреплённое видео на ~0,8 экрана прокрутки */
+@media(max-width:899px){
+  .hv-pin{grid-template-columns:1fr;gap:26px;padding-block:24px 8px}
+  .hv-copy h1{font-size:clamp(2rem,8.4vw,2.8rem);max-width:none}
+  .hv-lead{font-size:.9375rem}
+  .hv-facts li{font-size:.8125rem;padding:7px 11px}
+  .hero-v .hero-actions .button{flex:1 1 100%}
+  .hero-v{--hv-h:min(125vw,calc(100svh - var(--header-height,66px) - var(--mobile-action-height,72px) - 72px))}
+  .hv-media-track{height:calc(var(--hv-h) + 44px + 70svh)}
+  .hv-media{position:sticky;top:calc(var(--header-height,66px) + 12px)}
+  .hv-frame{border-radius:16px;aspect-ratio:auto;height:var(--hv-h)}
+  .hv-media figcaption .text-link{display:none}
+  .hv-caption{left:14px;right:14px;bottom:14px}
+  .hv-chapters{min-height:44px}
+}
