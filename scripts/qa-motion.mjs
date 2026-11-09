@@ -36,7 +36,7 @@ try {
       const firstStep=await page.locator('#process .process-grid > li').first().textContent();
       assert(firstStep.includes('По звонку') && firstStep.includes('выезда'),'Process explains how to book an outcall');
       const focusBefore=await page.evaluate(()=>document.activeElement.tagName);
-      await page.locator('#process').scrollIntoViewIfNeeded();
+      await page.locator('#process').evaluate(node=>node.scrollIntoView({block:'start'}));await page.waitForTimeout(200);
       assert.equal(await page.evaluate(()=>document.activeElement.tagName),focusBefore,'Scrolling never moves keyboard focus');
       for(const step of await page.locator('#process .process-grid > li').all())assert(await step.isVisible(),'Every compact step is visible');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -49,7 +49,7 @@ try {
         assert(await processLink.evaluate(node=>node===document.activeElement));
       }
       if(name==='Chromium' && [390,1366].includes(width)){
-        await page.locator('#process').scrollIntoViewIfNeeded();
+        await page.locator('#process').evaluate(node=>node.scrollIntoView({block:'start'}));await page.waitForTimeout(200);
         await page.waitForTimeout(300);
         const screenshot=await sharp(await page.screenshot()).webp({quality:82}).toBuffer();
         await writeFile('.qa/process-compact-'+width+'.webp',screenshot);
