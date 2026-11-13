@@ -43,33 +43,43 @@ export default function useVideoScrub() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     const set = window.matchMedia('(min-width: 900px)').matches && !navigator.connection?.saveData ? 'd' : 'm';
     const frames = new Array(FRAME_COUNT);
-    let target = 0, current = 0, raf = 0, lastTime = 0, drawn = -1, chapter = -1, visible = true, disposed = false;
+    let target = 0, current = 0, raf = 0, lastTime = 0, drawn = -1, drawnFocus = -1, chapter = -1, visible = true, disposed = false;
 
+    // Против мерцания:
+    // — холст меняем только если реально изменился его размер (присваивание width/height
+    //   стирает холст; на телефоне resize бывает от показа/скрытия адресной строки);
+    // — кадры храним уже распакованными (ImageBitmap), отрисовка не ждёт декодирования;
+    // — перерисовываем только при смене кадра;
+    // — если нужный кадр ещё не загружен, берём соседний (±6), иначе оставляем текущую
+    //   картинку, а не прыгаем к далёкому кадру.
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(rect.width * ratio); canvas.height = Math.round(rect.height * ratio);
-      drawn = -1; draw();
+      const width = Math.round(rect.width * ratio), height = Math.round(rect.height * ratio);
+      if (!width || !height || (width === canvas.width && height === canvas.height)) return;
+      canvas.width = width; canvas.height = height;
+      draw(true);
     };
     const nearest = index => {
-      for (let d = 0; d < FRAME_COUNT; d++) {
-        if (frames[index - d]?.complete && frames[index - d].naturalWidth) return frames[index - d];
-        if (frames[index + d]?.complete && frames[index + d].naturalWidth) return frames[index + d];
+      for (let d = 0; d <= 6; d++) {
+        if (frames[index - d]) return [frames[index - d], index - d];
+        if (frames[index + d]) return [frames[index + d], index + d];
       }
-      return null;
+      return drawn < 0 ? frames.map((frame, i) => frame && [frame, i]).find(Boolean) || null : null;
     };
-    const draw = () => {
+    const draw = (force = false) => {
       const index = Math.round(current * (FRAME_COUNT - 1));
-      const image = nearest(index);
-      if (image) {
+      // На узком (вертикальном) кадре в финале смещаем фокус к логотипу справа.
+      const focus = Math.round((.5 + .2 * clamp((current - .86) / .06)) * 100) / 100;
+      const found = (force || index !== drawn || focus !== drawnFocus) ? nearest(index) : null;
+      if (found && (force || found[1] !== drawn || focus !== drawnFocus)) {
+        const [frame, frameIndex] = found;
         const { width, height } = canvas;
-        const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
-        const w = image.naturalWidth * scale, h = image.naturalHeight * scale;
-        // На узком (вертикальном) кадре в финале смещаем фокус к логотипу справа.
-        const focus = .5 + .2 * clamp((current - .86) / .06);
-        context.drawImage(image, (width - w) * focus, (height - h) / 2, w, h);
-        drawn = index;
-        root.dataset.frame = String(index);
+        const scale = Math.max(width / frame.width, height / frame.height);
+        const w = frame.width * scale, h = frame.height * scale;
+        context.drawImage(frame.source, (width - w) * focus, (height - h) / 2, w, h);
+        drawn = frameIndex; drawnFocus = focus;
+        root.dataset.frame = String(frameIndex);
         if (!root.classList.contains('is-live')) root.classList.add('is-live');
       }
       bar.style.transform = 'scaleX(' + current.toFixed(4) + ')';
@@ -131,13 +141,19 @@ export default function useVideoScrub() {
           const index = order[cursor++];
           const image = new Image(); image.decoding = 'async';
           // onload + таймаут: зависший кадр не блокирует остальные (его заменит соседний).
-          await new Promise(resolve => {
-            const timer = setTimeout(resolve, 8000);
-            image.onload = image.onerror = () => { clearTimeout(timer); resolve(); };
+          const loaded = await new Promise(resolve => {
+            const timer = setTimeout(() => resolve(false), 8000);
+            image.onload = () => { clearTimeout(timer); resolve(true); };
+            image.onerror = () => { clearTimeout(timer); resolve(false); };
             image.src = frameUrl(set, index);
           });
-          frames[index] = image;
-          if (Math.abs(index - Math.round(current * (FRAME_COUNT - 1))) < 3 || index === 0) { drawn = -1; draw(); }
+          if (!loaded || !image.naturalWidth) continue;
+          // Распаковываем заранее, чтобы отрисовка при прокрутке была мгновенной.
+          let source = image;
+          try { source = window.createImageBitmap ? await createImageBitmap(image) : (await image.decode(), image); } catch { /* рисуем как есть */ }
+          frames[index] = { source, width: image.naturalWidth, height: image.naturalHeight };
+          const wanted = Math.round(current * (FRAME_COUNT - 1));
+          if (drawn < 0 || Math.abs(index - wanted) < Math.abs(drawn - wanted)) draw(true);
         }
       };
       await Promise.all(Array.from({ length: 4 }, worker));
@@ -153,7 +169,7 @@ export default function useVideoScrub() {
     window.addEventListener('scroll', onScroll, { passive: true });
     target = current = measure(); resize();
     return () => {
-      disposed = true; cancelAnimationFrame(raf); observer.disconnect(); resizeObserver.disconnect();
+      disposed = true; cancelAnimationFrame(raf); frames.forEach(frame => frame?.source?.close?.()); observer.disconnect(); resizeObserver.disconnect();
       window.removeEventListener('scroll', onScroll); window.removeEventListener('load', start);
     };
   }, []);
