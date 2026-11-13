@@ -23,7 +23,7 @@ export const services = [
     "path": "/chistka-noutbuka-almaty/",
     "image": "clean",
     "tag": "От 2 часов",
-    "imageAlt": "Вентилятор и радиатор системы охлаждения ноутбука"
+    "imageAlt": "Вентилятор с медной тепловой трубкой и радиатором из системы охлаждения ноутбука"
   },
   {
     "id": "winms",
@@ -34,7 +34,7 @@ export const services = [
     "path": "/ustanovka-windows-almaty/",
     "image": "winms",
     "tag": "От 1 часа",
-    "imageAlt": "Ноутбук с установленной Windows"
+    "imageAlt": "Ноутбук с синей заставкой на экране после установки системы"
   },
   {
     "id": "data",
@@ -44,7 +44,7 @@ export const services = [
     "price": 12000,
     "path": "/vosstanovlenie-dannyh-almaty/",
     "image": "data",
-    "imageAlt": "Магнитные пластины и механизм чтения жёсткого диска"
+    "imageAlt": "Открытый 2,5-дюймовый жёсткий диск: магнитная пластина и блок головок"
   },
   {
     "id": "gpu_service",
@@ -66,7 +66,7 @@ export const services = [
     "priceNote": "Работа + стоимость детали",
     "path": "/zamena-matricy-noutbuka-almaty/",
     "image": "parts",
-    "imageAlt": "Повреждённая матрица ноутбука с полосами на экране"
+    "imageAlt": "Ноутбук с разбитой матрицей: полосы и трещины на экране"
   },
   {
     "id": "hinge",
@@ -77,7 +77,7 @@ export const services = [
     "path": "/remont-petel-noutbuka-almaty/",
     "image": "hinge",
     "tag": "Обычно 1–2 дня",
-    "imageAlt": "Крупный план петли и крепления экрана ноутбука"
+    "imageAlt": "Ноутбук, открытый под углом: видны петли и крепление крышки"
   },
   {
     "id": "speedup",
@@ -87,7 +87,7 @@ export const services = [
     "price": 7000,
     "path": "/upgrade-noutbuka-kompyutera-almaty/",
     "image": "speedup",
-    "imageAlt": "Твердотельный накопитель NVMe для апгрейда компьютера"
+    "imageAlt": "Твердотельный накопитель M.2 NVMe для апгрейда компьютера"
   },
   {
     "id": "build",
@@ -106,7 +106,7 @@ export const services = [
     "description": "AutoCAD, Revit, Photoshop и другие программы. Возможна установка через AnyDesk.",
     "price": 5000,
     "image": "soft",
-    "imageAlt": "Ноутбук с двумя экранами для рабочих задач",
+    "imageAlt": "Ноутбук с рабочим столом для профессиональных программ",
     "priceNote": "Лицензия и установка — по согласованию."
   },
   {
@@ -116,7 +116,7 @@ export const services = [
     "description": "Wi-Fi, драйверы, печать, BIOS/UEFI и другие задачи. Просто расскажите, что нужно.",
     "price": 5000,
     "image": "misc",
-    "imageAlt": "Современная материнская плата компьютера"
+    "imageAlt": "Материнская плата компьютера с разъёмами и слотами расширения"
   },
   {
     "id": "battery",
@@ -126,7 +126,7 @@ export const services = [
     "price": 5000,
     "priceNote": "Работа + стоимость детали",
     "image": "battery",
-    "imageAlt": "Аккумулятор в открытом корпусе ноутбука"
+    "imageAlt": "Литий-ионный аккумулятор ноутбука"
   },
   {
     "id": "sale",
