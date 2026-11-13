@@ -1,5 +1,6 @@
 // Real hardware photographs with checked public sources and reuse licenses.
-// Crop/resize derivatives retain the license of each original photograph.
+// Предметы вырезаны и помещены на единую тёмную «студийную» сцену (scripts/photo-studio.py, docs/photos.md);
+// производные изображения сохраняют лицензию исходных фотографий.
 export const servicePhotos = {
   "repair": {
     "file": "assets/photos/repair.webp",
@@ -11,27 +12,27 @@ export const servicePhotos = {
   },
   "clean": {
     "file": "assets/photos/clean.webp",
-    "alt": "Вентилятор и радиатор системы охлаждения ноутбука",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Laptop_fan.jpg",
-    "author": "Flanoz",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  "winms": {
-    "file": "assets/photos/winms.webp",
-    "alt": "Ноутбук с установленной Windows",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Laptop_PC.jpg",
-    "author": "KK IN HK",
+    "alt": "Вентилятор с медной тепловой трубкой и радиатором из системы охлаждения ноутбука",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fujitsu_Lifebook_AH502_-_Cheng_Home_Electronic_Superred_CHA5605CS-OA-FH5B_with_copper_heatpipe-2348.jpg",
+    "author": "Raimond Spekking",
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
+  "winms": {
+    "file": "assets/photos/winms.webp",
+    "alt": "Ноутбук с синей заставкой на экране после установки системы",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:System76_product_lemp13.webp",
+    "author": "System76",
+    "license": "GPLv3",
+    "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
+  },
   "data": {
     "file": "assets/photos/data.webp",
-    "alt": "Магнитные пластины и механизм чтения жёсткого диска",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hard_disk_head_crash.jpg",
-    "author": "Alchemist-hp (talk) www.pse-mendelejew.de",
-    "license": "CC BY-SA 3.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    "alt": "Открытый 2,5-дюймовый жёсткий диск: магнитная пластина и блок головок",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Disc_dur.jpg",
+    "author": "KheLi LOANN",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
   "gpu_service": {
     "file": "assets/photos/gpu_service.webp",
@@ -43,27 +44,27 @@ export const servicePhotos = {
   },
   "parts": {
     "file": "assets/photos/parts.webp",
-    "alt": "Повреждённая матрица ноутбука с полосами на экране",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Screen_panel_death_in_a_laptop.jpg",
-    "author": "EF5",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    "alt": "Ноутбук с разбитой матрицей: полосы и трещины на экране",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:System76_product_oryp8.webp",
+    "author": "System76 (ноутбук); EF5 (изображение разбитого экрана, File:Screen_panel_death_in_a_laptop.jpg, CC0)",
+    "license": "GPLv3",
+    "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
   },
   "hinge": {
     "file": "assets/photos/hinge.webp",
-    "alt": "Крупный план петли и крепления экрана ноутбука",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Close-up_view_of_left_hinge_and_multimedia_controls_on_Lenoveo_ThinkPad_T410_laptop_V2.jpg",
-    "author": "Pittigrilli",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    "alt": "Ноутбук, открытый под углом: видны петли и крепление крышки",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:System76_product_pang12.webp",
+    "author": "System76",
+    "license": "GPLv3",
+    "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.html"
   },
   "speedup": {
     "file": "assets/photos/speedup.webp",
-    "alt": "Твердотельный накопитель NVMe для апгрейда компьютера",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:1TB_2280_NVME_SSD.jpg",
-    "author": "User5515",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+    "alt": "Твердотельный накопитель M.2 NVMe для апгрейда компьютера",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:2023_Nap%C4%99d_PNY_XLR8_CS3030_1TB_(1).jpg",
+    "author": "Jacek Halicki",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
   "build": {
     "file": "assets/photos/build.webp",
@@ -75,25 +76,25 @@ export const servicePhotos = {
   },
   "soft": {
     "file": "assets/photos/soft.webp",
-    "alt": "Ноутбук с двумя экранами для рабочих задач",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dual_touch_screen_laptop.jpg",
-    "author": "Wikideas1",
-    "license": "CC0",
-    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
-  },
-  "misc": {
-    "file": "assets/photos/misc.webp",
-    "alt": "Современная материнская плата компьютера",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:2023_P%C5%82yta_g%C5%82%C3%B3wna_Asus_ROG_STRIX_Z690-A_GAMING_WIFI.jpg",
-    "author": "Jacek Halicki",
+    "alt": "Ноутбук с рабочим столом для профессиональных программ",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:System76_product_oryp14.png",
+    "author": "System76",
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
+  "misc": {
+    "file": "assets/photos/misc.webp",
+    "alt": "Материнская плата компьютера с разъёмами и слотами расширения",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:A790GXH-128M-Motherboard.jpg",
+    "author": "Evan-Amos",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+  },
   "battery": {
     "file": "assets/photos/battery.webp",
-    "alt": "Аккумулятор в открытом корпусе ноутбука",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Laptop_battery,_Dell_laptop_42_Wh.jpg",
-    "author": "Ibrahim Husain Meraj",
+    "alt": "Литий-ионный аккумулятор ноутбука",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sony_Li-ion_battery_pack_VGP-BPS9-B-4427.jpg",
+    "author": "Raimond Spekking",
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },

@@ -346,7 +346,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var
 .service-visit-note{margin-top:16px}
 .service-hero .hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
 .service-hero-contact{display:flex;align-items:center;gap:6px;margin-top:16px;font-size:.875rem;color:var(--muted)}
-.service-page-image{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius)}
+.service-page-image{width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius)}
 .service-explanation{display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
 .service-explanation>div>p:not(.eyebrow){margin-top:14px;color:var(--text-2)}
 .check-list{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:10px}
