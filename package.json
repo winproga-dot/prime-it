@@ -13,7 +13,8 @@
     "qa:static": "node scripts/check-static.mjs",
     "qa:browser": "node scripts/qa-browser.mjs",
     "qa:lighthouse": "node scripts/lighthouse.mjs",
-    "qa:admin": "node scripts/qa-admin.mjs"
+    "qa:admin": "node scripts/qa-admin.mjs",
+    "ads": "node scripts/ads/build-ads.mjs"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.2",
