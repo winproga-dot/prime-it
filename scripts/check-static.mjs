@@ -6,6 +6,7 @@ import { routes, pageMeta } from '../src/utils/seo.js';
 import { faq } from '../src/data/faq.js';
 import { servicePages } from '../src/data/services.js';
 import { brand } from '../src/data/brand.js';
+import { detectAdSource } from '../src/utils/adSource.js';
 const titles = new Set(), descriptions = new Set();
 for (const route of routes) {
   const html = await readFile(join('dist',route.slice(1),'index.html'),'utf8');
@@ -67,3 +68,11 @@ const creditsHtml = await readFile('dist/photo-credits/index.html','utf8');
 assert(creditsHtml.includes('noindex, follow') && creditsHtml.includes('creativecommons.org'),'Photo attribution is deployed');
 assert(!(await readdir('dist/media')).includes('hero.mp4'),'Retired video is not deployed');
 console.log('MEDIA_QA_PASS',JSON.stringify({legacyVideoRemoved:true,photoCredits:true}));
+// Источник рекламы для пометки «Откуда узнали» в WhatsApp.
+assert.equal(detectAdSource('?gclid=x')?.label,'Google');
+assert.equal(detectAdSource('?yclid=1')?.label,'Яндекс');
+assert.equal(detectAdSource('?utm_source=2gis&utm_medium=maps')?.label,'2ГИС');
+assert.equal(detectAdSource('?utm_source=%3Cscript%3E'),null,'Unsafe utm_source is ignored');
+assert.equal(detectAdSource('?utm_medium=cpc'),null);
+assert.equal(spawnSync(process.execPath,['scripts/ads/build-ads.mjs'],{encoding:'utf8'}).status,0,'Ad texts fit platform limits');
+console.log('ADS_QA_PASS');

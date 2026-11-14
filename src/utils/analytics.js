@@ -4,6 +4,7 @@
 //    ID задаются переменными окружения Vercel при сборке:
 //    VITE_YANDEX_METRIKA_ID=12345678, VITE_GA4_ID=G-XXXXXXXXXX
 // В события передаются только контекстные метки — никогда не текст сообщения или телефон.
+import { captureAdSource } from './adSource.js';
 export const analyticsEvents = Object.freeze([
   'whatsapp_click', 'phone_click', 'route_click', 'service_click',
   'symptom_selected', 'review_2gis_click',
@@ -59,6 +60,7 @@ function loadConsentedAnalytics() {
 
 export async function initAnalytics() {
   if (typeof window === 'undefined') return;
+  captureAdSource();
   const local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   if (!local) {
     // Скрипт отдаётся самим Vercel после включения Web Analytics в проекте.
